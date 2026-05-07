@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Nyondo Hardware{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #0F172B;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 10px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 250px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .sidebar a:hover {
+            background-color: #F54900;
+            border-radius: 10px;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 220px; /* same as sidebar width */
+            padding: 20px;
+            flex-grow: 1;
+            background: #fdf6f0;
+            min-height: 100vh;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: #F54900;
+            color: white;
+            margin-top: 20px;
+
+        }
+
+        img{
+            width: 60px;
+            height: 70px;
+            
+        }
+        h2{
+            display: flex;
+            flex-direction: row;
+        }
+       
+    </style>
+     {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="sidebar">
+        <h2><img src="../static/images/nyondologo.png alt="/>Nyondo Hardware</h2>
+        <a href="{% url 'admin_dash' %}"><i class="fas fa-tachometer-alt"></i>  Dashboard</a>
+        <a href="{% url 'sales_dash' %}"><i class="fa-solid fa-rectangles-mixed"></i> Dashboard</a>
+        <a href="#"><i class="fas fa-shopping-cart"></i>  Sales</a>
+        <a href="#"><i class="fas fa-user-shield"></i>  Admin</a>
+        <a href="{% url 'stock' %}"><i class="fas fa-boxes-stacked"></i>  Stock</a>
+        <a href="#"><i class="fas fa-truck"></i>  Suppliers</a>
+        <a href="#"><i class="fas fa-chart-line"></i>  Reports</a>
+        
+    </div>
+
+    <div class="main-content">
+        {% block content %}
+        {% endblock %}
+        <footer>
+            <p>&copy; 2026 Nyondo Hardware System</p>
+        </footer>
+    </div>
+</body>
+</html>

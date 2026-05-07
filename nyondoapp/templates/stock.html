@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+ {% block title %} Stock Dashboard | Nyondo Hardware {% endblock %}
+
+ {% block extra_css %}
+  
+ 
+<style>
+  /* .container-fluid {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+  } */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    margin-top: 20px;
+    padding: 20px;
+  }
+
+  .cards .card{
+    background-color: whitesmoke;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    border-top: 10px solid orangered;
+    
+  }
+
+  .cards .card h5{
+     margin-bottom: 15px;
+     font-size: 16px;
+     color: #333;
+  }
+
+  .cards .card p{
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    color: #0F172B;
+  }
+
+  table{
+    width: 80%;
+    border-collapse: collapse;
+    margin: 20px auto;
+    background-color: white;
+    border-collapse: collapse;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+  }
+
+  td, th{
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    border-right: none;
+    border-left: none;
+  }
+  th{
+    background-color: #f5f5f5;
+  }
+  td{
+    padding: 15px;
+  }
+  tr:last-child td{
+    border-bottom: none;
+  }
+
+.actions{
+  display: flex;
+  justify-content: space-between;
+  margin: 20px;
+  width: 90%;
+
+}
+button{
+  background: #0F172B;
+  padding: 8px;
+  border-radius: 5px;
+  color: #f5f5f5;
+  font-weight: 800;
+  font-size: medium;
+  border: #F54900;
+ /* margin-left: 80%; */
+ cursor: pointer;
+ width: 200px;
+}
+button:hover{
+background-color: #F54900;
+}
+
+.search{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 600px;
+  margin: 20px auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+input{
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  padding: 10px;
+}
+
+select{
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-left: 1px solid #ccc;
+  background: #f9f9f9;
+  cursor: pointer;
+  border-radius: 4px;
+  width: 250px;
+  border: 1px solid #ccc;
+}
+
+.search button{
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 18px;
+  font-weight: 200;
+  color: #666;
+  width: 250px;
+  border: 1px solid #ccc;
+}
+
+.search button:hover{
+  color: #F54900;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<h2>Stock Management</h2>
+<div class="actions">
+<h4>Track and manage all Stock here</h4>
+<button type="submit">Add Product</button>
+</div>
+
+
+  <div class="cards">
+    <div class="card products">
+      <h5><i class="fas fa-box" style="color: green"></i>Total Products</h5>
+      <p class="card-text">{{total_products}}</p>
+    </div>
+
+    <div class="card low_stock">
+      <h5>
+        <i class="fas fa-triangle-exclamation" style="color: red"></i>Low Stock
+      </h5>
+      <p class="card-text">{{low_stock}}</p>
+    </div>
+
+    <div class="card out_of_stock">
+      <h5>
+        <i class="fas fa-ban text-danger" style="color: red"></i>Out of Stock
+      </h5>
+      <p class="card-text">{{out_of_stock}}</p>
+    </div>
+
+    <div class="card total_value">
+      <h5>
+        <i class="fas fa-sack-dollar" style="color: burlywood"></i> total_value
+      </h5>
+      <p class="card-text">{{total_value}}</p>
+    </div>
+  </div>
+
+  <div class="low">
+    
+    <table>
+      <tr><td>Low Stock Alert</td></tr>
+      <tr>
+         <th>Item</th>
+         <th>Quantity</th>
+         <th>Restock</th>
+      </tr> 
+      <tr>
+        <td>{{name}}</td>
+        <td>{{quantity}}</td>
+        <td>{{restock}}</td>
+      </tr> 
+    </table>
+  </div>
+
+  <div class="search">
+    <div class="card">
+      <button type="submit" class="btn">search <i class="fas fa-search"></i></button>
+      <select name="category" id="category">
+        <option value="#">All Categories</option>
+        <option value="">Building materials</option>
+        <option value="">Tools</option>
+        <option value="">Roofings</option>
+        <option value="">Steel</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="products">
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Product Name</th>
+        <th>Quantity</th>
+        <th>Category</th>
+        <th>Unit Cost</th>
+        <th>Cost Price</th>
+        <th>Stock</th>
+        <th>Supplier</th>
+        <th>Actions</th>
+      </tr>
+
+      <tr>
+        <td>{{id}}</td>
+        <td>{{product_name}}</td>
+        <td>{{category}}</td>
+        <td>{{unit_cost}}</td>
+        <td>{{cost_price}}</td>
+        <td>{{stock}}</td>
+        <td>{{supplier}}</td>
+        <td>{{actions}}</td>
+      </tr>
+
+    </table>
+  </div>
+
+{% endblock %}
+
