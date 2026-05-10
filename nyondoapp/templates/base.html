@@ -63,8 +63,8 @@
         }
 
         img{
-            width: 60px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             
         }
         h2{
@@ -77,13 +77,14 @@
 </head>
 <body>
     <div class="sidebar">
-        <h2><img src="../static/images/nyondologo.png alt="/>Nyondo Hardware</h2>
+        <h2><img src="../static/images/nyondologo.png"/>Nyondo Hardware</h2>
         <a href="{% url 'admin_dash' %}"><i class="fas fa-tachometer-alt"></i>  Dashboard</a>
-        <a href="{% url 'sales_dash' %}"><i class="fa-solid fa-rectangles-mixed"></i> Dashboard</a>
+        <a href="{% url 'sales_dash' %}"><i class="fa-solid fa-chart-simple"></i> Dashboard</a>
         <a href="#"><i class="fas fa-shopping-cart"></i>  Sales</a>
         <a href="#"><i class="fas fa-user-shield"></i>  Admin</a>
         <a href="{% url 'stock' %}"><i class="fas fa-boxes-stacked"></i>  Stock</a>
         <a href="#"><i class="fas fa-truck"></i>  Suppliers</a>
+        <a href="{% url 'credit' %}">Credit</a>
         <a href="#"><i class="fas fa-chart-line"></i>  Reports</a>
         
     </div>

@@ -1,0 +1,36 @@
+
+
+<h2>Add Stock</h2>
+<form method="post">
+  {% csrf_token %}
+  <label>Product:</label>
+  <select name="product">
+    {% for product in products %}
+    <option value="{{ product.id }}">{{ product.name }}</option>
+    {% endfor %}
+  </select><br>
+
+  <label>Supplier:</label>
+  <select name="supplier">
+    {% for supplier in suppliers %}
+    <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+    {% endfor %}
+  </select><br>
+
+  <label>Quantity:</label>
+  <input type="number" name="quantity"><br>
+
+  <label>Total Cost:</label>
+  <input type="text" name="total_cost"><br>
+
+  <label>Comments:</label>
+  <textarea name="comments"></textarea><br>
+
+  <label>On Credit:</label>
+  <input type="checkbox" name="is_on_credit"><br>
+
+  <label>Paid:</label>
+  <input type="checkbox" name="is_paid" checked><br>
+
+  <button type="submit">Save</button>
+</form>

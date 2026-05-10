@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}
+    Credit Scheme
+{% endblock %}
+{% block extra_css %}
+<style>
+
+.card{
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 70%;
+   margin-left: 10%;
+}    
+
+
+.search button{
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 200;
+  color: #666;
+  width: 600px;
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Credit Scheme</h1>
+<p>Manage customer deposits and Withdraws</p>
+
+<div class="card search">
+    <h3>Find customer</h3>
+     <button type="submit" class="btn"><i class="fas fa-search"></i> search customer name, Ids or phone</button>
+</div>
+    
+{% endblock %}

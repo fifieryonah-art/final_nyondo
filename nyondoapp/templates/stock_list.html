@@ -1,0 +1,29 @@
+
+{% block content %}
+<h2>Stock List</h2>
+<a href="{% url 'add_stock' %}" class="btn btn-primary">Add Stock</a>
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Product</th>
+    <th>Supplier</th>
+    <th>Quantity</th>
+    <th>Total Cost</th>
+    <th>Actions</th>
+  </tr>
+  {% for stock in stocks %}
+  <tr>
+    <td>{{ stock.id }}</td>
+    <td>{{ stock.product.name }}</td>
+    <td>{{ stock.supplier.name }}</td>
+    <td>{{ stock.quantity }}</td>
+    <td>{{ stock.total_cost }}</td>
+    <td>{{ stock.date_arrival }}</td>
+    <td>
+      <a href="{% url 'edit_stock' stock.id %}">Edit</a> |
+      <a href="{% url 'stock_delete' stock.id %}">Delete</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+

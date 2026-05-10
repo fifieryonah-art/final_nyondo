@@ -20,7 +20,14 @@ from nyondoapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.indexPage),
     path('stock/', views.stockPage, name='stock'),
     path('admin_dash/', views.admin_dashPage, name='admin_dash'),
     path('sales_dash/', views.sales_dashPage, name='sales_dash'),
+    path('credit/', views.creditPage, name='credit'),
+    path('login/', views.loginPage, name="login"),
+    path('stock_list/', views.stock_list, name='stock_list'),
+    path('add_stock/', views.add_stock, name='add_stock'),
+    path('stock/update/<int:pk>/', views.stock_update, name='stock_update'),
+    path('stock/delete/<int:pk>/', views.stock_delete, name='stock_delete'),
 ]

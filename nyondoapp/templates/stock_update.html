@@ -1,0 +1,35 @@
+
+{% block content %}
+<h2>Edit Stock</h2>
+<form method="post">
+  {% csrf_token %}
+  <label>Product:</label>
+  <select name="product">
+    {% for product in products %}
+    <option value="{{ product.id }}"
+     {% if product.id == stock.product.id %}selected{% endif %}>
+     {{ product.name }}</option>
+    {% endfor %}
+  </select><br>
+
+  <label>Supplier:</label>
+  <select name="supplier">
+    {% for supplier in suppliers %}
+    <option value="{{ supplier.id }}" 
+    {% if supplier.id == stock.supplier.id %}selected{% endif %}>
+    {{ supplier.name }}</option>
+    {% endfor %}
+  </select><br>
+
+  <label>Quantity:</label>
+  <input type="number" name="quantity" value="{{ stock.quantity }}"><br>
+
+  <label>Total Cost:</label>
+  <input type="text" name="total_cost" value="{{ stock.total_cost }}"><br>
+
+  <label>Comments:</label>
+  <textarea name="comments">{{ stock.comments }}</textarea><br>
+
+  <button type="submit">Update</button>
+</form>
+

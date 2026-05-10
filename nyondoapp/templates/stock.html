@@ -147,7 +147,7 @@ select{
 <h2>Stock Management</h2>
 <div class="actions">
 <h4>Track and manage all Stock here</h4>
-<button type="submit">Add Product</button>
+<a href="{% url 'add_stock' %}"><button type="submit">Add Product</button></a>
 </div>
 
 
@@ -222,17 +222,25 @@ select{
         <th>Supplier</th>
         <th>Actions</th>
       </tr>
-
+     {% for product in products %}
+      
       <tr>
-        <td>{{id}}</td>
-        <td>{{product_name}}</td>
-        <td>{{category}}</td>
-        <td>{{unit_cost}}</td>
-        <td>{{cost_price}}</td>
-        <td>{{stock}}</td>
-        <td>{{supplier}}</td>
-        <td>{{actions}}</td>
+        <td>{{product.id}}</td>
+        <td>{{product.name}}</td>
+        <td>{{product.stock_quantity}}</td>
+        <td>{{product.type}}</td>
+        <td>{{product.unit_cost}}</td>
+        <td>{{product.cost_price}}</td>
+        <td>{{product.stock}}</td>
+        <td>{{product.supplier}}</td>
+        <td>{{product.profit_margin}}</td>
+            <td>
+        <a href="{% url 'edit_stock' stock.id %}">Edit</a> |
+         <a href="{% url 'stock_delete' stock.id %}">Delete</a>
+       </td>
       </tr>
+
+      {% endfor %}
 
     </table>
   </div>
