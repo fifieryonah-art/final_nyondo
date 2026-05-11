@@ -1,15 +1,47 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.db.models import F
 from .models import Stock, Product, Sale, Payment, DepositScheme, Supplier
+from decimal import Decimal
+#from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+def loginPage(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+
+            login(request, user)
+
+            return redirect("admin_dash")
+
+        else:
+
+            messages.error(
+                request,
+                "Invalid username or password"
+            )
+
+    return render(request, "login.html")
+
 def stockPage(request):
     products = Product.objects.all()
     total_products = products.count()
     low_stock_items = products.filter(stock_quantity__lt=F('reorder_level'))
     low_stock_count = low_stock_items.count()
     out_of_stock_count = products.filter(stock_quantity=0).count()
+    total_value = 0
     for product in products:
         total_value += (product.stock_quantity * product.cost_price)
 
@@ -17,7 +49,7 @@ def stockPage(request):
         "total_products": total_products,
         "low_stock": low_stock_count,
         "out_of_stock": out_of_stock_count,
-        
+        "total_value": total_value,
         "low_stock_items": low_stock_items,
         "products": products,
     }
@@ -37,7 +69,7 @@ def add_stock(request):
         quantity = int(request.POST.get("quantity"))
         comments = request.POST.get("comments")
         total_cost = request.POST.get("total_cost")
-        is_on_credit = bool(request.POST.get("is_on_credit"))
+        is_on_credit = bool(request.POST.get("is_on_credit")) 
         is_paid = bool(request.POST.get("is_paid"))
 
         product = Product.objects.get(id=product_id)
@@ -131,10 +163,12 @@ def stock_update(request, pk):
 
     return render(request,'stock/update_stock.html', context)
 
-def admin_dashPage(request):
+
+def admin_dash(request):
     return render(request, 'admin_dash.html')
 
-def sales_dashPage(request):
+
+def sales_dash(request):
      sales = Sale.objects.all()
      total_sales = sales.count()
      total_revenue = sum(s.amount for s in sales)
@@ -155,6 +189,47 @@ def loginPage(request):
 
 def indexPage(request):
     return render(request, 'index.html')
+
+
+def add_product(request):
+
+    if request.method == 'POST':
+
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        specification = request.POST.get('specification')
+        stock_quantity = request.POST.get('stock_quantity')
+        type = request.POST.get('type')
+        cost_price =Decimal(request.POST.get('cost_price'))
+        unit_price = Decimal(request.POST.get('unit_price'))
+        reorder_level = request.POST.get('reorder_level') or 10
+
+
+        Product.objects.create(
+
+            name=name,
+            description=description,
+            specification=specification,
+            stock_quantity=stock_quantity,
+            type=type,
+            cost_price=cost_price,
+            unit_price=unit_price,
+            reorder_level=reorder_level,
+            entered_by=request.user
+        )
+
+        return redirect('product_list')
+
+    return render(request, 'add_product.html')
+
+def product_list(request):
+    products = Product.objects.all()
+
+    context = {
+        'products': products
+    }
+
+    return render(request, 'product_list.html', context)
 
 
 def payments_dashboard(request):

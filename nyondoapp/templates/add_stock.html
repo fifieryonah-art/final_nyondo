@@ -1,8 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Stock | Nyondo Hardware</title>
 
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<h2>Add Stock</h2>
+   <style>
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      background: #fdf6f0;
+      padding: 40px;
+    }
+
+    .container{
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .card{
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h2{
+      color: #0F172B;
+      margin-left: 10px;
+    }
+
+    .card p{
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    form{
+      width: 100%;
+    }
+   </style>
+</head>
+<body>
+
 <form method="post">
   {% csrf_token %}
+
   <label>Product:</label>
   <select name="product">
     {% for product in products %}
@@ -26,11 +75,14 @@
   <label>Comments:</label>
   <textarea name="comments"></textarea><br>
 
-  <label>On Credit:</label>
-  <input type="checkbox" name="is_on_credit"><br>
-
-  <label>Paid:</label>
+  <label>Payment Completed:</label>
   <input type="checkbox" name="is_paid" checked><br>
 
-  <button type="submit">Save</button>
+  <label>Entered by</label>
+  <input type="text">
+
+  <button type="submit">Save Stock</button>
 </form>
+
+</body>
+</html>

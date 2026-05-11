@@ -7,8 +7,10 @@
     <th>ID</th>
     <th>Product</th>
     <th>Supplier</th>
-    <th>Quantity</th>
+    <th>Quantity Added</th>
     <th>Total Cost</th>
+    <th>Date</th>
+    <th>Payment</th>
     <th>Actions</th>
   </tr>
   {% for stock in stocks %}
@@ -20,7 +22,16 @@
     <td>{{ stock.total_cost }}</td>
     <td>{{ stock.date_arrival }}</td>
     <td>
-      <a href="{% url 'edit_stock' stock.id %}">Edit</a> |
+      {% if stock.is_paid %}
+      <span class="sucess">Paid</span>
+
+      {% else %}
+      <span class="warning">Credit</span>
+    </td>
+
+    {% endif %}
+    <td>
+      <a href="{% url 'stock_update' stock.id %}">Edit</a> |
       <a href="{% url 'stock_delete' stock.id %}">Delete</a>
     </td>
   </tr>

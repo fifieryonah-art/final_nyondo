@@ -3,7 +3,7 @@
 
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Nyondo Hardware{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -15,7 +15,7 @@
 
         /* Sidebar */
         .sidebar {
-            width: 220px;
+            width: 250px;
             background-color: #0F172B;
             color: white;
             height: 100vh;
@@ -23,6 +23,8 @@
             top: 0;
             left: 0;
             padding: 10px;
+            overflow-y: auto;
+            transition: 0.3s;
         }
 
         .sidebar h2 {
@@ -46,7 +48,7 @@
 
         /* Main content */
         .main-content {
-            margin-left: 220px; /* same as sidebar width */
+            margin-left: 250px; /* same as sidebar width */
             padding: 20px;
             flex-grow: 1;
             background: #fdf6f0;
@@ -79,17 +81,30 @@
     <div class="sidebar">
         <h2><img src="../static/images/nyondologo.png"/>Nyondo Hardware</h2>
         <a href="{% url 'admin_dash' %}"><i class="fas fa-tachometer-alt"></i>  Dashboard</a>
-        <a href="{% url 'sales_dash' %}"><i class="fa-solid fa-chart-simple"></i> Dashboard</a>
+        <a href="{% url 'sales_dash' %}"><i class="fa-solid fa-grid"></i> Dashboard</a>
         <a href="#"><i class="fas fa-shopping-cart"></i>  Sales</a>
         <a href="#"><i class="fas fa-user-shield"></i>  Admin</a>
+        <a href="{% url 'add_product' %}"><i class="fa-solid fa-box"></i>Product</a>
         <a href="{% url 'stock' %}"><i class="fas fa-boxes-stacked"></i>  Stock</a>
         <a href="#"><i class="fas fa-truck"></i>  Suppliers</a>
         <a href="{% url 'credit' %}">Credit</a>
         <a href="#"><i class="fas fa-chart-line"></i>  Reports</a>
+        <a href="#"> <i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
         
     </div>
 
     <div class="main-content">
+         <div class="navbar">
+
+            <h3>Inventory Management System</h3>
+            <div class="user-box">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div>
+                {{ request.user.username }}
+            </div>
+        </div>
+
         {% block content %}
         {% endblock %}
         <footer>
