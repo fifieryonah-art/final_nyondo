@@ -32,4 +32,5 @@ urlpatterns = [
     path('stock/delete/<int:pk>/', views.stock_delete, name='stock_delete'),
     path('add_product/', views.add_product, name='add_product'),
     path('product_list/', views.product_list, name='product_list'),
+    path('supplier/', views.supplier, name="supplier"),
 ]

@@ -68,12 +68,24 @@ def add_stock(request):
         supplier_id = request.POST.get("supplier")
         quantity = int(request.POST.get("quantity"))
         comments = request.POST.get("comments")
-        total_cost = request.POST.get("total_cost")
-        is_on_credit = bool(request.POST.get("is_on_credit")) 
-        is_paid = bool(request.POST.get("is_paid"))
+        is_on_credit = "is_on_credit" in request.POST 
+        is_paid = "is_paid" in request.POST
+
+        # auto calculate total cost
+        total_cost = cost_price * quantity
+
+        #checkboxes
+        cost_price = float(request.POST.get("cost_price"))
+        unit_price = float(request.POST.get("unit_price"))
 
         product = Product.objects.get(id=product_id)
         supplier = Supplier.objects.get(id=supplier_id)
+
+        # update product prices and stock quantity
+        product.cost_price = cost_price
+        product.unit_price = unit_price
+        product.stock_quantity += quantity
+        product.save()
 
         Stock.objects.create(
             product=product,
@@ -85,9 +97,6 @@ def add_stock(request):
             is_paid=is_paid,
             entered_by=request.user
         )
-
-        product.stock_quantity = F("stock_quantity") + quantity
-        product.save()
 
         messages.success(request, "Stock added successfully!")
         return redirect("stock_list")
@@ -259,4 +268,7 @@ def deposit_dashboard(request):
         "completed_deposits": completed_deposits,
     }
     return render(request, "deposit_dashboard.html", context)
+
+def supplier(request):
+    return render(request, "supplier.html")
 
