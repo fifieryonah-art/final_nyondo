@@ -42,10 +42,17 @@ class Product(models.Model):
 
 class Supplier(models.Model):
     name = models.CharField(max_length=100)
-    category = models.TextField()
-    address = models.TextField()
-    contact = models.CharField(max_length=15)
-    email = models.TextField(unique=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    category = models.CharField(max_length=50)
+    address = models.CharField(max_length=50)
+    contact = models.CharField(max_length=15, blank=True)
+    email = models.EmailField(unique=True)
+
+    STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("Paid", "Paid"),
+    ]
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
 
     def __str__(self):
         return self.name

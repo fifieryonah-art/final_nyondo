@@ -148,7 +148,7 @@ select{
 <h2>Stock Management</h2>
 <div class="actions">
 <h4>Track and manage all Stock here</h4>
-<a href="{% url 'add_stock' %}"><button type="submit">Add Product</button></a>
+<a href="{% url 'add_stock' %}"><button type="submit">Add Stock</button></a>
 </div>
 
 
@@ -211,11 +211,9 @@ select{
     <div class="card">
       <button type="submit" class="btn">search <i class="fas fa-search"></i></button>
       <select name="category" id="category">
-        <option value="#">All Categories</option>
-        <option value="">Building materials</option>
-        <option value="">Tools</option>
-        <option value="">Roofings</option>
-        <option value="">Steel</option>
+        {% for product in products %}
+        <option value="{{ product.id }}">{{ product.name }}</option>
+        {% endfor %}
       </select>
     </div>
   </div>

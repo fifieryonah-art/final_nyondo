@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.db.models import F
 from .models import Stock, Product, Sale, Payment, DepositScheme, Supplier
 from decimal import Decimal
+from .forms import SupplierForm
 #from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -57,7 +58,7 @@ def stockPage(request):
 
 def stock_list(request):
     stocks = Stock.objects.select_related("product", "supplier").order_by('id')
-    return render(request,"stock/stock_list.html", {"stocks": stocks})
+    return render(request,"stock_list.html", {"stocks": stocks})
 
 def add_stock(request):
      products = Product.objects.all()
@@ -66,6 +67,7 @@ def add_stock(request):
      if request.method == "POST":
         product_id = request.POST.get("product")
         supplier_id = request.POST.get("supplier")
+        cost_price = int(request.POST.get("cost_price"))
         quantity = int(request.POST.get("quantity"))
         comments = request.POST.get("comments")
         is_on_credit = "is_on_credit" in request.POST 
@@ -240,6 +242,31 @@ def product_list(request):
 
     return render(request, 'product_list.html', context)
 
+def update_product(request, pk):
+    product = get_object_or_404( Product, pk=pk)
+
+    if request.method == "POST":
+       product.name = request.POST.get("name")
+       product.stock_quantity = int(request.POST.get("quantity"))
+       product.cost_price = float(request.POST.get("cost_price"))
+       product.unit_price = float(request.POST.get("unit_price"))
+       product.comments = request.POST.get("comments")
+       product.profit_margin = request.POST.get("profit")
+       product.entered_by = request.user
+       
+
+       messages.success(request,"Product updated successfully")
+       return redirect("product_list")
+
+    context ={
+        'product': product
+    }
+
+    return render(request, 'update_product.html', context)
+
+def delete_product(request):
+    return render(request, 'delete_product.html')
+
 
 def payments_dashboard(request):
     payments = Payment.objects.all()
@@ -269,6 +296,35 @@ def deposit_dashboard(request):
     }
     return render(request, "deposit_dashboard.html", context)
 
+def add_supplier(request):
+    if request.method=="POST":
+        form = SupplierForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("supplier")
+
+    else:
+        form = SupplierForm()
+
+    context ={
+        "form": form
+    }
+
+
+    return render(request, "add_supplier.html", context )
+
 def supplier(request):
-    return render(request, "supplier.html")
+    suppliers = Supplier.objects.all()
+
+    total_suppliers = suppliers.count()
+    pending_credit = suppliers.filter(status='pending').count()
+
+    context = {
+    'suppliers': suppliers,
+    'total_suppliers': total_suppliers,
+    'pending_credit': pending_credit,
+     }
+
+    return render(request, "supplier.html", context)
+
 

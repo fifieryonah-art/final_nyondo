@@ -138,7 +138,7 @@ tr:hover {
 <div class="head">
 <h1>Supplier Management</h1>
 <p>Manage Supplier and track Credit orders</p>
-<button>Add New Supplier</button>
+<a href="{% url 'add_supplier'%}"><button>Add New Supplier</button></a>
 </div>
 
 <div class="cards">
@@ -146,14 +146,14 @@ tr:hover {
     <div class="card">
         <div class="card1">
         <p><i class="fa-solid fa-truck color=blue "></i>Activate Supplier</p>
-        <span>{{ supplier.active }}</span>
+        <span>{{ total_suppliers }}</span>
         </div>
     </div>
 
     <div class="card">
         <div class="card2">
         <p><i class="fa-solid fa-clock"></i>Pending Credit orders</p>
-        <span>{{ supplier.Pending_order }}</span>
+        <span>{{ supplier.Pending_credit }}</span>
         </div>
     </div>
 
@@ -182,7 +182,10 @@ tr:hover {
         </thead>
 
         <tbody>
+          {% for supplier in suppliers %}
             <tr>
+                
+              
                 <td>{{ supplier.id}}</td>
                 <td>{{ supplier.name }}</td>
                 <td>{{ supplier.address }}</td>
@@ -196,7 +199,9 @@ tr:hover {
                     <a href="#">Edit</a>
                     <a href="#">Delete</a>
                 </td>
+              
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>          			

@@ -1,0 +1,28 @@
+
+{% block content %}
+<h2>Edit Stock</h2>
+<form method="post">
+  {% csrf_token %}
+  <label>Product:</label>
+  <select name="product">
+   <input type="text" name="product" value="{{ product.name }}">
+
+  <label>Quantity:</label>
+  <input type="number" name="quantity" value="{{ stock.quantity }}"><br>
+
+  <label>cost_price:</label>
+  <input type="text" name="cost_price" value="{{ product.cost_price }}"><br>
+
+  <label>unit_price:</label>
+  <input type="text" name="unit_price" value="{{ product.unit_price }}"><br>
+
+  <label>profit_margin:</label>
+  <input type="text" name="profit_margin" value="{{ product.profit_margin }}"><br>
+
+  <label>Comments:</label>
+  <textarea name="comments">{{ stock.comments }}</textarea><br>
+
+  <button type="submit">Update</button>
+</form>
+{% endblock %}
+

@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products | Nyondo Hardware</title>
-
+{% extends 'base.html' %} 
+{% block title %} Product List | Nyondo Hardware {% endblock %} 
+{% block extra_css %}
     <style>
 body{
     font-family: Arial, Helvetica, sans-serif;
@@ -83,11 +79,38 @@ body{
         color: #c0392b;
         font-weight: bold;
       }
-
+      .edit{
+        color: white;
+        text-decoration: none;
+        background: #e67e22;
+        border: 1px solid #e67e22;
+        padding: 5px;
+        width: 50px;
+        text-align: center;
+        border-radius: 6px;
+      }
+      .view{
+        color: white;
+        text-decoration: none;
+         background: #e67e22;
+        border: 1px solid #e67e22;
+        padding: 5px;
+        width: 50px;
+        text-align: center;
+        border-radius: 6px;
+      }
+      .action{
+        border-radius: 6px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+      }
     </style>
 </head>
 <body>
-    
+   {% endblock %}
+   
+   {% block content %} 
 <div class="top-section">
     <div>
         <h2>Products</h2>
@@ -111,6 +134,7 @@ body{
         <th>Selling Price</th>
         <th>Profit</th>
         <th>Status</th>
+        <th>Actions</th>
 
     </tr>
 
@@ -144,6 +168,10 @@ body{
               {% endif %}
 
         </td>
+        <td class="action">
+          <a href="#" class="view">View</a>
+          <a href="{% url 'update_product' product.pk %}" class="edit">Edit</a>
+        </td>
     </tr>
 
     {% endfor %}
@@ -151,5 +179,4 @@ body{
 </table>
 </div>
 
-</body>
-</html>
+{% endblock %}

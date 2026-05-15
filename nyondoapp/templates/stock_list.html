@@ -1,5 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock List</title>
+</head>
+<body>
+  
 
-{% block content %}
 <h2>Stock List</h2>
 <a href="{% url 'add_stock' %}" class="btn btn-primary">Add Stock</a>
 <table>
@@ -16,11 +24,10 @@
   {% for stock in stocks %}
   <tr>
     <td>{{ stock.id }}</td>
-    <td>{{ stock.product.name }}</td>
-    <td>{{ stock.supplier.name }}</td>
-    <td>{{ stock.quantity }}</td>
-    <td>{{ stock.total_cost }}</td>
-    <td>{{ stock.date_arrival }}</td>
+    <td>{{ stock.product.name | floatformat:0 }}</td>
+    <td>{{ stock.supplier.name|floatf:0 }}</td>
+    <td>{{ stock.total_cost| floatformat:0 }}</td>
+    <td>{{ stock.date_arrival| floatformat:0 }}</td>
     <td>
       {% if stock.is_paid %}
       <span class="sucess">Paid</span>
@@ -38,3 +45,7 @@
   {% endfor %}
 </table>
 
+
+
+</body>
+</html>
