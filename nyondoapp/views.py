@@ -179,9 +179,10 @@ def admin_dash(request):
     return render(request, 'admin_dash.html')
 
 
-def sales_dash(request):
+def employee_dash(request):
      sales = Sale.objects.all()
      total_sales = sales.count()
+     product = Product.objects.all()
      total_revenue = sum(s.amount for s in sales)
      recent_sales = sales.order_by('-date')[:10]
 
@@ -189,8 +190,9 @@ def sales_dash(request):
         "total_sales": total_sales,
         "total_revenue": total_revenue,
         "recent_sales": recent_sales,
+        "products": product
      }
-     return render(request, 'sales_dash.html', context)
+     return render(request, 'employee_dash.html', context)
 
 def creditPage(request):
     return render(request, 'credit.html')
@@ -326,5 +328,8 @@ def supplier(request):
      }
 
     return render(request, "supplier.html", context)
+
+def sales_dash(request):
+    return render(request, "sales_dash.html")
 
 

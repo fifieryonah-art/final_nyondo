@@ -23,7 +23,7 @@ urlpatterns = [
     path('', views.indexPage),
     path('stock/', views.stockPage, name='stock'),
     path('admin_dash/', views.admin_dash, name='admin_dash'),
-    path('sales_dash/', views.sales_dash, name='sales_dash'),
+    path('employee_dash/', views.employee_dash, name='employee_dash'),
     path('credit/', views.creditPage, name='credit'),
     path('login/', views.loginPage, name="login"),
     path('stock_list/', views.stock_list, name='stock_list'),
@@ -35,4 +35,5 @@ urlpatterns = [
     path('supplier/', views.supplier, name="supplier"),
     path('product/update/<int:pk>/', views.update_product, name='update_product'),
     path('add_supplier/', views.add_supplier, name='add_supplier'),
+    path('sales_dash/', views.sales_dash, name='sales_dash'),
 ]
