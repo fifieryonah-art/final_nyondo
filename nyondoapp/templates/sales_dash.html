@@ -111,6 +111,20 @@
             font-size: 12px;
             font-weight: bold;
         }
+
+        .add-btn{
+            background: orangered;
+            color: white;
+            padding: 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+            width: 100px;
+        }
+        .add-btn:hover{
+            opacity: 0.9;
+        }
     </style>
  {% endblock %}
 
@@ -120,41 +134,42 @@
        <div class="dash-header">
         <h2>Nyondo Hardware </h2>
         <P>NYONDO General Hardware LTD - Sales & Inventory Management</P>
+        <button type="submit" class="add-btn"><a href="{% url 'add_sales' %}">New Sale</a></button>
         </div>
         
         <div class="cards">
             <div class="card">
                 <h3>Total Sales (Today)</h3>
-                <p>{{ sales.total}}</p>
-                <span>{{profit_margin}}</span>
+                <p>{{ total_sales}}</p>
+                <span>{{total_revenue}}</span>
             </div>
 
             <div class="card">
                 <h3>Total Items Sold</h3>
-                <p>{{ sales.total}}</p>
-                <span>{{profit_margin}}</span>
+                <p>{{ total_items_sold }}</p>
+                <span>Items_sold</span>
             </div>
 
             <div class="card">
                 <h3>Transport Charges</h3>
-                <p>{{ sales.total}}</p>
-                <span>{{profit_margin}}</span>
+                <p>{{ transport_total }}</p>
+                <span>Delivery charges</span>
             </div>
             <div class="card">
                 <h3>Supplier Credit</h3>
-                <p>{{ sales.total}}</p>
-                <span>{{profit_margin}}</span>
+                <p>{{ supplier_credit }}</p>
+                <span>Outstanding balances</span>
             </div>
             <div class="card">
                 <h3>Deposit Scheme</h3>
-                <p>{{ sales.total}}</p>
-                <span>{{profit_margin}}</span>
+                <p>{{deposits}}</p>
+                <span>Customer deposits</span>
             </div>
 
             <div class="card">
                 <h3>Low Stock Items</h3>
-                <p>{{ sales.total}}</p>
-                <span>{{profit_margin}}</span>
+                <p>{{ low_stock_count}}</p>
+                <span>Need restocking</span>
             </div>
         </div>
      
@@ -177,16 +192,18 @@
            {% for sale in sales %}
            <tr>
             
-               <td>{{sale.saleid}}</td>
+               <td>{{sale.id}}</td>
                <td>{{sale.date}}</td>
-               <td>{{sale.customer}}</td>
+               <td>{{sale.customer_name}}</td>
                <td>{{sale.product}}</td>
                <td>{{sale.category}}</td>
                <td>{{sale.quantity}}</td>
                <td>{{sale.amount_paid}}</td>
                <td>{{sale.transport}}</td>
+               <td>
+                <span class="status-pending">{{ sale.status }}</span>
+               </td>
                <td>{{sale.payment_method}}</td> 
-            
            </tr>
            {% endfor %}
         </table>
@@ -199,19 +216,19 @@
                 <th>Product</th>
                 <th>Category</th>
                 <th>Current Stock</th>
-                <th>Reorder Level</th>
                 <th>Status</th>
             </tr>
             
-            {% for low_stock_item in low_stock_items %}
+            {% for stock in low_stock %}
                 
             
             <tr>
-                <td>{{stock.product}}</td>
-                <td>{{stock.category}}</td>
-                <td>{{stock.current_stock}}</td>
-                <td>{{stock.reorder_level}}</td>
-                <td>{{stock.status}}</td>
+                <td>{{stock.name}}</td>
+                <td>{{stock.description}}</td>
+                <td>{{stock.stock_quantity}}</td>
+                <td>
+                  <span class="status-pending">Low Stock</span>  
+                </td>
             </tr>
             {% endfor %}
         </table>
@@ -224,18 +241,16 @@
           <tr>
             <th>Product</th>
             <th>Category</th>
-            <th>Quantity</th>
-            <th>Percentage</th>
+            <th>Quantity Sold</th>
             <th>Period</th>
           </tr>
       
-          {% for top_selling_item in top_selling_items %}
+          {% for item in top_selling_items %}
             <tr>
-            <td>sales.product</td>
-            <td>sales.category</td>
-            <td>sales.quantity</td>
-            <td>sales.percentage</td>
-            <td>sales.period</td>
+            <td>{{sales.product}}</td>
+            <td>{{sales.category}}</td>
+            <td>{{sales.quantity}}</td>
+            <td>{{sales.period}}</td>
           </tr>
           {% endfor %}
         </table>

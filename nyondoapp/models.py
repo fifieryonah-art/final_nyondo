@@ -75,7 +75,6 @@ class Stock(models.Model):
 
 class Customer(models.Model):
     name = models.CharField(max_length=100)
-    type = models.TextField()
     on_scheme = models.BooleanField(default=False)
     phone = models.CharField(max_length=15)
     nin = models.TextField(unique=True)
@@ -95,17 +94,28 @@ class Sale(models.Model):
     
     name = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     quantity = models.PositiveIntegerField()
-    amount = models.DecimalField(max_digits=20, decimal_places=2)
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
+    distance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    unit_price = models.DecimalField(max_digits=20, decimal_places=2, editable=False)
+    transport = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
+    sub_total = models.DecimalField(max_digits=20, decimal_places=2)
+    customer_name = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateTimeField(auto_now_add=True)
-    recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    final_amount = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
     payment_method = models.CharField(max_length=30, choices=PAYMENT_METHODS)
     comments = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     receipt_number = models.CharField(max_length=50, unique=True)
+    recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def save(self, *args, **kwargs):
+        self.sub_total = (self.quantity * self.unit_price)
+
+        self.final_amount = (self.sub_total + self.transport)
+
+
 
     def __str__(self):
-        return self.name.name
+        return f"Sale #(self.id)"
 
 
 class Payment(models.Model):

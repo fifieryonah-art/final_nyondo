@@ -6,5 +6,8 @@ class SupplierForm(forms.ModelForm):
         model = Supplier
         fields = "__all__"
 
+
+
+
         
 

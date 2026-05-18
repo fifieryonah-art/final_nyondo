@@ -5,6 +5,7 @@ from django.db.models import F
 from .models import Stock, Product, Sale, Payment, DepositScheme, Supplier
 from decimal import Decimal
 from .forms import SupplierForm
+from django.db.models import Sum
 #from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -197,8 +198,6 @@ def employee_dash(request):
 def creditPage(request):
     return render(request, 'credit.html')
 
-def loginPage(request):
-    return render(request, 'login.html')
 
 def indexPage(request):
     return render(request, 'index.html')
@@ -330,6 +329,54 @@ def supplier(request):
     return render(request, "supplier.html", context)
 
 def sales_dash(request):
-    return render(request, "sales_dash.html")
+    products = Product.objects.all()
+    sales = Sale.objects.all().order_by('-date')
 
+    total_products = products.count()
+    total_sales = sales.count()
 
+    total_revenue = 0
+    for sale in sales:
+        total_revenue += sale.total_price
+
+    total_items_sold = sales.aggregate(
+        Sum('quantity'))['quantity__sum'] or 0
+    
+
+    transport_total = sales.aggregate(
+        Sum('transport')
+    )['transport__sum'] or 0
+    
+
+    low_stock = Product.objects.filter(stock_quantity__lt=10)
+
+    low_stock_count = low_stock.count()
+
+    top_selling_items = Sale.objects.all().order_by('-quantity')[:5]
+
+    supplier_credit = 0
+    deposits = 0
+
+    context = {
+        'sales': sales,
+        'total_sales': total_sales,
+        'total_items_sold': total_items_sold,
+        'transport_total': transport_total,
+        'supplier_credit': supplier_credit,
+        'deposits': deposits,
+        'low_stock': low_stock,
+        'low_stock_count': low_stock_count,
+        'top_selling_items': top_selling_items,
+            }
+    return render(request, "sales_dash.html", context)
+
+def sales_list(request):
+    sales = Sale.objects.all().order_by('-date')
+    context = {
+        'sales': sales
+    }
+    return render(request, 'sales_list.html', context)
+
+def add_sales(request):
+    
+    return render(request, 'add_sales.html')
