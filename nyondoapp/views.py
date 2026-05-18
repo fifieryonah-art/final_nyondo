@@ -2,9 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import F
-from .models import Stock, Product, Sale, Payment, DepositScheme, Supplier
+from .models import Stock, Product, Sale, Payment, DepositScheme, Supplier, Customer
 from decimal import Decimal
-from .forms import SupplierForm
+from .forms import SupplierForm, CustomerForm
 from django.db.models import Sum
 #from django.contrib.auth.decorators import login_required
 
@@ -378,5 +378,103 @@ def sales_list(request):
     return render(request, 'sales_list.html', context)
 
 def add_sales(request):
+    products = Product.objects.all()
+    customers = Customer.objects.all()
+
+    if request.method == 'POST':
+        #get form data
+        product_id = request.POST.get('product')
+        customer_id = request.POST.get('customer_name')
+        quantity = int(request.POST.get('quantity'))
+        distance = float(request.POST.get('distance'))
+        payment_method = request.POST.get('payment_method')
+        comments = request.POST.get('comments')
+
+        #fetch related objects
+        product = Product.objects.get(id=product_id)
+        customer = Customer.objects.get(id=customer_id)
+
+        #subtotal
+        sub_total = quantity * product.unit_price
+
+        #Transport rule
+        if distance <= 10 and sub_total >=500000:
+            transport_fee = 0
+        else:
+            transport_fee = 30000
+
+        final_amount = sub_total + transport_fee
+
+        sale = Sale(
+            name=product,
+            quantity=quantity,
+            distance=distance,
+            unit_price=product.unit_price,
+            transport=transport_fee,
+            sub_total=sub_total,
+            final_amount=final_amount,
+            customer_name=customer,
+            payment_method=payment_method,
+            comments=comments,
+            recorded_by=request.user
+         )
+        sale.save()
+        context = {
+            'sale': sale,
+            'distance': distance,
+            'total': final_amount
+        }
+        return render(request, 'receipt.html',context )
+    context={
+        'products': products,
+        'customers': customers,
+        'payment_methods': Sale.PAYMENT_METHODS,
+    }
     
-    return render(request, 'add_sales.html')
+    return render(request, 'add_sales.html', context)
+
+def add_customer(request, pk=None):
+    form = CustomerForm()
+    if request.method =='POST':
+        form = CustomerForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect('customer_list')
+        else:
+            form = CustomerForm()
+
+    context = {
+            'form': form,
+          }
+    return render(request, 'add_customer.html', context)
+
+def customer_list(request):
+    customers = Customer.objects.all()
+    context = {
+    'customers': customers,
+    'total_customers': customers.count(),
+    'on_scheme': customers.filter(on_scheme=True).count(),
+    'normal_customers': customers.filter(on_scheme=False).count(),
+     }
+    return render(request, 'customer_list.html', context)
+
+def customer_edit(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+
+    if request.method == "POST":
+        form = CustomerForm(request.POST, instanc=customer)
+        if form.is_valid():
+            form.save()
+            return redirect('customer_list')
+    else:
+        form = CustomerForm(instance=customer)
+
+    return render(request, 'add_customer.html', {'form': form})
+
+def delete_customer(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    if request.method == "POST":
+        customer.delete()
+        return redirect('customer_list')
+    return render(request, 'delete_customer.html', {'customer': customer})

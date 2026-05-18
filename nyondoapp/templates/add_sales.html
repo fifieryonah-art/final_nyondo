@@ -246,7 +246,7 @@
                     <div class="form-group">
                         <label>Payment Method</label>
                           <select name="payment_method" class="form-control">
-                                {% for key, value in sale.PAYMENT_METHODS %}
+                                {% for key, value in payment_methods %}
                                 <option value="{{ key }}">{{ value }}</option>
                                     {% endfor %}
                           </select>

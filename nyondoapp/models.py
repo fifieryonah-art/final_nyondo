@@ -108,9 +108,12 @@ class Sale(models.Model):
     recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def save(self, *args, **kwargs):
+        self.unit_price = self.name.unit_price
         self.sub_total = (self.quantity * self.unit_price)
-
+        
         self.final_amount = (self.sub_total + self.transport)
+
+        super().save(*args, **kwargs)
 
 
 
@@ -126,16 +129,25 @@ class Payment(models.Model):
         ('airtel', 'Airtel Money'),
         ('card', 'Bank Card'),
     ]
+
+    STATUS_CHOICES =[
+        ('paid', 'Paid'),
+        ('partial', 'Partial'),
+        ('pending', 'pending'),
+    ]
+    
     order_id = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     total = models.DecimalField(max_digits=20, decimal_places=2)
-    balance = models.DecimalField(max_digits=20, decimal_places=2)
+    amount_paid = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
+    balance = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
     payment_method = models.CharField(max_length=30, choices=PAYMENT_METHODS)
+    receipt_number = models.CharField(max_length=50, unique=True)
     entered_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     transport_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     distance = models.PositiveIntegerField(default=0)
-    receipt_number = models.CharField(max_length=50, unique=True)
+    
 
     def __str__(self):
         return self.receipt_number
