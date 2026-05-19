@@ -108,7 +108,8 @@ class Sale(models.Model):
     recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def save(self, *args, **kwargs):
-        self.unit_price = self.name.unit_price
+        if self.name:
+            self.unit_price = self.name.unit_price
         self.sub_total = (self.quantity * self.unit_price)
         
         self.final_amount = (self.sub_total + self.transport)

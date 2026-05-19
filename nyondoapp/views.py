@@ -1,3 +1,4 @@
+import uuid
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -397,8 +398,8 @@ def add_sales(request):
         #subtotal
         sub_total = quantity * product.unit_price
 
-        #Transport rule
-        if distance <= 10 and sub_total >=500000:
+        #Transport 
+        if distance <= 10 and sub_total >= 500000:
             transport_fee = 0
         else:
             transport_fee = 30000
@@ -478,3 +479,81 @@ def delete_customer(request, pk):
         customer.delete()
         return redirect('customer_list')
     return render(request, 'delete_customer.html', {'customer': customer})
+
+def add_payment(request):
+
+    customers = Customer.objects.all()
+
+    sales = Sale.objects.all()
+
+    receipt_number = f"RCPT-{uuid.uuid4().hex[:6].upper()}"
+
+    if request.method == "POST":
+
+        customer_id = request.POST.get('customer')
+
+        sale_id = request.POST.get('sale')
+
+        total = float(request.POST.get('total'))
+
+        amount_paid = float(request.POST.get('amount_paid'))
+
+        payment_method = request.POST.get('payment_method')
+
+        receipt_number = request.POST.get('receipt_number')
+
+        # related objects
+        customer = Customer.objects.get(id=customer_id)
+
+        sale = Sale.objects.get(id=sale_id)
+
+        # balance calculation
+        balance = total - amount_paid
+
+        # create payment
+        payment = Payment.objects.create(
+
+            order_id=sale,
+
+            customer=customer,
+
+            total=total,
+
+            amount_paid=amount_paid,
+
+            balance=balance,
+
+            payment_method=payment_method,
+
+            receipt_number=receipt_number,
+
+            entered_by=request.user
+        )
+
+        context = {
+
+            'payment': payment,
+
+            'balance': balance,
+
+            'amount_paid': amount_paid,
+
+            'total': total,
+        }
+
+        return render(request, 'receipt.html', context)
+
+    context = {
+
+        'customers': customers,
+
+        'sales': sales,
+
+        'payment_methods': Payment.PAYMENT_METHODS,
+
+        'receipt_number': receipt_number,
+    }
+
+    return render(request, 'add_payment.html', context)
+
+
