@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Customer Detail
+{% endblock %}
+
+{% block extra_css %}
+<style>
+
+.wrapper{
+    padding: 30px;
+    background: #f3f4f6;
+    min-height: 100vh;
+}
+
+.header{
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.cards{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.card{
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card h3{
+    color: #ff5a00;
+}
+
+.section{
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td{
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+th{
+    background: #ff5a00;
+    color: white;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+
+    <div class="header">
+        <h2>{{ customer.name }}</h2>
+        <p>{{ customer.phone }} | {{ customer.nin }}</p>
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>UGX {{ total_sales }}</h3>
+            <p>Total Sales</p>
+        </div>
+
+        <div class="card">
+            <h3>UGX {{ total_paid }}</h3>
+            <p>Total Paid</p>
+        </div>
+
+        <div class="card">
+            <h3>UGX {{ balance }}</h3>
+            <p>Balance</p>
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h3>Sales</h3>
+
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Total</th>
+            </tr>
+
+            {% for sale in sales %}
+            <tr>
+                <td>{{ sale.name }}</td>
+                <td>{{ sale.quantity }}</td>
+                <td>{{ sale.final_amount }}</td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+    <div class="section">
+
+        <h3>Payments</h3>
+
+        <table>
+            <tr>
+                <th>Receipt</th>
+                <th>Amount Paid</th>
+                <th>Balance</th>
+                <th>Date</th>
+            </tr>
+
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.receipt_number }}</td>
+                <td>{{ payment.amount_paid }}</td>
+                <td>{{ payment.balance }}</td>
+                <td>{{ payment.created_at }}</td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

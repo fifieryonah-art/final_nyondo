@@ -177,15 +177,14 @@ def stock_update(request, pk):
     return render(request,'stock/update_stock.html', context)
 
 
-def admin_dash(request):
-    return render(request, 'admin_dash.html')
+
 
 
 def employee_dash(request):
      sales = Sale.objects.all()
      total_sales = sales.count()
      product = Product.objects.all()
-     total_revenue = sum(s.amount for s in sales)
+     total_revenue = sum(p.amount_paid for p in Payment.objects.all())
      recent_sales = sales.order_by('-date')[:10]
 
      context = {
@@ -404,7 +403,6 @@ def add_sales(request):
             transport_fee = 0
         else:
             transport_fee = 30000
-
         final_amount = sub_total + transport_fee
 
         sale = Sale(
@@ -588,3 +586,29 @@ def payment_list(request):
     }
 
     return render(request, 'payment_list.html', context)
+
+def customer_detail(request, pk):
+
+    customer = Customer.objects.get(id=pk)
+
+    sales = Sale.objects.filter(customer_name=customer)
+
+    payments = Payment.objects.filter(customer=customer)
+
+    total_sales = sum(sale.final_amount for sale in sales)
+
+    total_paid = sum(payment.amount_paid for payment in payments)
+
+    balance = total_sales - total_paid
+
+    context = {
+
+        'customer': customer,
+        'sales': sales,
+        'payments': payments,
+        'total_sales': total_sales,
+        'total_paid': total_paid,
+        'balance': balance,
+    }
+
+    return render(request, 'customer_detail.html', context)

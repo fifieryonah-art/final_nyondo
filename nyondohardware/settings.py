@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'nyondoapp',
     'crispy_forms',
     'crispy_bootstrap5',
+    'adminapp',
+
 ]
 
 MIDDLEWARE = [

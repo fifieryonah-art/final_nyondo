@@ -118,6 +118,7 @@
             </td>
 
             <td>
+                <a href="{% url 'customer_detail' customer.id %}">View</a>
                 <a href="{% url 'customer_edit' customer.id %}">Edit</a>
                 <a href="{% url 'delete_customer' customer.id %}"class="btn-delete">Delete</a>
             </td>
