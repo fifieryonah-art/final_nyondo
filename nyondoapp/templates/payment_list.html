@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Payment List
+{% endblock %}
+
+{% block extra_css %}
+<style>
+
+.payment-wrapper{
+    padding: 30px;
+    background: #f1f5f9;
+    min-height: 100vh;
+}
+
+.top-section{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.top-section h2{
+    color: #0f172a;
+}
+
+.btn-add{
+    background: #ff5a00;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.stats{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.card{
+    background: white;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.card h3{
+    color: #ff5a00;
+    font-size: 28px;
+}
+
+.card p{
+    color: #64748b;
+}
+
+.table-container{
+    background: white;
+    border-radius: 18px;
+    overflow-x: auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead{
+    background: #ff5a00;
+    color: white;
+}
+
+th, td{
+    padding: 16px;
+    text-align: left;
+}
+
+tbody tr{
+    border-bottom: 1px solid #e2e8f0;
+}
+
+tbody tr:hover{
+    background: #f8fafc;
+}
+
+.status-paid{
+    color: green;
+    font-weight: bold;
+}
+
+.status-pending{
+    color: red;
+    font-weight: bold;
+}
+
+.actions{
+    display: flex;
+    gap: 10px;
+}
+
+.btn-edit{
+    background: #2563eb;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.btn-delete{
+    background: #dc2626;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="payment-wrapper">
+
+    <div class="top-section">
+
+        <div>
+            <h2>Payment List</h2>
+            <p>Manage customer payments</p>
+        </div>
+
+        <a href="{% url 'add_payment' %}" class="btn-add">
+            + Add Payment
+        </a>
+
+    </div>
+
+    <div class="stats">
+
+        <div class="card">
+            <h3>{{ total_payments }}</h3>
+            <p>Total Payments</p>
+        </div>
+
+        <div class="card">
+            <h3>UGX {{ total_paid }}</h3>
+            <p>Total Paid</p>
+        </div>
+
+        <div class="card">
+            <h3>UGX {{ total_balance }}</h3>
+            <p>Total Balance</p>
+        </div>
+
+    </div>
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Receipt</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Paid</th>
+                    <th>Balance</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for payment in payments %}
+
+                <tr>
+
+                    <td>{{ payment.receipt_number }}</td>
+
+                    <td>{{ payment.customer }}</td>
+
+                    <td>UGX {{ payment.total }}</td>
+
+                    <td>UGX {{ payment.amount_paid }}</td>
+
+                    <td>UGX {{ payment.balance }}</td>
+
+                    <td>{{ payment.payment_method }}</td>
+
+                    <td>
+
+                        {% if payment.balance <= 0 %}
+
+                            <span class="status-paid">
+                                Paid
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-pending">
+                                Pending
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>{{ payment.created_at }}</td>
+
+                    <td>
+
+                        <div class="actions">
+
+                            <a href="#" class="btn-edit">
+                                Edit
+                            </a>
+
+                            <a href="#" class="btn-delete">
+                                Delete
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -338,7 +338,7 @@ def sales_dash(request):
 
     total_revenue = 0
     for sale in sales:
-        total_revenue += sale.total_price
+        total_revenue += sale.final_amount
 
     total_items_sold = sales.aggregate(
         Sum('quantity'))['quantity__sum'] or 0
@@ -384,10 +384,11 @@ def add_sales(request):
 
     if request.method == 'POST':
         #get form data
+        receipt_number = f"SALE-{uuid.uuid4().hex[:6].upper()}"
         product_id = request.POST.get('product')
         customer_id = request.POST.get('customer_name')
         quantity = int(request.POST.get('quantity'))
-        distance = float(request.POST.get('distance'))
+        distance = int(request.POST.get('distance'))
         payment_method = request.POST.get('payment_method')
         comments = request.POST.get('comments')
 
@@ -417,7 +418,8 @@ def add_sales(request):
             customer_name=customer,
             payment_method=payment_method,
             comments=comments,
-            recorded_by=request.user
+            recorded_by=request.user,
+            receipt_number=receipt_number,
          )
         sale.save()
         context = {
@@ -425,7 +427,7 @@ def add_sales(request):
             'distance': distance,
             'total': final_amount
         }
-        return render(request, 'receipt.html',context )
+        return redirect('add_payment')
     context={
         'products': products,
         'customers': customers,
@@ -541,6 +543,7 @@ def add_payment(request):
             'total': total,
         }
 
+
         return render(request, 'receipt.html', context)
 
     context = {
@@ -557,3 +560,31 @@ def add_payment(request):
     return render(request, 'add_payment.html', context)
 
 
+def payment_list(request):
+
+    payments = Payment.objects.all().order_by('-created_at')
+
+    total_payments = payments.count()
+
+    total_paid = 0
+
+    total_balance = 0
+
+    for payment in payments:
+
+        total_paid += payment.amount_paid
+
+        total_balance += payment.balance
+
+    context = {
+
+        'payments': payments,
+
+        'total_payments': total_payments,
+
+        'total_paid': total_paid,
+
+        'total_balance': total_balance,
+    }
+
+    return render(request, 'payment_list.html', context)
