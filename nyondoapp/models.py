@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from adminapp.models import Supplier
+
 
 # Create your models here.
 class Employee(models.Model):
@@ -40,22 +42,6 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-class Supplier(models.Model):
-    name = models.CharField(max_length=100)
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    category = models.CharField(max_length=50)
-    address = models.CharField(max_length=50)
-    contact = models.CharField(max_length=15, blank=True)
-    email = models.EmailField(unique=True)
-
-    STATUS_CHOICES = [
-        ("Pending", "Pending"),
-        ("Paid", "Paid"),
-    ]
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
-
-    def __str__(self):
-        return self.name
 
 class Stock(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
@@ -154,15 +140,5 @@ class Payment(models.Model):
         return self.receipt_number
     
 
-class DepositScheme(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity_expected = models.PositiveIntegerField()
-    payment_date = models.DateTimeField(auto_now_add=True)
-    is_completed = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.customer.name
 
 

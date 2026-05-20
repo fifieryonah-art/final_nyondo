@@ -28,7 +28,7 @@
             display: flex;
         }
 
-        /* ================= SIDEBAR ================= */
+        /* SIDEBAR */
 
         .sidebar{
             width: 260px;
@@ -92,7 +92,7 @@
             font-size: 16px;
         }
 
-        /* ================= MAIN ================= */
+        /*MAIN */
 
         .main-content{
             margin-left: 260px;
@@ -100,7 +100,7 @@
             min-height: 100vh;
         }
 
-        /* ================= TOPBAR ================= */
+        /* TOPBAR */
 
         .topbar{
             background: white;
@@ -133,13 +133,13 @@
             color: #0f172a;
         }
 
-        /* ================= PAGE CONTENT ================= */
+        /* PAGE CONTENT */
 
         .page-content{
             padding: 30px;
         }
 
-        /* ================= RESPONSIVE ================= */
+        /* RESPONSIVE */
 
         @media(max-width: 900px){
 
@@ -188,9 +188,17 @@
         <ul>
 
             <li>
-                <a href="#">
+                <a href="{% url 'admin_dash' %}">
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
+                </a>
+            </li>
+
+            
+            <li>
+                <a href="{% url 'supplier_dashboard' %}">
+                    <i class="fa-solid fa-truck"></i>
+                        Suppliers
                 </a>
             </li>
 
@@ -216,9 +224,9 @@
             </li>
 
             <li>
-                <a href="#">
+                <a href="{% url 'deposit_dashboard' %}">
                     <i class="fas fa-users"></i>
-                    <span>Customers</span>
+                    <span>Deposit Scheme</span>
                 </a>
             </li>
 

@@ -1,0 +1,105 @@
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+}
+
+.container {
+    padding: 20px;
+}
+
+h2 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+/* TABLE DESIGN */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+th {
+    background: #2c3e50;
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+tr:hover {
+    background: #f1f1f1;
+}
+
+/* BUTTON */
+a {
+    display: inline-block;
+    padding: 6px 10px;
+    background: #27ae60;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+a:hover {
+    background: #219150;
+}
+</style>
+
+<div class="container">
+
+<h2>Deposit Schemes</h2>
+
+<div style="margin-bottom:15px;">
+
+    <a href="{% url 'deposit_dashboard' %}"
+       style="padding:8px 12px; background:#2c3e50; color:white; text-decoration:none; border-radius:5px; margin-right:10px;">
+        Dashboard
+    </a>
+
+    <a href="{% url 'deposit_list' %}"
+       style="padding:8px 12px; background:#3498db; color:white; text-decoration:none; border-radius:5px;">
+        Deposit History
+    </a>
+
+</div>
+
+<table>
+    <tr>
+        <th>Customer</th>
+        <th>Product</th>
+        <th>Total</th>
+        <th>Paid</th>
+        <th>Balance</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+
+    {% for scheme in schemes %}
+    <tr>
+        <td>{{ scheme.customer.name }}</td>
+        <td>{{ scheme.product.name }}</td>
+        <td>{{ scheme.total_amount }}</td>
+        <td>{{ scheme.amount_paid }}</td>
+        <td>{{ scheme.balance }}</td>
+        <td>{{ scheme.status }}</td>
+        <td>
+            <a href="{% url 'record_deposit' scheme.id %}">
+                Record Deposit
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</div>

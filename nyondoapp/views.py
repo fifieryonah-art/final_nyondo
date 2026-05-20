@@ -3,9 +3,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import F
-from .models import Stock, Product, Sale, Payment, DepositScheme, Supplier, Customer
+from .models import Stock, Product, Sale, Payment, Customer
 from decimal import Decimal
-from .forms import SupplierForm, CustomerForm
+from .forms import CustomerForm
+from adminapp.models import Supplier
+
 from django.db.models import Sum
 #from django.contrib.auth.decorators import login_required
 
@@ -285,48 +287,7 @@ def payments_dashboard(request):
     }
     return render(request, "payments_dashboard.html", context)
 
-def deposit_dashboard(request):
-    deposits = DepositScheme.objects.all()
-    active_deposits = deposits.filter(is_completed=False)
-    completed_deposits = deposits.filter(is_completed=True)
 
-    context = {
-        "total_deposits": deposits.count(),
-        "active_deposits": active_deposits,
-        "completed_deposits": completed_deposits,
-    }
-    return render(request, "deposit_dashboard.html", context)
-
-def add_supplier(request):
-    if request.method=="POST":
-        form = SupplierForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("supplier")
-
-    else:
-        form = SupplierForm()
-
-    context ={
-        "form": form
-    }
-
-
-    return render(request, "add_supplier.html", context )
-
-def supplier(request):
-    suppliers = Supplier.objects.all()
-
-    total_suppliers = suppliers.count()
-    pending_credit = suppliers.filter(status='pending').count()
-
-    context = {
-    'suppliers': suppliers,
-    'total_suppliers': total_suppliers,
-    'pending_credit': pending_credit,
-     }
-
-    return render(request, "supplier.html", context)
 
 def sales_dash(request):
     products = Product.objects.all()

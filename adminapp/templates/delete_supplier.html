@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Supplier</title>
+
+    <style>
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body{
+            background: #f4f6f9;
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .delete-box{
+            background: white;
+            width: 100%;
+            max-width: 420px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        h2{
+            color: #111827;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        p{
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .supplier-name{
+            color: #111827;
+            font-weight: bold;
+        }
+
+        .buttons{
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .buttons a,
+        .buttons button{
+            padding: 10px 22px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .cancel-btn{
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .cancel-btn:hover{
+            background: #d1d5db;
+        }
+
+        .delete-btn{
+            background: #dc2626;
+            color: white;
+        }
+
+        .delete-btn:hover{
+            background: #b91c1c;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <div class="delete-box">
+
+        <h2>Delete Supplier</h2>
+
+        <p>
+            Are you sure you want to delete
+            <span class="supplier-name">
+                {{ supplier.name }}?
+            </span>
+        </p>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="buttons">
+
+                <a href="{% url 'supplier_dashboard' %}" class="cancel-btn">
+                    Cancel
+                </a>
+
+                <button type="submit" class="delete-btn">
+                    Delete
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</body>
+</html>
