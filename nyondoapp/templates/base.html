@@ -1,116 +1,73 @@
 {% load static %}
 <!DOCTYPE html>
-
 <html lang="en">
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Nyondo Hardware{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
-        body {
+
+        *{
             margin: 0;
-            font-family: Arial, sans-serif;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f8fafc;
+        }
+
+        .layout{
             display: flex;
         }
 
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background-color: #0F172B;
-            color: white;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding: 10px;
-            overflow-y: auto;
-            transition: 0.3s;
+        .main-content{
+            flex: 1;
+            padding: 25px;
+            margin-left: 260px;
         }
 
-        .sidebar h2 {
+        footer{
+            margin-top: 30px;
+            background: white;
+            padding: 16px;
             text-align: center;
-            margin-bottom: 30px;
-            max-width: 250px;
+            border-radius: 12px;
+            color: #64748b;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
 
-        .sidebar a {
-            display: block;
-            color: white;
-            padding: 12px 20px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .sidebar a:hover {
-            background-color: #F54900;
-            border-radius: 10px;
-        }
-
-        /* Main content */
-        .main-content {
-            margin-left: 250px; /* same as sidebar width */
-            padding: 20px;
-            flex-grow: 1;
-            background: #fdf6f0;
-            min-height: 100vh;
-        }
-
-        footer {
-            text-align: center;
-            padding: 10px;
-            background: #F54900;
-            color: white;
-            margin-top: 20px;
-
-        }
-
-        img{
-            width: 80px;
-            height: 80px;
-            
-        }
-        h2{
-            display: flex;
-            flex-direction: row;
-        }
-       
     </style>
-     {% block extra_css %}{% endblock %}
+
+    {% block extra_css %}{% endblock %}
 </head>
+
 <body>
-    <div class="sidebar">
-        <h2><img src="../static/images/nyondologo.png"/>Nyondo Hardware</h2>
-        <a href="{% url 'admin_dash' %}"><i class="fas fa-tachometer-alt"></i>  Dashboard</a>
-        <a href="{% url 'employee_dash' %}"><i class="fa-solid fa-grid"></i> Dashboard</a>
-        <a href="{% url 'sales_dash' %}"><i class="fas fa-shopping-cart"></i>  Sales</a>
-        <a href="{% url 'add_sales' %}"><i class="fas fa-cart-plus"></i> New Sale</a>
-        <a href="{% url 'add_payment' %}">Payments</a>
-        <a href="#"><i class="fas fa-user-shield"></i>  Admin</a>
-        <a href="{% url 'product_list' %}"><i class="fa-solid fa-box"></i>Product</a>
-        <a href="{% url 'stock' %}"><i class="fas fa-boxes-stacked"></i>  Stock</a>
-        <a href="{% url 'credit' %}">Credit</a>
-        <a href="#"><i class="fas fa-chart-line"></i>  Reports</a>
-        <a href="#"> <i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
-        
-    </div>
 
+<div class="layout">
+
+    <!-- SIDEBAR SLOT -->
+    {% block sidebar %}{% endblock %}
+
+    <!-- MAIN CONTENT -->
     <div class="main-content">
-         <div class="navbar">
 
-            <h3>Inventory Management System</h3>
-            <div class="user-box">
-                <i class="fa-solid fa-user"></i>
-            </div>
-            <div>
-                {{ request.user.username }}
-            </div>
-        </div>
+        {% include 'navbar.html' %}
 
-        {% block content %}
-        {% endblock %}
+        {% block content %}{% endblock %}
+
         <footer>
             <p>&copy; 2026 Nyondo Hardware System</p>
         </footer>
+
     </div>
+
+</div>
+
 </body>
 </html>

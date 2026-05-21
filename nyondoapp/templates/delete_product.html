@@ -3,17 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Product| Nyondo Stock</title>
+    <title>Delete Product | Nyondo Stock</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body{
+            background: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .delete-container{
+            background: white;
+            width: 420px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .delete-icon{
+            width: 70px;
+            height: 70px;
+            background: #ffe5e5;
+            color: #d90429;
+            margin: auto;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        h2{
+            color: #1d3557;
+            margin-bottom: 15px;
+        }
+
+        p{
+            color: #555;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .product-name{
+            color: #d90429;
+            font-weight: bold;
+        }
+
+        .btn-group{
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        button,
+        .cancel-btn{
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.3s ease;
+            text-decoration: none;
+        }
+
+        button{
+            background: #d90429;
+            color: white;
+        }
+
+        button:hover{
+            background: #b10320;
+        }
+
+        .cancel-btn{
+            background: #1d3557;
+            color: white;
+        }
+
+        .cancel-btn:hover{
+            background: #14263d;
+        }
+
+        @keyframes fadeIn{
+            from{
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to{
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Delete Product</h2>
-<p>Are you sure you want to delete {{ product.name }} from Products ?</p>
-<form method="post">
-  {% csrf_token %}
-  <button type="submit">Confirm Delete</button>
-</form>
+
+    <div class="delete-container">
+
+        <div class="delete-icon">
+            🗑
+        </div>
+
+        <h2>Delete Product</h2>
+
+        <p>
+            Are you sure you want to delete 
+            <span class="product-name">
+                {{ product.name }}
+            </span>
+            from Products?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="btn-group">
+                <button type="submit">
+                    Confirm Delete
+                </button>
+
+                <a href="{% url 'product_list' %}" class="cancel-btn">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+
+    </div>
 
 </body>
 </html>
-
-

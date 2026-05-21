@@ -1,0 +1,252 @@
+<div class="main-navbar">
+
+
+
+    <div class="nav-right">
+
+        <div class="nav-info-card">
+
+            <span>Date</span>
+
+            <h4>
+                {% now "l, d M Y" %}
+            </h4>
+
+        </div>
+
+
+        <div class="nav-info-card">
+
+            <span>Time</span>
+
+            <h4>
+                {% now "h:i A" %}
+            </h4>
+
+        </div>
+
+
+        <div class="nav-info-card">
+
+            <span>Logged In User</span>
+
+            <h4>{{ request.user.username }}</h4>
+
+        </div>
+
+
+        <div class="nav-info-card">
+
+            <span>Position</span>
+
+            {% if request.user.is_superuser %}
+                <h4>Administrator</h4>
+            {% else %}
+                <h4>Staff</h4>
+            {% endif %}
+
+        </div>
+
+
+        <a href="#" class="logout-btn">
+            Logout
+        </a>
+
+    </div>
+
+</div>
+
+
+
+<style>
+
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body{
+        overflow-x: hidden;
+        background: #f4f6f9;
+    }
+
+    /* NAVBAR */
+
+    .main-navbar{
+
+        position: fixed;
+
+        top: 0;
+
+        left: 250px;
+
+        width: calc(100% - 250px);
+
+        height: 85px;
+
+        background: #0F172B;
+
+        padding: 15px 25px;
+
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        z-index: 1000;
+
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+    }
+
+    /* LEFT */
+
+    .nav-left{
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 15px;
+
+    }
+
+    .logo-box{
+
+        width: 55px;
+
+        height: 55px;
+
+        background: white;
+
+        border-radius: 12px;
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: center;
+
+        overflow: hidden;
+
+    }
+
+    .logo-box img{
+
+        width: 100%;
+
+        height: 100%;
+
+        object-fit: cover;
+
+    }
+
+    .system-text h3{
+
+        color: white;
+
+        font-size: 22px;
+
+        margin-bottom: 4px;
+
+    }
+
+    .system-text p{
+
+        color: #cbd5e1;
+
+        font-size: 13px;
+
+    }
+
+    /* RIGHT */
+
+    .nav-right{
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 12px;
+
+    }
+
+    .nav-info-card{
+
+        background: rgba(255,255,255,0.08);
+
+        padding: 10px 15px;
+
+        border-radius: 10px;
+
+        min-width: 140px;
+
+    }
+
+    .nav-info-card span{
+
+        display: block;
+
+        color: #cbd5e1;
+
+        font-size: 11px;
+
+        margin-bottom: 4px;
+
+    }
+
+    .nav-info-card h4{
+
+        color: white;
+
+        font-size: 14px;
+
+        font-weight: 600;
+
+    }
+
+    /* LOGOUT */
+
+    .logout-btn{
+
+        background: #f54900;
+
+        color: white;
+
+        text-decoration: none;
+
+        padding: 12px 18px;
+
+        border-radius: 8px;
+
+        font-size: 14px;
+
+        font-weight: 600;
+
+        transition: 0.3s ease;
+
+    }
+
+    .logout-btn:hover{
+
+        opacity: 0.9;
+
+    }
+
+    /* PAGE CONTENT */
+
+    .main-content{
+
+        margin-left: 250px;
+
+        margin-top: 90px;
+
+        padding: 25px;
+
+        width: calc(100% - 250px);
+
+    }
+
+</style>

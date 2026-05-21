@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Deposit</title>
+
+    <style>
+
+        body{
+            background:#f4f6f9;
+            font-family: Arial;
+            padding:40px;
+        }
+
+        .card{
+            max-width:600px;
+            margin:auto;
+            background:white;
+            padding:30px;
+            border-radius:12px;
+        }
+
+        h2{
+            color:#0f172b;
+            margin-bottom:10px;
+        }
+
+        .subtitle{
+            color:#6b7280;
+            margin-bottom:20px;
+        }
+
+        label{
+            font-size:14px;
+            color:#374151;
+            display:block;
+            margin-top:12px;
+        }
+
+        select, input{
+            width:100%;
+            padding:12px;
+            border:1px solid #ddd;
+            border-radius:8px;
+            margin-top:5px;
+        }
+
+        select:focus, input:focus{
+            border-color:#f54900;
+            outline:none;
+        }
+
+        button{
+            margin-top:20px;
+            width:100%;
+            padding:12px;
+            border:none;
+            background:#f54900;
+            color:white;
+            font-weight:bold;
+            border-radius:8px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#d63f00;
+        }
+
+        a{
+            display:inline-block;
+            margin-top:15px;
+            color:#0f172b;
+            text-decoration:none;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h2>Add Deposit Scheme</h2>
+    <p class="subtitle">Create a new customer deposit plan</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>Customer</label>
+        <select name="customer" required>
+            {% for c in customers %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Product</label>
+        <select name="product" required>
+            {% for p in products %}
+                <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Quantity Expected</label>
+        <input type="number" name="quantity_expected" required>
+
+        <label>Amount Paid</label>
+        <input type="number" name="amount_paid" step="0.01" value="0">
+
+        <button type="submit">Save Deposit</button>
+    </form>
+
+    <a href="{% url 'deposit_dashboard' %}">← Back</a>
+
+</div>
+
+</body>
+</html>

@@ -2,222 +2,147 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Record Deposit</title>
 
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+        }
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #eef2f7;
-    margin: 0;
-}
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
 
-/* PAGE WRAPPER */
-.container {
-    padding: 30px;
-}
+        .box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
 
-/* FORM BOX */
-.box {
-    width: 45%;
-    margin: auto;
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    border-top: 4px solid #27ae60;
-}
+        h2 {
+            text-align: center;
+            color: #0f172b;
+            margin-bottom: 20px;
+        }
 
-/* TITLE */
-h2 {
-    color: #2c3e50;
-    margin-bottom: 20px;
-    text-align: center;
-}
+        .info {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.6;
+        }
 
-/* INFO PANEL */
-.info {
-    background: #f7f9fc;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border-left: 4px solid #2c3e50;
-    font-size: 14px;
-    line-height: 1.6;
-}
+        label {
+            font-weight: bold;
+            font-size: 14px;
+            display: block;
+            margin-top: 10px;
+        }
 
-/* LABELS */
-label {
-    font-weight: bold;
-    font-size: 14px;
-    color: #333;
-}
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
 
-/* INPUTS */
-input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 6px 0 15px 0;
-    border: 1px solid #d0d7de;
-    border-radius: 6px;
-    font-size: 14px;
-    outline: none;
-    transition: 0.2s;
-}
+        button {
+            width: 100%;
+            margin-top: 15px;
+            padding: 12px;
+            background: #f54900;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-input:focus,
-select:focus,
-textarea:focus {
-    border-color: #27ae60;
-    box-shadow: 0 0 5px rgba(39,174,96,0.2);
-}
+        button:hover {
+            background: #d63f00;
+        }
 
-/* BUTTON */
-button {
-    width: 100%;
-    padding: 12px;
-    background: #27ae60;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
+        .nav {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
 
-button:hover {
-    background: #219150;
-    transform: translateY(-1px);
-}
+        .nav a {
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 13px;
+        }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    .box {
-        width: 90%;
-    }
-}
+        .back {
+            background: #0f172b;
+            color: white;
+        }
 
+        .list {
+            background: #e5e7eb;
+            color: #111;
+        }
 
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f9;
-    margin: 0;
-}
-
-.container {
-    padding: 20px;
-}
-
-.box {
-    width: 50%;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-h2 {
-    color: #2c3e50;
-    margin-bottom: 20px;
-
-}
-
-.info {
-    background: #f1f1f1;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-}
-
-/* INPUTS */
-input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-/* BUTTON */
-button {
-    width: 100%;
-    padding: 10px;
-    background: #27ae60;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #219150;
-}
-
-/* LABEL */
-label {
-    font-weight: bold;
-}
-</style>
+    </style>
 </head>
+
 <body>
 
 <div class="container">
 
-<div class="box">
+    <div class="box">
 
-<h2>Record Deposit</h2>
+        <h2>Record Deposit Payment</h2>
 
-<div style="margin-bottom:20px; margin-top: 20px;">
+        <!-- NAV -->
+        <div class="nav">
+            <a href="{% url 'deposit_dashboard' %}" class="back">Dashboard</a>
+            <a href="{% url 'deposit_list' %}" class="list">Deposit List</a>
+        </div>
 
-    <a href="{% url 'scheme_list' %}"
-       style="padding:8px 12px; background:orangered; color:white; text-decoration:none; border-radius:5px; margin-right:10px;">
-        Schemes
-    </a>
+        <!-- DEPOSIT INFO -->
+        <div class="info">
+            <strong>Customer:</strong> {{ scheme.customer.name }} <br>
+            <strong>Product:</strong> {{ scheme.product.name }} <br>
+            <strong>Quantity Expected:</strong> {{ scheme.quantity_expected }} <br>
+            <strong>Amount Already Paid:</strong> {{ scheme.amount_paid }} <br>
+        </div>
 
-    <a href="{% url 'deposit_list' %}"
-       style="padding:8px 12px; background:lightgray; color:white; text-decoration:none; border-radius:5px; margin-right:10px;">
-        Deposit History
-    </a>
+        <!-- FORM -->
+        <form method="POST">
+            {% csrf_token %}
 
-</div>
+            <label>Amount Paid</label>
+            <input type="number" name="amount_paid" step="0.01" required>
 
-<!-- Scheme Info -->
-<div class="info">
-    <strong>Customer:</strong> {{ scheme.customer.name }} <br>
-    <strong>Product:</strong> {{ scheme.product.name }} <br>
-    <strong>Total Amount:</strong> {{ scheme.total_amount }} <br>
-    <strong>Amount Paid:</strong> {{ scheme.amount_paid }} <br>
-    <strong>Balance:</strong> {{ scheme.balance }}
-</div>
+            <label>Payment Method</label>
+            <select name="payment_method">
+                <option value="cash">Cash</option>
+                <option value="mtn">MTN Mobile Money</option>
+                <option value="airtel">Airtel Money</option>
+                <option value="card">Bank Card</option>
+            </select>
 
-<!-- FORM -->
-<form method="POST">
-    {% csrf_token %}
+            <label>Comment</label>
+            <textarea name="comment" placeholder="Optional note..."></textarea>
 
-    <label>Amount Paid</label>
-    <input type="number" name="amount_paid" step="0.01" required>
+            <button type="submit">Save Payment</button>
+        </form>
 
-    <label>Payment Method</label>
-    <select name="payment_method">
-        <option value="cash">Cash</option>
-        <option value="mtn">MTN Mobile Money</option>
-        <option value="airtel">Airtel Money</option>
-        <option value="bank">Bank Transfer</option>
-    </select>
-
-    <label>Comment</label>
-    <textarea name="comment" placeholder="Optional..."></textarea>
-
-    <button type="submit">Save Deposit</button>
-</form>
+    </div>
 
 </div>
 
-</div>
-</body>    
-
+</body>
 </html>
-

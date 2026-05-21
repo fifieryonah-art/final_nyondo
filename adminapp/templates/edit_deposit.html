@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Deposit</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            background:#f4f6f9;
+        }
+
+        .container{
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            padding:30px;
+        }
+
+        .card{
+            width:450px;
+            background:white;
+            padding:30px;
+            border-radius:14px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.08);
+            border-top:4px solid #f54900;
+        }
+
+        .title{
+            margin-bottom:25px;
+        }
+
+        .title h2{
+            color:#0f172b;
+            margin-bottom:8px;
+            font-size:28px;
+        }
+
+        .title p{
+            color:#6b7280;
+            font-size:14px;
+        }
+
+        .info-box{
+            background:#fff7ed;
+            border:1px solid #fed7aa;
+            padding:14px;
+            border-radius:10px;
+            margin-bottom:20px;
+        }
+
+        .info-box p{
+            margin-bottom:6px;
+            color:#374151;
+            font-size:14px;
+        }
+
+        .form-group{
+            margin-bottom:20px;
+        }
+
+        label{
+            display:block;
+            margin-bottom:8px;
+            color:#111827;
+            font-weight:600;
+            font-size:14px;
+        }
+
+        input{
+            width:100%;
+            padding:13px;
+            border:1px solid #d1d5db;
+            border-radius:8px;
+            outline:none;
+            font-size:14px;
+            transition:0.3s ease;
+        }
+
+        input:focus{
+            border-color:#f54900;
+            box-shadow:0 0 0 3px rgba(245,73,0,0.1);
+        }
+
+        .buttons{
+            display:flex;
+            gap:12px;
+            margin-top:25px;
+        }
+
+        button{
+            flex:1;
+            border:none;
+            padding:13px;
+            border-radius:8px;
+            cursor:pointer;
+            font-size:14px;
+            font-weight:600;
+            transition:0.3s ease;
+        }
+
+        .save-btn{
+            background:#f54900;
+            color:white;
+        }
+
+        .save-btn:hover{
+            background:#d63f00;
+        }
+
+        .cancel-btn{
+            background:#e5e7eb;
+            color:#111827;
+            text-decoration:none;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:8px;
+            font-size:14px;
+            font-weight:600;
+        }
+
+        .cancel-btn:hover{
+            background:#d1d5db;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <div class="title">
+            <h2>Edit Deposit</h2>
+            <p>Update customer deposit information</p>
+        </div>
+
+        <!-- Deposit Info -->
+
+        <div class="info-box">
+
+            <p>
+                <strong>Customer:</strong>
+                {{ deposit.customer.name }}
+            </p>
+
+            <p>
+                <strong>Product:</strong>
+                {{ deposit.product.name }}
+            </p>
+
+        </div>
+
+        <!-- Form -->
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="form-group">
+
+                <label>Quantity Expected</label>
+
+                <input 
+                    type="number"
+                    name="quantity_expected"
+                    value="{{ deposit.quantity_expected }}"
+                    required
+                >
+
+            </div>
+
+            <div class="buttons">
+
+                <button type="submit" class="save-btn">
+                    Save Changes
+                </button>
+
+                <a href="{% url 'deposit_list' %}" class="cancel-btn">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

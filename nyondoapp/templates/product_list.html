@@ -48,6 +48,7 @@ body{
       table {
         width: 100%;
         border-collapse: collapse;
+        overflow-x: auto;
       }
 
       th, td {
@@ -94,8 +95,8 @@ body{
         text-decoration: none;
          background: #e67e22;
         border: 1px solid #e67e22;
-        padding: 5px;
-        width: 50px;
+        padding: 7px;
+        width: 60px;
         text-align: center;
         border-radius: 6px;
       }
@@ -104,6 +105,7 @@ body{
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 5px;
+        margin-right: 5px;
       }
     </style>
 </head>
@@ -169,7 +171,7 @@ body{
 
         </td>
         <td class="action">
-          <a href="#" class="view">View</a>
+          <a href="{% url 'delete_product' product.id %}" class="view">Delete</a>
           <a href="{% url 'update_product' product.pk %}" class="edit">Edit</a>
         </td>
     </tr>

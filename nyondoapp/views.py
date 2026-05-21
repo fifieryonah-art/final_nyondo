@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import F
-from .models import Stock, Product, Sale, Payment, Customer
+from .models import Stock, Product, Sale, Payment, Customer,Employee
 from decimal import Decimal
 from .forms import CustomerForm
 from adminapp.models import Supplier
@@ -12,33 +12,43 @@ from django.db.models import Sum
 #from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+#Authentication pages
 def loginPage(request):
-
     if request.method == "POST":
 
         username = request.POST.get("username")
         password = request.POST.get("password")
-
-        user = authenticate(
-            request,
-            username=username,
-            password=password
-        )
+        user = authenticate(request, username=username, password=password)
 
         if user is not None:
-
             login(request, user)
 
-            return redirect("admin_dash")
+            try:
+                employee = Employee.objects.get(user=user)
+
+                if employee.role == "admin":
+                    return redirect("admin_dash")
+                
+                elif employee.role == "manager":
+                    return redirect("stock")
+                
+                elif employee.role == "cashier":
+                    return redirect("sales_dash")
+                
+                else:
+                    return redirect("employee_dash")
+                
+            except Employee.DoesNotExist:
+                messages.error(request, "Employee profile not found")
 
         else:
-
-            messages.error(
-                request,
-                "Invalid username or password"
-            )
+            messages.error(request,"Invalid username or password")
 
     return render(request, "login.html")
+
+def logout_user(request):
+    logout(request)
+    return redirect('login')
 
 def stockPage(request):
     products = Product.objects.all()
@@ -267,9 +277,17 @@ def update_product(request, pk):
 
     return render(request, 'update_product.html', context)
 
-def delete_product(request):
-    return render(request, 'delete_product.html')
+def delete_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
 
+    if request.method == "POST":
+        product.delete()
+        messages.success(request, "Product deleted successfully")
+        return redirect('product_list')
+
+    return render(request, 'delete_product.html', {
+        'product': product
+    })
 
 def payments_dashboard(request):
     payments = Payment.objects.all()

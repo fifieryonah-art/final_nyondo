@@ -21,6 +21,7 @@ from nyondoapp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.indexPage),
+    path('logout/', views.logout_user, name='logout'),
     path('stock/', views.stockPage, name='stock'),
     path('employee_dash/', views.employee_dash, name='employee_dash'),
     path('credit/', views.creditPage, name='credit'),
@@ -32,6 +33,7 @@ urlpatterns = [
     path('add_product/', views.add_product, name='add_product'),
     path('product_list/', views.product_list, name='product_list'),
     path('product/update/<int:pk>/', views.update_product, name='update_product'),
+    path('delete_product/<int:pk>/', views.delete_product, name='delete_product'),
     path('sales_dash/', views.sales_dash, name='sales_dash'),
     path('sales_list/', views.sales_list, name='sales_list'),
     path('add_sales/', views.add_sales, name='add_sales'),

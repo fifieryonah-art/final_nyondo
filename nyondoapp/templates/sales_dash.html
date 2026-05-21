@@ -1,259 +1,435 @@
 {% extends 'base.html' %}
- {% block title %}
-    Sales Dashboard | Nyondo Hardware
- {% endblock %}
- {% block extra_css %}
-    <style>
 
-        *{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+{% block title %}
+Sales Dashboard | Nyondo Hardware
+{% endblock %}
+
+{% block extra_css %}
+
+<style>
+
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
+
+    body{
+        background:#f4f6f9;
+        font-family:Arial, Helvetica, sans-serif;
+        overflow-x:hidden;
+    }
+
+    .dash-body{
+        padding:30px;
+        min-height:100vh;
+        overflow-x:hidden;
+        width:100%;
+    }
+
+    /* HEADER */
+
+    .dash-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:30px;
+        flex-wrap:wrap;
+        gap:15px;
+    }
+
+    .header-text h2{
+        color:#0F172B;
+        font-size:32px;
+        margin-bottom:5px;
+    }
+
+    .header-text p{
+        color:#6b7280;
+        font-size:15px;
+    }
+
+    .add-btn{
+        background:#f54900;
+        color:white;
+        padding:13px 22px;
+        border-radius:10px;
+        text-decoration:none;
+        font-size:14px;
+        font-weight:bold;
+        transition:0.3s ease;
+        display:inline-block;
+    }
+
+    .add-btn:hover{
+        opacity:0.9;
+        transform:translateY(-2px);
+    }
+
+    /* CARDS */
+
+    .cards{
+        display:grid;
+        grid-template-columns:repeat(3, 1fr);
+        gap:20px;
+        margin-bottom:30px;
+        width:100%;
+    }
+
+    .card{
+        background:white;
+        padding:24px;
+        border-radius:14px;
+        box-shadow:0 2px 10px rgba(0,0,0,0.06);
+        border-top:5px solid #f54900;
+        transition:0.3s ease;
+        width:100%;
+    }
+
+    .card:hover{
+        transform:translateY(-3px);
+    }
+
+    .card h3{
+        color:#6b7280;
+        font-size:15px;
+        margin-bottom:12px;
+    }
+
+    .card p{
+        color:#0F172B;
+        font-size:30px;
+        font-weight:bold;
+        margin-bottom:8px;
+    }
+
+    .card span{
+        color:#16a34a;
+        font-size:13px;
+        font-weight:500;
+    }
+
+    /* TABLE CARDS */
+
+    .table-card{
+        background:white;
+        border-radius:14px;
+        padding:22px;
+        margin-bottom:30px;
+        box-shadow:0 2px 10px rgba(0,0,0,0.06);
+        overflow-x:auto;
+        width:100%;
+    }
+
+    .table-title{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:20px;
+    }
+
+    .table-title h4{
+        color:#0F172B;
+        font-size:22px;
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+    }
+
+    thead{
+        background:#0F172B;
+    }
+
+    thead th{
+        color:white;
+        padding:16px;
+        text-align:left;
+        font-size:14px;
+        font-weight:600;
+    }
+
+    tbody td{
+        padding:16px;
+        border-bottom:1px solid #f1f1f1;
+        color:#374151;
+        font-size:14px;
+    }
+
+    tbody tr:hover{
+        background:#f9fafb;
+    }
+
+    /* STATUS */
+
+    .status-pending{
+        background:#fff1e8;
+        color:#f54900;
+        padding:6px 14px;
+        border-radius:30px;
+        font-size:12px;
+        font-weight:bold;
+    }
+
+    .status-completed{
+        background:#e8f7ee;
+        color:#0f9d58;
+        padding:6px 14px;
+        border-radius:30px;
+        font-size:12px;
+        font-weight:bold;
+    }
+
+    /* RESPONSIVE */
+
+    @media(max-width:992px){
+
+        .cards{
+            grid-template-columns:repeat(2,1fr);
         }
 
-        .dash-body{
-            padding: 25px;
-            min-height: 100vh;
-        }
+    }
+
+    @media(max-width:768px){
 
         .dash-header{
-            margin-bottom: 25px;
+            flex-direction:column;
+            align-items:flex-start;
         }
 
-        .dash-header h2{
-            color: #0F172B;
-            margin-bottom: 5px;
-            font-size: 30px;
-        }
-
-        .dash-header p{
-            color: #666;
-            font-size: 15px;
+        .header-text h2{
+            font-size:26px;
         }
 
         .cards{
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 10px;
+            grid-template-columns:1fr;
         }
 
-        .card{
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            border-top: 5px solid orangered;
-            transition: 0.3s;
-        }
+    }
 
-        .card h3{
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 12px;
-        }
+</style>
 
-        .card p{
-            font-size: 28px;
-            font-weight: bold;
-            color: #0F172B;
-            margin-bottom: 8px;
-        }
+{% endblock %}
 
-        .card span{
-            color: green;
-            font-size: 14px;
-        }
+{% block content %}
 
-        .table-card{
-            background: #fff;
-            padding: 20px;
-            margin-bottom: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            overflow: auto;
-        }
+<div class="dash-body">
 
-        .table-card h4{
-            margin-bottom: 20px;
-            color: #0F172B;
-            font-size: 20px;
-        }
+    <!-- HEADER -->
 
-        table{
-            width: 100%;
-            border-collapse: collapse;
-        }
+    <div class="dash-header">
 
-        table th{
-            background: #f5f5f5;
-            color: #0F172B;
-            padding: 14px;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        table td{
-            padding: 14px;
-            border-bottom: 1px solid #ddd;
-            font-size: 14px;
-        }
-   
-        table tr:hover{
-            background: #f9f9f9;
-        }
-
-        .status-pending{
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .add-btn{
-            background: orangered;
-            color: white;
-            padding: 18px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: 0.3s;
-            width: 100px;
-        }
-        .add-btn:hover{
-            opacity: 0.9;
-        }
-    </style>
- {% endblock %}
-
- {% block content %}
-    <div class="dash-body">
-
-       <div class="dash-header">
-        <h2>Nyondo Hardware </h2>
-        <P>NYONDO General Hardware LTD - Sales & Inventory Management</P>
-        <button type="submit" class="add-btn"><a href="{% url 'add_sales' %}">New Sale</a></button>
-        </div>
-        
-        <div class="cards">
-            <div class="card">
-                <h3>Total Sales (Today)</h3>
-                <p>{{ total_sales}}</p>
-                <span>{{total_revenue}}</span>
-            </div>
-
-            <div class="card">
-                <h3>Total Items Sold</h3>
-                <p>{{ total_items_sold }}</p>
-                <span>Items_sold</span>
-            </div>
-
-            <div class="card">
-                <h3>Transport Charges</h3>
-                <p>{{ transport_total }}</p>
-                <span>Delivery charges</span>
-            </div>
-            <div class="card">
-                <h3>Supplier Credit</h3>
-                <p>{{ supplier_credit }}</p>
-                <span>Outstanding balances</span>
-            </div>
-            <div class="card">
-                <h3>Deposit Scheme</h3>
-                <p>{{deposits}}</p>
-                <span>Customer deposits</span>
-            </div>
-
-            <div class="card">
-                <h3>Low Stock Items</h3>
-                <p>{{ low_stock_count}}</p>
-                <span>Need restocking</span>
-            </div>
-        </div>
-     
-        <div class="table-card">
-        <table>
-           <h5>Recent Transactions</h5>
-           <tr>
-            <th>SaleID</th>
-            <th>Date</th>
-            <th>Customer</th>
-            <th>Product</th>
-            <th>Category</th>
-            <th>Quantity</th>
-            <th>Amount Paid</th>
-            <th>Transport</th>
-            <th>Status</th>
-            <th>Payment Method</th>
-           </tr>
-
-           {% for sale in sales %}
-           <tr>
-            
-               <td>{{sale.id}}</td>
-               <td>{{sale.date}}</td>
-               <td>{{sale.customer_name}}</td>
-               <td>{{sale.product}}</td>
-               <td>{{sale.category}}</td>
-               <td>{{sale.quantity}}</td>
-               <td>{{sale.amount_paid}}</td>
-               <td>{{sale.transport}}</td>
-               <td>
-                <span class="status-pending">{{ sale.status }}</span>
-               </td>
-               <td>{{sale.payment_method}}</td> 
-           </tr>
-           {% endfor %}
-        </table>
+        <div class="header-text">
+            <h2>Nyondo Hardware</h2>
+            <p>NYONDO General Hardware LTD - Sales & Inventory Management</p>
         </div>
 
-        <div class="table-card">
-        <table>
-            <h5>Low Stock Alerts</h5>
-            <tr>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Current Stock</th>
-                <th>Status</th>
-            </tr>
-            
-            {% for stock in low_stock %}
-                
-            
-            <tr>
-                <td>{{stock.name}}</td>
-                <td>{{stock.description}}</td>
-                <td>{{stock.stock_quantity}}</td>
-                <td>
-                  <span class="status-pending">Low Stock</span>  
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-     </div>
+        <a href="{% url 'add_sales' %}" class="add-btn">
+            + New Sale
+        </a>
 
-      <div class="table-card">
-        <table>
-          <h5>Top Selling Products</h5>
-
-          <tr>
-            <th>Product</th>
-            <th>Category</th>
-            <th>Quantity Sold</th>
-            <th>Period</th>
-          </tr>
-      
-          {% for item in top_selling_items %}
-            <tr>
-            <td>{{sales.product}}</td>
-            <td>{{sales.category}}</td>
-            <td>{{sales.quantity}}</td>
-            <td>{{sales.period}}</td>
-          </tr>
-          {% endfor %}
-        </table>
-        </div>
     </div>
- {% endblock %}
+
+    <!-- CARDS -->
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Total Sales (Today)</h3>
+            <p>{{ total_sales }}</p>
+            <span>UGX {{ total_revenue }}</span>
+        </div>
+
+        <div class="card">
+            <h3>Total Items Sold</h3>
+            <p>{{ total_items_sold }}</p>
+            <span>Products sold today</span>
+        </div>
+
+        <div class="card">
+            <h3>Transport Charges</h3>
+            <p>{{ transport_total }}</p>
+            <span>Delivery revenue</span>
+        </div>
+
+        <div class="card">
+            <h3>Supplier Credit</h3>
+            <p>{{ supplier_credit }}</p>
+            <span>Outstanding balances</span>
+        </div>
+
+        <div class="card">
+            <h3>Deposit Scheme</h3>
+            <p>{{ deposits }}</p>
+            <span>Customer deposits</span>
+        </div>
+
+        <div class="card">
+            <h3>Low Stock Items</h3>
+            <p>{{ low_stock_count }}</p>
+            <span>Need restocking</span>
+        </div>
+
+    </div>
+
+    <!-- RECENT TRANSACTIONS -->
+
+    <div class="table-card">
+
+        <div class="table-title">
+            <h4>Recent Transactions</h4>
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Sale ID</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                    <th>Amount Paid</th>
+                    <th>Transport</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for sale in sales %}
+
+                <tr>
+
+                    <td>{{ sale.id }}</td>
+                    <td>{{ sale.date }}</td>
+                    <td>{{ sale.customer_name }}</td>
+                    <td>{{ sale.product }}</td>
+                    <td>{{ sale.category }}</td>
+                    <td>{{ sale.quantity }}</td>
+                    <td>UGX {{ sale.amount_paid }}</td>
+                    <td>{{ sale.transport }}</td>
+
+                    <td>
+
+                        {% if sale.status == "Completed" %}
+                            <span class="status-completed">
+                                {{ sale.status }}
+                            </span>
+                        {% else %}
+                            <span class="status-pending">
+                                {{ sale.status }}
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>{{ sale.payment_method }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <!-- LOW STOCK -->
+
+    <div class="table-card">
+
+        <div class="table-title">
+            <h4>Low Stock Alerts</h4>
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Current Stock</th>
+                    <th>Status</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for stock in low_stock %}
+
+                <tr>
+
+                    <td>{{ stock.name }}</td>
+                    <td>{{ stock.description }}</td>
+                    <td>{{ stock.stock_quantity }}</td>
+
+                    <td>
+                        <span class="status-pending">
+                            Low Stock
+                        </span>
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <!-- TOP SELLING -->
+
+    <div class="table-card">
+
+        <div class="table-title">
+            <h4>Top Selling Products</h4>
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Quantity Sold</th>
+                    <th>Period</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for item in top_selling_items %}
+
+                <tr>
+
+                    <td>{{ item.product }}</td>
+                    <td>{{ item.category }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.period }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

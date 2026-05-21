@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from datetime import datetime, date
 from nyondoapp.models import Sale, Payment, Customer, Product
-from django.db.models import Sum
+from django.db.models import Sum, Max
 from .forms import SupplierForm, SupplierPaymentForm
 from .models import Supplier, DepositScheme, DepositPayment
 
@@ -166,20 +166,119 @@ def record_payment(request, pk):
         'supplier': supplier
     })
 
+
 def deposit_dashboard(request):
+
     deposits = DepositScheme.objects.all()
-    active_deposits = deposits.filter(is_completed=False)
-    completed_deposits = deposits.filter(is_completed=True)
+
+    active = 0
+    completed = 0
+
+    total_paid_all = 0
+    total_balance_all = 0
+
+    for d in deposits:
+
+        paid = DepositPayment.objects.filter(scheme=d).aggregate(
+            total=Sum("amount_paid")
+        )["total"] or 0
+
+        balance = (d.total_amount or 0) - paid
+
+        # attach runtime values (NOT DB)
+        d.paid = paid
+        d.balance = balance
+
+        # STATUS LOGIC (LIVE)
+        if paid == 0:
+            d.status = "Pending"
+        elif balance <= 0:
+            d.status = "Completed"
+            completed += 1
+        else:
+            d.status = "Active"
+            active += 1
+
+        total_paid_all += paid
+        total_balance_all += balance
 
     context = {
-        "total_deposits": deposits.count(),
-        "active_deposits": active_deposits,
-        "completed_deposits": completed_deposits,
-    }
-    return render(request, "deposit_dashboard.html", context)
+        "deposits": deposits,
 
-def record_deposit(request, scheme_id):
-    scheme = get_object_or_404(DepositScheme, id=scheme_id)
+        "active_schemes": active,
+        "completed_schemes": completed,
+
+        "total_paid": total_paid_all,
+        "total_balance": total_balance_all,
+    }
+
+    return render(request, "deposit_dashboard.html", context)
+def deposit_list(request):
+
+    deposits = DepositScheme.objects.all()
+    deposit_rows = []
+
+    for deposit in deposits:
+
+        payments = deposit.payments.all()  
+
+        last_payment = payments.aggregate(
+            last=Max("payment_date")
+        )["last"]
+
+        total_paid = payments.aggregate(
+            total=Sum("amount_paid")
+        )["total"] or 0
+
+        # status logic (safe version)
+        if hasattr(deposit, "balance") and deposit.balance is not None:
+            status = "Completed" if deposit.balance <= 0 else "Active"
+        else:
+            status = "Active"
+
+        deposit_rows.append({
+            "deposit": deposit,
+            "last_payment": last_payment,
+            "total_paid": total_paid,
+            "status": status,
+        })
+
+    return render(request, "deposit_list.html", {
+        "deposit_rows": deposit_rows
+    })
+
+
+def add_deposit(request):
+
+    customers = Customer.objects.all()
+    products = Product.objects.all()
+
+    if request.method == "POST":
+
+        customer_id = request.POST.get("customer")
+        product_id = request.POST.get("product")
+        quantity = request.POST.get("quantity_expected")
+        amount_paid = request.POST.get("amount_paid")
+
+        customer = Customer.objects.get(id=customer_id)
+        product = Product.objects.get(id=product_id)
+
+        deposit = DepositScheme.objects.create(
+            customer=customer,
+            product=product,
+            quantity_expected=quantity,
+            amount_paid=amount_paid,
+        )
+
+        return redirect('deposit_dashboard')
+
+    return render(request, "add_deposit.html", {
+        "customers": customers,
+        "products": products
+    })
+
+def record_deposit(request, pk):
+    scheme = get_object_or_404(DepositScheme, id=pk)
 
     if request.method == "POST":
         amount = request.POST.get("amount_paid")
@@ -189,7 +288,6 @@ def record_deposit(request, scheme_id):
         if amount:
             amount = float(amount)
 
-            # create payment
             DepositPayment.objects.create(
                 scheme=scheme,
                 amount_paid=amount,
@@ -199,52 +297,57 @@ def record_deposit(request, scheme_id):
             )
 
             # update scheme
-            scheme.amount_paid += amount
+            scheme.amount_paid = (scheme.amount_paid or 0) + amount
             scheme.balance = scheme.total_amount - scheme.amount_paid
 
             if scheme.balance <= 0:
                 scheme.status = "Completed"
+            else:
+                scheme.status = "Active"
 
             scheme.save()
 
         return redirect('deposit_dashboard')
 
-    return render(request, 'record_deposit.html', {
-        'scheme': scheme
+    return render(request, "record_deposit.html", {
+        "scheme": scheme
     })
 
-from django.shortcuts import render
-from .models import DepositScheme, DepositPayment
-from django.db.models import Sum
+def edit_deposit(request, pk):
+    deposit = get_object_or_404(DepositScheme, id=pk)
+    if request.method == "POST":
+        deposit.quantity_expected = request.POST.get("quantity_expected")
+        deposit.save()
+        return redirect("deposit_list")
+    
+    return render(request, "edit_deposit.html", {"deposit": deposit})
 
-def deposit_dashboard(request):
+def delete_deposit(request, pk):
+    deposit = get_object_or_404(DepositScheme, id=pk)
 
-    active_schemes = DepositScheme.objects.filter(status="Active").count()
-    completed_schemes = DepositScheme.objects.filter(status="Completed").count()
+    if request.method == "POST":
+        deposit.delete()
+        return redirect("deposit_list")
 
-    total_paid = DepositPayment.objects.aggregate(
-        total=Sum('amount_paid')
-    )['total'] or 0
+    return render(request, "delete_deposit.html", {"deposit": deposit})
 
-    total_balance = DepositScheme.objects.aggregate(
-        total=Sum('balance')
-    )['total'] or 0
+def view_deposit(request, pk):
 
-    recent_payments = DepositPayment.objects.select_related('scheme').order_by('-payment_date')[:5]
+    deposit = get_object_or_404(DepositScheme, id=pk)
+
+    payments = deposit.payments.all().order_by("-payment_date")
+
+    total_paid = payments.aggregate(
+        total=Sum("amount_paid")
+    )["total"] or 0
+
+    balance = (deposit.total_amount or 0) - total_paid
 
     context = {
-        'active_schemes': active_schemes,
-        'completed_schemes': completed_schemes,
-        'total_paid': total_paid,
-        'total_balance': total_balance,
-        'recent_payments': recent_payments,
+        "deposit": deposit,
+        "payments": payments,
+        "total_paid": total_paid,
+        "balance": balance,
     }
 
-    return render(request, 'deposit_dashboard.html', context)
-
-
-
-def deposit_list(request):
-    payments = DepositPayment.objects.select_related('scheme').order_by('-payment_date')
-
-    return render(request, 'deposit_list.html', {'payments': payments})
+    return render(request, "view_deposit.html", context)

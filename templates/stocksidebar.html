@@ -1,0 +1,37 @@
+<div class="sidebar">
+
+    <style>
+        .sidebar{
+            width: 260px;
+            background: #0f172a;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px;
+        }
+
+        .sidebar a{
+            display: block;
+            color: #cbd5e1;
+            padding: 12px;
+            text-decoration: none;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .sidebar a:hover{
+            background: #ea580c;
+            color: white;
+        }
+    </style>
+
+    <h3>Stock Panel</h3>
+
+    <a href="{% url 'stock' %}">Dashboard</a>
+    <a href="{% url 'add_stock' %}">Add Stock</a>
+    <a href="{% url 'product_list' %}">Products</a>
+    <a href="{% url 'sales_dash' %}">Sales</a>
+
+</div>

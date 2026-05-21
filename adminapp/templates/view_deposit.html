@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deposit Details</title>
+
+    <style>
+        body{
+            font-family: Arial;
+            background:#f4f6f9;
+            padding:20px;
+        }
+
+        .box{
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            margin-bottom:20px;
+        }
+
+        h2{
+            margin-bottom:10px;
+        }
+
+        .summary{
+            display:grid;
+            grid-template-columns:repeat(4,1fr);
+            gap:15px;
+        }
+
+        .card{
+            background:#fff;
+            padding:15px;
+            border-radius:10px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+            border-radius:10px;
+            overflow:hidden;
+        }
+
+        th{
+            background:#0f172b;
+            color:white;
+            padding:12px;
+        }
+
+        td{
+            padding:12px;
+            border-bottom:1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>Customer Deposit Details</h2>
+
+    <p><b>Customer:</b> {{ deposit.customer.name }}</p>
+    <p><b>Product:</b> {{ deposit.product.name }}</p>
+</div>
+
+<div class="summary">
+
+    <div class="card">
+        <h4>Total Expected</h4>
+        <h2>UGX {{ deposit.total_amount|default:0 }}</h2>
+    </div>
+
+    <div class="card">
+        <h4>Total Paid</h4>
+        <h2>UGX {{ total_paid }}</h2>
+    </div>
+
+    <div class="card">
+        <h4>Balance</h4>
+        <h2>UGX {{ balance }}</h2>
+    </div>
+
+    <div class="card">
+        <h4>Status</h4>
+        <h2>
+            {% if balance <= 0 %}
+                Completed
+            {% else %}
+                Active
+            {% endif %}
+        </h2>
+    </div>
+
+</div>
+
+<h3 style="margin-top:20px;">Transaction History</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Amount Paid</th>
+            <th>Method</th>
+            <th>Comment</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for p in payments %}
+        <tr>
+            <td>{{ p.payment_date }}</td>
+            <td>UGX {{ p.amount_paid }}</td>
+            <td>{{ p.payment_method }}</td>
+            <td>{{ p.comment }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No transactions yet</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

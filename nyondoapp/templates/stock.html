@@ -1,255 +1,354 @@
 {% extends 'base.html' %}
- {% block title %} Stock Dashboard | Nyondo Hardware {% endblock %}
 
- {% block extra_css %}
-  
- 
+{% block title %}
+    Stock Dashboard | Nyondo Hardware
+{% endblock %}
+
+{% block extra_css %}
+
 <style>
-  /* .container-fluid {
+
+body{
+    background: #f4f6f9;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* PAGE HEADER */
+
+.page-header{
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-    width: 100%;
-  } */
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-    margin-top: 20px;
-    padding: 20px;
-  }
-
-  .cards .card{
-    background-color: whitesmoke;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    border-top: 10px solid orangered;
-    
-  }
-
-  .cards .card h5{
-     margin-bottom: 15px;
-     font-size: 16px;
-     color: #333;
-  }
-
-  .cards .card p{
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0;
-    color: #0F172B;
-  }
-
-  table{
-    width: 80%;
-    border-collapse: collapse;
-    margin: 20px auto;
-    background-color: white;
-    border-collapse: collapse;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-  }
-
-  td, th{
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
-    border-right: none;
-    border-left: none;
-  }
-  th{
-    background-color: #f5f5f5;
-  }
-  td{
-    padding: 15px;
     align-items: center;
-  }
-  tr:last-child td{
-    border-bottom: none;
-  }
-
-.actions{
-  display: flex;
-  justify-content: space-between;
-  margin: 20px;
-  width: 90%;
-
-}
-button{
-  background: #0F172B;
-  padding: 8px;
-  border-radius: 5px;
-  color: #f5f5f5;
-  font-weight: 800;
-  font-size: medium;
-  border: #F54900;
- /* margin-left: 80%; */
- cursor: pointer;
- width: 200px;
-}
-button:hover{
-background-color: #F54900;
+    margin: 20px;
+    flex-wrap: wrap;
 }
 
-.search{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 600px;
-  margin: 20px auto;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
-input{
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  padding: 10px;
+.page-header h2{
+    color: #0F172B;
+    margin-bottom: 5px;
 }
 
-select{
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  border-left: 1px solid #ccc;
-  background: #f9f9f9;
-  cursor: pointer;
-  border-radius: 4px;
-  width: 250px;
-  border: 1px solid #ccc;
+.page-header p{
+    color: #666;
 }
 
-.search button{
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin-right: 10px;
-  font-size: 18px;
-  font-weight: 200;
-  color: #666;
-  width: 250px;
-  border: 1px solid #ccc;
+.add-btn{
+    background: #0F172B;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s ease;
 }
 
-.search button:hover{
-  color: #F54900;
+.add-btn:hover{
+    background: #F54900;
 }
+
+/* CARDS */
+
+.cards{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap: 20px;
+    margin: 20px;
+}
+
+.card{
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    border-top: 5px solid #F54900;
+    transition: 0.3s ease;
+}
+
+.card:hover{
+    transform: translateY(-5px);
+}
+
+.card h5{
+    color: #555;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.card p{
+    font-size: 28px;
+    font-weight: bold;
+    color: #0F172B;
+}
+
+/* QUICK ACTIONS */
+
+.quick-actions{
+    margin: 20px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.quick-actions a{
+    background: white;
+    padding: 12px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #0F172B;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    transition: 0.3s ease;
+}
+
+.quick-actions a:hover{
+    background: #F54900;
+    color: white;
+}
+
+/* TABLES */
+
+.section-title{
+    margin: 20px;
+    color: #0F172B;
+}
+
+.table-container{
+    width: 95%;
+    margin: auto;
+    overflow-x: auto;
+}
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+th{
+    background: #0F172B;
+    color: white;
+    padding: 14px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+td{
+    padding: 14px;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+}
+
+tr:hover{
+    background: #f9f9f9;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+    .page-header{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+}
+
 </style>
+
 {% endblock %}
 
 {% block content %}
 
-<h2>Stock Management</h2>
-<div class="actions">
-<h4>Track and manage all Stock here</h4>
-<a href="{% url 'add_stock' %}"><button type="submit">Add Stock</button></a>
+<!-- PAGE HEADER -->
+
+<div class="page-header">
+
+    <div>
+        <h2>Stock Dashboard</h2>
+        <p>Monitor stock movement and inventory status</p>
+    </div>
+
+    <a href="{% url 'add_stock' %}" class="add-btn">
+        + Add Stock
+    </a>
+
 </div>
 
 
-  <div class="cards">
-    <div class="card products">
-      <h5><i class="fas fa-box" style="color: green"></i>Total Products</h5>
-      <p class="card-text">{{total_products}}</p>
-    </div>
+<!-- DASHBOARD CARDS -->
 
-    <div class="card low_stock">
-      <h5>
-        <i class="fas fa-triangle-exclamation" style="color: red"></i>Low Stock
-      </h5>
-      <p class="card-text">{{low_stock}}</p>
-    </div>
+<div class="cards">
 
-    <div class="card out_of_stock">
-      <h5>
-        <i class="fas fa-ban text-danger" style="color: red"></i>Out of Stock
-      </h5>
-      <p class="card-text">{{out_of_stock}}</p>
-    </div>
-
-    <div class="card total_value">
-      <h5>
-        <i class="fas fa-sack-dollar" style="color: burlywood"></i> total_value
-      </h5>
-      <p class="card-text">{{total_value}}</p>
-    </div>
-  </div>
-
-  <div class="low">
-    
-    <table>
-      <tr>
-        <td colspan="3">Low Stock Alert</td>
-      </tr>
-      <tr>
-         <th>Item</th>
-         <th>Quantity</th>
-         <th>Restock</th>
-      </tr> 
-       {% for product in low_stock_items %}
-        
-       
-      <tr>
-        <td>{{product.name}}</td>
-        <td>{{product.stock_quantity}}</td>
-        <td>{{product.reorder_level}}</td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="3">All items are sufficiently stocked</td>
-      </tr>
-      {% endfor %} 
-    </table>
-  </div>
-
-  <div class="search">
     <div class="card">
-      <button type="submit" class="btn">search <i class="fas fa-search"></i></button>
-      <select name="category" id="category">
-        {% for product in products %}
-        <option value="{{ product.id }}">{{ product.name }}</option>
-        {% endfor %}
-      </select>
+        <h5>
+            <i class="fas fa-box" style="color: green;"></i>
+            Total Products
+        </h5>
+
+        <p>{{ total_products }}</p>
     </div>
-  </div>
 
-  <div class="products">
+    <div class="card">
+        <h5>
+            <i class="fas fa-triangle-exclamation" style="color: red;"></i>
+            Low Stock
+        </h5>
+
+        <p>{{ low_stock }}</p>
+    </div>
+
+    <div class="card">
+        <h5>
+            <i class="fas fa-ban" style="color: red;"></i>
+            Out of Stock
+        </h5>
+
+        <p>{{ out_of_stock }}</p>
+    </div>
+
+    <div class="card">
+        <h5>
+            <i class="fas fa-sack-dollar" style="color: goldenrod;"></i>
+            Total Stock Value
+        </h5>
+
+        <p>{{ total_value }}</p>
+    </div>
+
+</div>
+
+
+<!-- QUICK ACTIONS -->
+
+<div class="quick-actions">
+
+    <a href="{% url 'add_stock' %}">
+        <i class="fas fa-plus"></i>
+        Add Stock
+    </a>
+
+    <a href="#">
+        <i class="fas fa-boxes"></i>
+        View Inventory
+    </a>
+
+    <a href="#">
+        <i class="fas fa-file-lines"></i>
+        Reports
+    </a>
+
+    <a href="#">
+        <i class="fas fa-truck"></i>
+        Suppliers
+    </a>
+
+</div>
+
+
+<!-- LOW STOCK TABLE -->
+
+<h3 class="section-title">
+    Low Stock Alerts
+</h3>
+
+<div class="table-container">
+
     <table>
-      <tr>
-        <th>ID</th>
-        <th>Product Name</th>
-        <th>Quantity</th>
-        <th>Category</th>
-        <th>Unit Cost</th>
-        <th>Cost Price</th>
-        <th>Stock</th>
-        <th>Supplier</th>
-        <th>Actions</th>
-      </tr>
-     {% for product in low_stock_items %}
-      
-      <tr>
-        <td>{{product.id}}</td>
-        <td>{{product.name}}</td>
-        <td>{{product.stock_quantity}}</td>
-        <td>{{product.type}}</td>
-        <td>{{product.unit_cost}}</td>
-        <td>{{product.cost_price}}</td>
-        <td>{{product.stock}}</td>
-        <td>{{product.supplier}}</td>
-        <td>{{product.profit_margin}}</td>
-         
-      </tr>
 
-      {% endfor %}
+        <thead>
+
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Reorder Level</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for product in low_stock_items %}
+
+            <tr>
+
+                <td>{{ product.name }}</td>
+                <td>{{ product.stock_quantity }}</td>
+                <td>{{ product.reorder_level }}</td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="3">
+                    All items are sufficiently stocked
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
 
     </table>
-  </div>
+
+</div>
+
+
+<!-- RECENT STOCK ENTRIES -->
+
+<h3 class="section-title">
+    Recent Stock Entries
+</h3>
+
+<div class="table-container">
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Product</th>
+                <th>Quantity Received</th>
+                <th>Cost Price</th>
+                <th>Date Added</th>
+                <th>Recorded By</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for stock in recent_stock %}
+
+            <tr>
+
+                <td>{{ stock.product.name }}</td>
+                <td>{{ stock.quantity }}</td>
+                <td>{{ stock.cost_price }}</td>
+                <td>{{ stock.date_added }}</td>
+                <td>{{ stock.recorded_by }}</td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="5">
+                    No recent stock entries found
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
 
 {% endblock %}
-

@@ -9,7 +9,11 @@ urlpatterns = [
     path('view_supplier/<int:pk>/', views.view_supplier, name='view_supplier'),
     path('delete_supplier<int:pk>/', views.delete_supplier, name='delete_supplier'),
     path('record_payment/<int:pk>/', views.record_payment, name='record_payment'),
-    path('record_deposit/', views.record_deposit, name='record_deposit'),
+    path('record_deposit/<int:pk>/', views.record_deposit, name='record_deposit'),
     path('deposit_dashboard/', views.deposit_dashboard, name='deposit_dashboard'),
     path('deposit_list/', views.deposit_list, name='deposit_list'),
+    path('add_deposit/', views.add_deposit, name='add_deposit'),
+    path('edit_deposit/<int:pk>/', views.edit_deposit, name='edit_deposit'),
+    path('delete_deposit/<int:pk>/', views.delete_deposit, name='delete_deposit'),
+    path('view_deposit/<int:pk>/', views.view_deposit, name='view_deposit'),
 ]

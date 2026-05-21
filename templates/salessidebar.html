@@ -1,0 +1,38 @@
+<div class="sidebar">
+
+    <style>
+        .sidebar{
+            width: 260px;
+            background: #1e293b;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px;
+        }
+
+        .sidebar a{
+            display: block;
+            color: #cbd5e1;
+            padding: 12px;
+            text-decoration: none;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .sidebar a:hover{
+            background: #f54900;
+            color: white;
+        }
+    </style>
+
+    <h3>Cashier Panel</h3>
+
+    <a href="{% url 'employee_dash' %}">Dashboard</a>
+    <a href="{% url 'add_sales' %}">New Sale</a>
+    <a href="{% url 'sales_dash' %}">Sales</a>
+    <a href="{% url 'add_payment' %}">Payments</a>
+    <a href="{% url 'credit' %}">Credit</a>
+
+</div>

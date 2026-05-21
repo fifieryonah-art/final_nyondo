@@ -1,105 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deposit List</title>
+
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f9;
-    margin: 0;
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-.container {
-    padding: 20px;
+body{
+    background:#f4f6f9;
+    font-family:Arial;
+    padding:25px;
 }
 
-h2 {
-    margin-bottom: 15px;
-    color: #2c3e50;
+/* TOP */
+.top-section{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
 }
 
-/* TABLE DESIGN */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+.top-section h2{
+    font-size:26px;
+    color:#0f172b;
 }
 
-th {
-    background: #2c3e50;
-    color: white;
-    padding: 12px;
-    text-align: left;
+.top-buttons{
+    display:flex;
+    gap:10px;
 }
 
-td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
+.top-buttons a{
+    text-decoration:none;
+    padding:10px 16px;
+    border-radius:6px;
+    font-weight:600;
 }
 
-tr:hover {
-    background: #f1f1f1;
+.dashboard-btn{
+    background:#0f172b;
+    color:white;
 }
 
-/* BUTTON */
-a {
-    display: inline-block;
-    padding: 6px 10px;
-    background: #27ae60;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 14px;
+.add-btn{
+    background:#f54900;
+    color:white;
 }
 
-a:hover {
-    background: #219150;
+/* TABLE */
+.table-wrapper{
+    background:white;
+    border-radius:10px;
+    overflow-x:auto;
+    width:100%;
 }
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1100px; /* fixes “thin table” issue */
+}
+
+thead{
+    background:#0f172b;
+}
+
+thead th{
+    color:white;
+    padding:15px;
+    text-align:left;
+}
+
+tbody td{
+    padding:15px;
+    border-bottom:1px solid #eee;
+}
+
+/* STATUS */
+.active-status{
+    background:#fff1e8;
+    color:#f54900;
+    padding:5px 10px;
+    border-radius:20px;
+}
+
+.completed-status{
+    background:#e8f7ee;
+    color:#0f9d58;
+    padding:5px 10px;
+    border-radius:20px;
+}
+
+/* ACTIONS */
+.actions{
+    display:flex;
+    gap:8px;
+}
+
+.actions a{
+    text-decoration:none;
+    padding:6px 10px;
+    border-radius:5px;
+    font-size:13px;
+}
+
+.view-btn{background:#0f172b;color:white;}
+.edit-btn{background:#f54900;color:white;}
+.deposit-btn{background:#fff1e8;color:#f54900;border:1px solid #f54900;}
+
 </style>
 
-<div class="container">
+</head>
 
-<h2>Deposit Schemes</h2>
+<body>
 
-<div style="margin-bottom:15px;">
+<div class="top-section">
 
-    <a href="{% url 'deposit_dashboard' %}"
-       style="padding:8px 12px; background:#2c3e50; color:white; text-decoration:none; border-radius:5px; margin-right:10px;">
-        Dashboard
-    </a>
+    <h2>Deposit List</h2>
 
-    <a href="{% url 'deposit_list' %}"
-       style="padding:8px 12px; background:#3498db; color:white; text-decoration:none; border-radius:5px;">
-        Deposit History
-    </a>
+    <div class="top-buttons">
+        <a href="{% url 'deposit_dashboard' %}" class="dashboard-btn">Dashboard</a>
+        <a href="{% url 'add_deposit' %}" class="add-btn">+ Add Deposit</a>
+    </div>
 
 </div>
 
-<table>
-    <tr>
-        <th>Customer</th>
-        <th>Product</th>
-        <th>Total</th>
-        <th>Paid</th>
-        <th>Balance</th>
-        <th>Status</th>
-        <th>Action</th>
-    </tr>
+<div class="table-wrapper">
 
-    {% for scheme in schemes %}
-    <tr>
-        <td>{{ scheme.customer.name }}</td>
-        <td>{{ scheme.product.name }}</td>
-        <td>{{ scheme.total_amount }}</td>
-        <td>{{ scheme.amount_paid }}</td>
-        <td>{{ scheme.balance }}</td>
-        <td>{{ scheme.status }}</td>
-        <td>
-            <a href="{% url 'record_deposit' scheme.id %}">
-                Record Deposit
+<table>
+
+<thead>
+<tr>
+    <th>ID</th>
+    <th>Customer</th>
+    <th>Product</th>
+    <th>Quantity</th>
+    <th>Total Paid</th>
+    <th>Last Payment Date</th>
+    <th>Status</th>
+    <th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for row in deposit_rows %}
+
+<tr>
+
+    <td>{{ row.deposit.id }}</td>
+    <td>{{ row.deposit.customer }}</td>
+    <td>{{ row.deposit.product }}</td>
+    <td>{{ row.deposit.quantity_expected }}</td>
+
+    <td>UGX {{ row.total_paid|floatformat:0 }}</td>
+
+    <td>
+        {% if row.last_payment %}
+            {{ row.last_payment|date:"Y-m-d H:i" }}
+        {% else %}
+            No payments yet
+        {% endif %}
+    </td>
+
+    <td>
+        {% if row.status == "Completed" %}
+            <span class="completed-status">Completed</span>
+        {% else %}
+            <span class="active-status">Active</span>
+        {% endif %}
+    </td>
+
+    <td>
+        <div class="actions">
+            <a href="{% url 'view_deposit' row.deposit.id %}" class="view-btn">View</a>
+            <a href="{%url 'edit_deposit' row.deposit.id %}" class="edit-btn">Edit</a>
+            <a href="{% url 'record_deposit' row.deposit.id %}" class="deposit-btn">
+                Record
             </a>
-        </td>
-    </tr>
-    {% endfor %}
+            <a href="{% url 'delete_deposit' row.deposit.id %}" class="delete-btn">
+        Delete
+    </a>
+
+        </div>
+    </td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
 </table>
 
 </div>
+
+</body>
+</html>
