@@ -1,37 +1,133 @@
+{% load static %}
 <div class="sidebar">
 
     <style>
+
         .sidebar{
-            width: 260px;
-            background: #0f172a;
-            color: white;
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            padding: 20px;
+            width:260px;
+            background:#0f172a;
+            color:white;
+            height:100vh;
+            position:fixed;
+            left:0;
+            top:0;
+            padding:30px 20px;
+            display:flex;
+            flex-direction:column;
         }
 
-        .sidebar a{
-            display: block;
-            color: #cbd5e1;
-            padding: 12px;
-            text-decoration: none;
-            margin-bottom: 10px;
-            border-radius: 8px;
+        /* LOGO AREA */
+
+        .sidebar-header{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            margin-top:20px;
+            margin-bottom:40px;
+            padding-left:5px;
         }
 
-        .sidebar a:hover{
-            background: #ea580c;
-            color: white;
+        .sidebar-header img{
+            width:65px;
+            height:65px;
+            object-fit:contain;
+            border-radius:10px;
+            background:white;
+            padding:5px;
         }
+
+        .sidebar-header h3{
+            font-size:22px;
+            color:white;
+            line-height:1.3;
+        }
+
+        /* LINKS */
+
+        .links a{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            color:#cbd5e1;
+            padding:14px 16px;
+            text-decoration:none;
+            margin-bottom:12px;
+            border-radius:10px;
+            transition:0.3s ease;
+            font-weight:600;
+        }
+
+        .links a:hover{
+            background:#ea580c;
+            color:white;
+        }
+
+        /* LOGOUT */
+
+        .logout-area{
+            margin-top:auto;
+        }
+
+        .logout-btn{
+            width:100%;
+            background:#dc2626;
+            border:none;
+            color:white;
+            padding:14px;
+            border-radius:10px;
+            font-size:15px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .logout-btn:hover{
+            background:#b91c1c;
+        }
+
     </style>
 
-    <h3>Stock Panel</h3>
+    <!-- HEADER -->
+    <div class="sidebar-header">
+        <img src="{% static 'images/logo.png' %}" alt="Logo">
+        <h3>Stock Panel</h3>
+    </div>
 
-    <a href="{% url 'stock' %}">Dashboard</a>
-    <a href="{% url 'add_stock' %}">Add Stock</a>
-    <a href="{% url 'product_list' %}">Products</a>
-    <a href="{% url 'sales_dash' %}">Sales</a>
+    <!-- LINKS -->
+    <div class="links">
+
+        <a href="{% url 'stock' %}">
+            <i class="fas fa-chart-line"></i>
+            Dashboard
+        </a>
+
+        <a href="{% url 'add_stock' %}">
+            <i class="fas fa-boxes-stacked"></i>
+            Add Stock
+        </a>
+
+        <a href="{% url 'product_list' %}">
+            <i class="fas fa-box"></i>
+            Products
+        </a>
+
+        <a href="{% url 'stock_report' %}">
+            <i class="fas fa-file-lines"></i>
+            Reports
+        </a>
+
+    </div>
+
+    <!-- LOGOUT -->
+    <div class="logout-area">
+
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </form>
+
+    </div>
 
 </div>

@@ -4,6 +4,11 @@ from . import views
 urlpatterns = [
     path('', views.admin_dash, name='admin_dash'),
     path('supplier_dashboard/', views.supplier_dashboard, name='supplier_dashboard'),
+    path("create_employee/", views.create_employee, name="create_employee"),
+    path("employees/", views.employee_list, name="employee_list"),
+    path('employees/edit/<int:pk>/', views.edit_employee, name='edit_employee'),
+
+    path('employees/status/<int:pk>/',views.toggle_employee_status,name='toggle_employee_status'),
     path('add_supplier/', views.add_supplier, name='add_supplier'),
     path('edit_supplier/<int:pk>/', views.edit_supplier, name='edit_supplier'),
     path('view_supplier/<int:pk>/', views.view_supplier, name='view_supplier'),

@@ -1,216 +1,24 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}
     Deposit Scheme | Nyondo Hardware
 {% endblock %}
 
 {% block extra_css %}
 
-<style>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-body{
-    background: #f4f6f9;
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-/* PAGE HEADER */
-
-.page-header{
-    margin: 20px;
-}
-
-.page-header h1{
-    color: #0F172B;
-    margin-bottom: 5px;
-}
-
-.page-header p{
-    color: #666;
-}
-
-/* DASHBOARD CARDS */
-
-.cards{
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
-    gap: 20px;
-    margin: 20px;
-}
-
-.card{
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    border-top: 5px solid #F54900;
-    transition: 0.3s ease;
-}
-
-.card:hover{
-    transform: translateY(-5px);
-}
-
-.card h5{
-    color: #555;
-    margin-bottom: 10px;
-    font-size: 15px;
-}
-
-.card p{
-    font-size: 28px;
-    font-weight: bold;
-    color: #0F172B;
-}
-
-/* SEARCH BOX */
-
-.search-container{
-    width: 95%;
-    margin: 20px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
-
-.search-container h3{
-    margin-bottom: 15px;
-    color: #0F172B;
-}
-
-.search-form{
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.search-form input{
-    flex: 1;
-    padding: 14px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    outline: none;
-    font-size: 15px;
-}
-
-.search-form input:focus{
-    border-color: #F54900;
-}
-
-.search-btn{
-    background: #0F172B;
-    color: white;
-    border: none;
-    padding: 14px 22px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s ease;
-    font-weight: bold;
-}
-
-.search-btn:hover{
-    background: #F54900;
-}
-
-/* TABLE */
-
-.section-title{
-    margin: 20px;
-    color: #0F172B;
-}
-
-.table-container{
-    width: 95%;
-    margin: auto;
-    overflow-x: auto;
-}
-
-table{
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
-
-th{
-    background: #0F172B;
-    color: white;
-    padding: 14px;
-    text-align: left;
-    white-space: nowrap;
-}
-
-td{
-    padding: 14px;
-    border-bottom: 1px solid #eee;
-    white-space: nowrap;
-}
-
-tr:hover{
-    background: #f9f9f9;
-}
-
-/* STATUS */
-
-.status-active{
-    background: #d1fae5;
-    color: #065f46;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: bold;
-}
-
-/* BUTTONS */
-
-.actions{
-    display: flex;
-    gap: 8px;
-}
-
-.deposit-btn,
-.withdraw-btn{
-    padding: 8px 14px;
-    border-radius: 6px;
-    text-decoration: none;
-    color: white;
-    font-size: 14px;
-    transition: 0.3s ease;
-}
-
-.deposit-btn{
-    background: #0F172B;
-}
-
-.deposit-btn:hover{
-    background: #F54900;
-}
-
-.withdraw-btn{
-    background: #198754;
-}
-
-.withdraw-btn:hover{
-    background: #157347;
-}
-
-/* RESPONSIVE */
-
-@media(max-width:768px){
-
-    .search-form{
-        flex-direction: column;
-    }
-
-}
-
-</style>
+<link rel="stylesheet"
+      href="{% static 'css/deposit_dashboard.css' %}">
 
 {% endblock %}
 
-
+{% block sidebar %}
+    {% include 'salessidebar.html' %}
+{% endblock %}
 
 {% block content %}
 
@@ -218,73 +26,138 @@ tr:hover{
 
 <div class="page-header">
 
-    <h1>Deposit Scheme Dashboard</h1>
+    <div>
 
-    <p>
-        Manage customers registered on the deposit scheme
-    </p>
+        <h1>
+            <i class="fas fa-piggy-bank"></i>
+            Deposit Scheme Dashboard
+        </h1>
+
+        <p>
+            Manage customers registered on the deposit scheme
+        </p>
+
+    </div>
+
+    <div class="header-actions">
+
+        <a href="#"
+           class="btn-add">
+
+            <i class="fas fa-user-plus"></i>
+
+            Register Customer
+
+        </a>
+
+    </div>
 
 </div>
-
-
 
 <!-- SUMMARY CARDS -->
 
 <div class="cards">
 
-    <div class="card">
-        <h5>
-            <i class="fas fa-users" style="color:#F54900;"></i>
-            Total Scheme Customers
-        </h5>
+    <!-- TOTAL CUSTOMERS -->
 
-        <p>{{ total_scheme_customers }}</p>
+    <div class="card">
+
+        <div class="card-icon orange">
+            <i class="fas fa-users"></i>
+        </div>
+
+        <div class="card-content">
+
+            <h5>Total Scheme Customers</h5>
+
+            <p>{{ total_scheme_customers }}</p>
+
+        </div>
+
     </div>
 
-    <div class="card">
-        <h5>
-            <i class="fas fa-money-bill-wave" style="color:green;"></i>
-            Total Deposits
-        </h5>
+    <!-- TOTAL DEPOSITS -->
 
-        <p>{{ total_deposits }}</p>
+    <div class="card">
+
+        <div class="card-icon green">
+            <i class="fas fa-money-bill-wave"></i>
+        </div>
+
+        <div class="card-content">
+
+            <h5>Total Deposits</h5>
+
+            <p>UGX {{ total_deposits }}</p>
+
+        </div>
+
     </div>
 
-    <div class="card">
-        <h5>
-            <i class="fas fa-wallet" style="color:#0F172B;"></i>
-            Active Accounts
-        </h5>
+    <!-- ACTIVE ACCOUNTS -->
 
-        <p>{{ active_accounts }}</p>
+    <div class="card">
+
+        <div class="card-icon dark">
+            <i class="fas fa-wallet"></i>
+        </div>
+
+        <div class="card-content">
+
+            <h5>Active Accounts</h5>
+
+            <p>{{ active_accounts }}</p>
+
+        </div>
+
     </div>
 
-    <div class="card">
-        <h5>
-            <i class="fas fa-arrow-down" style="color:red;"></i>
-            Withdraws Made
-        </h5>
+    <!-- WITHDRAWS -->
 
-        <p>{{ total_withdraws }}</p>
+    <div class="card">
+
+        <div class="card-icon red">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+
+        <div class="card-content">
+
+            <h5>Withdraws Made</h5>
+
+            <p>{{ total_withdraws }}</p>
+
+        </div>
+
     </div>
 
 </div>
 
-
-
-<!-- SEARCH CUSTOMER -->
+<!-- SEARCH SECTION -->
 
 <div class="search-container">
 
-    <h3>Find Customer</h3>
+    <div class="search-header">
 
-    <form method="GET" class="search-form">
+        <h3>
+            <i class="fas fa-search"></i>
+            Find Customer
+        </h3>
+
+        <p>
+            Search by customer name, phone number or customer ID
+        </p>
+
+    </div>
+
+    <form method="GET"
+          class="search-form">
 
         <input type="text"
                name="q"
                placeholder="Search customer name, ID or phone">
 
-        <button type="submit" class="search-btn">
+        <button type="submit"
+                class="search-btn">
 
             <i class="fas fa-search"></i>
 
@@ -296,86 +169,144 @@ tr:hover{
 
 </div>
 
+<!-- CUSTOMERS TABLE -->
 
+<div class="table-section">
 
-<!-- DEPOSIT SCHEME CUSTOMERS -->
+    <div class="table-header">
 
-<h3 class="section-title">
-    Deposit Scheme Customers
-</h3>
+        <h3 class="section-title">
 
-<div class="table-container">
+            <i class="fas fa-users"></i>
 
-    <table>
+            Deposit Scheme Customers
 
-        <thead>
+        </h3>
 
-            <tr>
-                <th>Customer</th>
-                <th>Phone</th>
-                <th>Total Deposited</th>
-                <th>Last Deposit</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
+        <a href="#"
+           class="btn-export">
 
-        </thead>
+            <i class="fas fa-file-export"></i>
 
-        <tbody>
+            Export
 
-            {% for customer in scheme_customers %}
+        </a>
 
-            <tr>
+    </div>
 
-                <td>{{ customer.name }}</td>
+    <div class="table-container">
 
-                <td>{{ customer.phone }}</td>
+        <table>
 
-                <td>{{ customer.total_deposit }}</td>
+            <thead>
 
-                <td>{{ customer.last_deposit }}</td>
+                <tr>
+                    <th>Customer</th>
+                    <th>Phone</th>
+                    <th>Total Deposited</th>
+                    <th>Last Deposit</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
 
-                <td>
-                    <span class="status-active">
-                        Active
-                    </span>
-                </td>
+            </thead>
 
-                <td>
+            <tbody>
 
-                    <div class="actions">
+                {% for customer in scheme_customers %}
 
-                        <a href="#"
-                           class="deposit-btn">
-                           Deposit
-                        </a>
+                <tr>
 
-                        <a href="#"
-                           class="withdraw-btn">
-                           Withdraw
-                        </a>
+                    <td>
 
-                    </div>
+                        <div class="customer-info">
 
-                </td>
+                            <div class="customer-avatar">
+                                {{ customer.name|slice:":1" }}
+                            </div>
 
-            </tr>
+                            <span>
+                                {{ customer.name }}
+                            </span>
 
-            {% empty %}
+                        </div>
 
-            <tr>
+                    </td>
 
-                <td colspan="6">
-                    No customers registered on the deposit scheme
-                </td>
+                    <td>{{ customer.phone }}</td>
 
-            </tr>
+                    <td>
+                        <strong>
+                            UGX {{ customer.total_deposit }}
+                        </strong>
+                    </td>
 
-            {% endfor %}
+                    <td>{{ customer.last_deposit }}</td>
 
-        </tbody>
+                    <td>
 
-    </table>
+                        <span class="status-active">
+
+                            <i class="fas fa-circle"></i>
+
+                            Active
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <div class="actions">
+
+                            <a href="#"
+                               class="deposit-btn">
+
+                                <i class="fas fa-plus-circle"></i>
+
+                                Deposit
+
+                            </a>
+
+                            <a href="#"
+                               class="withdraw-btn">
+
+                                <i class="fas fa-minus-circle"></i>
+
+                                Withdraw
+
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="6"
+                        class="empty-state">
+
+                        <i class="fas fa-folder-open"></i>
+
+                        <p>
+                            No customers registered on the deposit scheme
+                        </p>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
 
 </div>
 

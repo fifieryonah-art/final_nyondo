@@ -4,6 +4,11 @@ from nyondoapp.models import Sale, Payment, Customer, Product
 from django.db.models import Sum, Max
 from .forms import SupplierForm, SupplierPaymentForm
 from .models import Supplier, DepositScheme, DepositPayment
+from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
+from nyondoapp.models import Employee
+from .forms import EmployeeCreationForm
+
 
 # Create your views here.
 def admin_dash(request):
@@ -42,6 +47,78 @@ def admin_dash(request):
     }
 
     return render(request, "admin_dash.html", context)
+
+
+
+
+def create_employee(request):
+
+    if request.method == "POST":
+        form = EmployeeCreationForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Employee created successfully!")
+            return redirect("employee_list")
+
+    else:
+        form = EmployeeCreationForm()
+
+    return render(request, "create_employee.html", {"form": form})
+
+
+# employee list page
+
+def employee_list(request):
+    employees = Employee.objects.all().order_by("-id")
+
+    return render(request, "employee_list.html", {
+        "employees": employees
+    })
+
+
+def edit_employee(request, pk):
+
+    employee = get_object_or_404(Employee, pk=pk)
+    user = employee.user
+
+    if request.method == "POST":
+
+        # Employee fields
+        employee.employee_id = request.POST.get("employee_id")
+        employee.role = request.POST.get("role")
+        employee.gender = request.POST.get("gender")
+
+        # User fields
+        user.username = request.POST.get("username")
+        user.email = request.POST.get("email")
+
+        # Password only if filled
+        password = request.POST.get("password")
+        if password:
+            user.set_password(password)
+
+        user.save()
+        employee.save()
+
+        messages.success(request, "Employee updated successfully")
+        return redirect("employee_list")
+
+    return render(request, "edit_employee.html", {
+        "employee": employee
+    })
+
+def toggle_employee_status(request, pk):
+
+    employee = get_object_or_404(Employee, pk=pk)
+
+    user = employee.user
+
+    user.is_active = not user.is_active
+
+    user.save()
+
+    return redirect('employee_list')
 
 
 def add_supplier(request):

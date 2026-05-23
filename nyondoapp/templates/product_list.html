@@ -1,184 +1,161 @@
-{% extends 'base.html' %} 
-{% block title %} Product List | Nyondo Hardware {% endblock %} 
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    Product List | Nyondo Hardware
+{% endblock %}
+
 {% block extra_css %}
-    <style>
-body{
-    font-family: Arial, Helvetica, sans-serif;
-    background: #fdf6f0;
-    padding: 40px;
-}
-      .top-section {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-      }
 
-      .top-section h2 {
-        color: #0f172b;
-        margin: 0;
-      }
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-      .top-section p {
-        color: #666;
-        margin: 5px 0 0;
-      }
+<link rel="stylesheet"
+      href="{% static 'css/product_list.css' %}">
 
-      .btn {
-        background: #f54900;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: 0.3s;
-      }
+{% endblock %}
 
-      .btn:hover {
-        background: #d63f00;
-      }
+{% block sidebar %}
+    {% include 'stocksidebar.html' %}
+{% endblock %}
 
-      .table-container {
-        background: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      }
+{% block content %}
 
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        overflow-x: auto;
-      }
+<!-- HEADER -->
 
-      th, td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-      }
-
-      th {
-        background: #fdf6f0;
-        color: #0f172b;
-      }
-
-      tr:hover {
-        background: #f9f9f9;
-      }
-
-      .warning {
-        color: #e67e22;
-        font-weight: bold;
-      }
-
-      .success {
-        color: #27ae60;
-        font-weight: bold;
-      }
-
-      .out {
-        color: #c0392b;
-        font-weight: bold;
-      }
-      .edit{
-        color: white;
-        text-decoration: none;
-        background: #e67e22;
-        border: 1px solid #e67e22;
-        padding: 5px;
-        width: 50px;
-        text-align: center;
-        border-radius: 6px;
-      }
-      .view{
-        color: white;
-        text-decoration: none;
-         background: #e67e22;
-        border: 1px solid #e67e22;
-        padding: 7px;
-        width: 60px;
-        text-align: center;
-        border-radius: 6px;
-      }
-      .action{
-        border-radius: 6px;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 5px;
-        margin-right: 5px;
-      }
-    </style>
-</head>
-<body>
-   {% endblock %}
-   
-   {% block content %} 
 <div class="top-section">
+
     <div>
-        <h2>Products</h2>
+
+        <h2>
+            <i class="fas fa-boxes-stacked"></i>
+            Products
+        </h2>
+
         <p>Manage all hardware products</p>
+
     </div>
 
-<a href="{% url 'add_product' %}" class="btn">
-    Add Product
-</a>
+    <a href="{% url 'add_product' %}"
+       class="btn-add">
+
+        <i class="fas fa-plus"></i>
+
+        Add Product
+
+    </a>
+
 </div>
 
+<!-- TABLE -->
+
 <div class="table-container">
-<table>
 
-    <tr>
-        <th>ID</th>
-        <th>Product</th>
-        <th>Category</th>
-        <th>Quantity</th>
-        <th>Cost Price</th>
-        <th>Selling Price</th>
-        <th>Profit</th>
-        <th>Status</th>
-        <th>Actions</th>
+    <table>
 
-    </tr>
+        <thead>
 
-    {% for product in products %}
+            <tr>
 
-    <tr>
-        <td>{{ product.id}}</td>
-        <td>{{ product.name }}</td>
-        <td>{{ product.type }}</td>
-        <td>{{ product.stock_quantity }}</td>
-        <td>{{ product.cost_price }}</td>
-        <td>{{ product.unit_price }}</td>
-        <td>{{ product.profit_margin }}</td>
-        <td>
-            {% if product.stock_quantity == 0 %}
-              <span color="red">
-                Out of Stock
-              </span>
+                <th>ID</th>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Cost Price</th>
+                <th>Selling Price</th>
+                <th>Profit</th>
+                <th>Status</th>
+                <th>Actions</th>
 
-              {% elif product.stock_quantity < product.reorder_level %}
+            </tr>
 
-              <span class="warning">
-                Low Stock
-              </span>
+        </thead>
 
-              {% else %}
-              <span class="sucess">
-                Available
-              </span>
+        <tbody>
 
-              {% endif %}
+            {% for product in products %}
 
-        </td>
-        <td class="action">
-          <a href="{% url 'delete_product' product.id %}" class="view">Delete</a>
-          <a href="{% url 'update_product' product.pk %}" class="edit">Edit</a>
-        </td>
-    </tr>
+            <tr>
 
-    {% endfor %}
+                <td>{{ product.id }}</td>
 
-</table>
+                <td>{{ product.name }}</td>
+
+                <td>{{ product.type }}</td>
+
+                <td>{{ product.stock_quantity }}</td>
+
+                <td>{{ product.cost_price }}</td>
+
+                <td>{{ product.unit_price }}</td>
+
+                <td>{{ product.profit_margin }}</td>
+
+                <td>
+
+                    {% if product.stock_quantity == 0 %}
+
+                        <span class="status-out">
+                            Out of Stock
+                        </span>
+
+                    {% elif product.stock_quantity < product.reorder_level %}
+
+                        <span class="status-warning">
+                            Low Stock
+                        </span>
+
+                    {% else %}
+
+                        <span class="status-good">
+                            Available
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+                <td class="action">
+
+                    <a href="{% url 'delete_product' product.id %}"
+                       class="btn-delete">
+
+                        <i class="fas fa-trash"></i>
+
+                        Delete
+
+                    </a>
+
+                    <a href="{% url 'update_product' product.pk %}"
+                       class="btn-edit">
+
+                        <i class="fas fa-pen"></i>
+
+                        Edit
+
+                    </a>
+
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+
+                <td colspan="9">
+                    No products found
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
 </div>
 
 {% endblock %}

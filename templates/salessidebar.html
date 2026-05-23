@@ -10,6 +10,12 @@
             left: 0;
             top: 0;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar h3{
+            margin-bottom: 20px;
         }
 
         .sidebar a{
@@ -19,12 +25,34 @@
             text-decoration: none;
             margin-bottom: 10px;
             border-radius: 8px;
+            transition: 0.3s ease;
         }
 
         .sidebar a:hover{
             background: #f54900;
             color: white;
         }
+
+        /* LOGOUT SECTION */
+        .logout-area{
+            margin-top: auto;
+        }
+
+        .logout-btn{
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #dc2626;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover{
+            background: #b91c1c;
+        }
+
     </style>
 
     <h3>Cashier Panel</h3>
@@ -34,5 +62,17 @@
     <a href="{% url 'sales_dash' %}">Sales</a>
     <a href="{% url 'add_payment' %}">Payments</a>
     <a href="{% url 'credit' %}">Credit</a>
+
+    <!-- LOGOUT -->
+    <div class="logout-area">
+
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+                Logout
+            </button>
+        </form>
+
+    </div>
 
 </div>

@@ -1,74 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Update Stock
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/update_product.css' %}">
+{% endblock %}
+
 {% block content %}
-
-<style>
-    body{
-        font-family: Arial, sans-serif;
-        background: #f4f6f9;
-    }
-
-    .form-container{
-        width: 500px;
-        margin: 40px auto;
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-
-    h2{
-        text-align: center;
-        color: #1d3557;
-        margin-bottom: 20px;
-    }
-
-    label{
-        display: block;
-        margin-top: 12px;
-        font-weight: bold;
-        color: #333;
-    }
-
-    input, select, textarea{
-        width: 100%;
-        padding: 10px;
-        margin-top: 5px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        outline: none;
-    }
-
-    input:focus, textarea:focus, select:focus{
-        border-color: #1d3557;
-    }
-
-    textarea{
-        resize: none;
-        height: 80px;
-    }
-
-    .btn{
-        width: 100%;
-        margin-top: 20px;
-        padding: 12px;
-        background: #1d3557;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: 0.3s;
-    }
-
-    .btn:hover{
-        background: #14263d;
-    }
-
-    .section-title{
-        font-size: 14px;
-        color: #666;
-        margin-top: 5px;
-    }
-</style>
 
 <div class="form-container">
 
@@ -79,29 +20,40 @@
 
         <!-- Product -->
         <label>Product</label>
-        <input type="text" name="product" value="{{ product.name }}" readonly>
+        <input type="text" name="product"
+               value="{{ product.name }}" readonly>
 
         <!-- Quantity -->
         <label>Quantity</label>
-        <input type="number" name="quantity" value="{{ stock.quantity }}">
+        <input type="number"
+               name="quantity"
+               value="{{ stock.quantity }}">
 
         <!-- Cost Price -->
         <label>Cost Price</label>
-        <input type="text" name="cost_price" value="{{ product.cost_price }}">
+        <input type="text"
+               name="cost_price"
+               value="{{ product.cost_price }}">
 
         <!-- Unit Price -->
         <label>Unit Price</label>
-        <input type="text" name="unit_price" value="{{ product.unit_price }}">
+        <input type="text"
+               name="unit_price"
+               value="{{ product.unit_price }}">
 
         <!-- Profit Margin -->
         <label>Profit Margin</label>
-        <input type="text" name="profit_margin" value="{{ product.profit_margin }}">
+        <input type="text"
+               name="profit_margin"
+               value="{{ product.profit_margin }}">
 
         <!-- Comments -->
         <label>Comments</label>
         <textarea name="comments">{{ stock.comments }}</textarea>
 
-        <button type="submit" class="btn">Update Stock</button>
+        <button type="submit" class="btn">
+            Update Stock
+        </button>
 
     </form>
 

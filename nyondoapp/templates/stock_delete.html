@@ -1,8 +1,67 @@
+{% load static %}
 
-<h2>Delete Stock</h2>
-<p>Are you sure you want to delete {{ stock.product.name }} from {{ stock.supplier.name }}?</p>
-<form method="post">
-  {% csrf_token %}
-  <button type="submit">Confirm Delete</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Delete Stock | Nyondo Hardware</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- CSS -->
+    <link rel="stylesheet"
+          href="{% static 'css/stock_delete.css' %}">
+
+</head>
+
+<body>
+
+<div class="delete-wrapper">
+
+    <div class="delete-card">
+
+        <!-- ICON -->
+        <div class="icon-box">
+            <i class="fas fa-triangle-exclamation"></i>
+        </div>
+
+        <!-- TITLE -->
+        <h2>Delete Stock</h2>
+
+        <!-- MESSAGE -->
+        <p>
+            Are you sure you want to delete
+            <strong>{{ stock.product.name }}</strong>
+            from
+            <strong>{{ stock.supplier.name }}</strong>?
+        </p>
+
+        <!-- FORM -->
+        <form method="POST" class="delete-form">
+
+            {% csrf_token %}
+
+            <button type="submit" class="btn-delete">
+                <i class="fas fa-trash"></i>
+                Confirm Delete
+            </button>
+
+            <a href="{% url 'stock_list' %}" class="btn-cancel">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

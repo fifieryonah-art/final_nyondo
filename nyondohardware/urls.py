@@ -30,6 +30,7 @@ urlpatterns = [
     path('add_stock/', views.add_stock, name='add_stock'),
     path('stock/update/<int:pk>/', views.stock_update, name='stock_update'),
     path('stock/delete/<int:pk>/', views.stock_delete, name='stock_delete'),
+    path('stock_report/', views.stock_report, name='stock_report'),
     path('add_product/', views.add_product, name='add_product'),
     path('product_list/', views.product_list, name='product_list'),
     path('product/update/<int:pk>/', views.update_product, name='update_product'),

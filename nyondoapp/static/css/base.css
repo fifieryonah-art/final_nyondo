@@ -1,0 +1,106 @@
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family:Arial, Helvetica, sans-serif;
+            background:#f4f6f9;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar{
+            width:260px;
+            height:100vh;
+            background:#0F172B;
+            position:fixed;
+            top:0;
+            left:0;
+            padding:20px;
+            overflow-y:auto;
+        }
+
+        /* LOGO */
+
+        .logo{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin-bottom:35px;
+        }
+
+        .logo img{
+            width:60px;
+            height:60px;
+            object-fit:contain;
+        }
+
+        .logo h2{
+            color:white;
+            font-size:20px;
+        }
+
+        /* SIDEBAR LINKS */
+
+        .sidebar a{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            text-decoration:none;
+            color:#cbd5e1;
+            padding:14px;
+            margin-bottom:10px;
+            border-radius:10px;
+            transition:0.3s ease;
+            font-size:15px;
+            font-weight:600;
+        }
+
+        .sidebar a:hover{
+            background:#F54900;
+            color:white;
+        }
+
+        /* MAIN CONTENT */
+
+        .main-content{
+            margin-left:260px;
+            padding:25px;
+            min-height:100vh;
+        }
+
+        /* FOOTER */
+
+        footer{
+            margin-top:30px;
+            background:white;
+            padding:16px;
+            border-radius:12px;
+            text-align:center;
+            color:#64748b;
+            box-shadow:0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        /* LOGOUT BUTTON */
+
+        .logout-form{
+            margin-top:30px;
+        }
+
+        .logout-btn{
+            width:100%;
+            border:none;
+            background:#dc2626;
+            color:white;
+            padding:14px;
+            border-radius:10px;
+            cursor:pointer;
+            font-size:15px;
+            font-weight:bold;
+        }
+
+        .logout-btn:hover{
+            background:#b91c1c;
+        }

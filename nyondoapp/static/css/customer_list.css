@@ -1,0 +1,80 @@
+    .dashboard {
+        padding: 20px;
+    }
+
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .card {
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .card h2 {
+        margin: 0;
+        font-size: 22px;
+    }
+
+    .card p {
+        margin: 5px 0 0;
+        color: gray;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    th {
+        background: #f4f6f8;
+    }
+
+    .badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+
+    .scheme {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .normal {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-edit {
+    padding: 5px 10px;
+    background: #3b82f6;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-right: 5px;
+    }
+
+    .btn-delete{
+        padding: 5px 10px;
+        background: #ef4444;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+    }

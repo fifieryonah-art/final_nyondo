@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+Stock Report | Nyondo Hardware
+{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<link rel="stylesheet"
+      href="{% static 'css/stock_report.css' %}">
+
+{% endblock %}
+
+{% block sidebar %}
+    {% include 'stocksidebar.html' %}
+{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<div class="page-header">
+
+    <h1>
+        <i class="fa-solid fa-chart-simple"></i>
+        Stock Report
+    </h1>
+
+    <p>Overview of inventory, stock movement, and payment status.</p>
+
+</div>
+
+<!-- CARDS -->
+<div class="cards">
+
+    <div class="card">
+        <h3>Total Stock</h3>
+        <p>{{ total_stock }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Value</h3>
+        <p>UGX {{ total_value }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Paid Stock</h3>
+        <p class="green">{{ paid_stock }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Credit Stock</h3>
+        <p class="orange">{{ credit_stock }}</p>
+    </div>
+
+</div>
+
+<!-- TABLE -->
+<div class="table-box">
+
+    <h2>
+        <i class="fa-solid fa-boxes-stacked"></i>
+        Stock Records
+    </h2>
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>Product</th>
+                <th>Supplier</th>
+                <th>Quantity</th>
+                <th>Total Cost</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for stock in stocks %}
+
+            <tr>
+
+                <td>{{ stock.id }}</td>
+                <td>{{ stock.product.name }}</td>
+                <td>{{ stock.supplier.name }}</td>
+                <td>{{ stock.quantity_added }}</td>
+                <td>{{ stock.total_cost }}</td>
+                <td>{{ stock.date_arrival }}</td>
+
+                <td>
+
+                    {% if stock.is_paid %}
+
+                        <span class="status-paid">
+                            Paid
+                        </span>
+
+                    {% else %}
+
+                        <span class="status-credit">
+                            Credit
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="7">No stock records found</td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

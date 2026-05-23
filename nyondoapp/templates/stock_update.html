@@ -1,35 +1,149 @@
+{% load static %}
 
-{% block content %}
-<h2>Edit Stock</h2>
-<form method="post">
-  {% csrf_token %}
-  <label>Product:</label>
-  <select name="product">
-    {% for product in products %}
-    <option value="{{ product.id }}"
-     {% if product.id == stock.product.id %}selected{% endif %}>
-     {{ product.name }}</option>
-    {% endfor %}
-  </select><br>
+<!DOCTYPE html>
+<html lang="en">
 
-  <label>Supplier:</label>
-  <select name="supplier">
-    {% for supplier in suppliers %}
-    <option value="{{ supplier.id }}" 
-    {% if supplier.id == stock.supplier.id %}selected{% endif %}>
-    {{ supplier.name }}</option>
-    {% endfor %}
-  </select><br>
+<head>
 
-  <label>Quantity:</label>
-  <input type="number" name="quantity" value="{{ stock.quantity }}"><br>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <label>Total Cost:</label>
-  <input type="text" name="total_cost" value="{{ stock.total_cost }}"><br>
+    <title>Edit Stock | Nyondo Hardware</title>
 
-  <label>Comments:</label>
-  <textarea name="comments">{{ stock.comments }}</textarea><br>
+    <!-- FONT AWESOME -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <button type="submit">Update</button>
-</form>
+    <!-- CSS -->
+    <link rel="stylesheet"
+          href="{% static 'css/stock_update.css' %}">
 
+</head>
+
+<body>
+
+<div class="form-wrapper">
+
+    <div class="form-card">
+
+        <!-- HEADER -->
+        <div class="form-header">
+
+            <i class="fas fa-pen-to-square"></i>
+
+            <div>
+                <h2>Edit Stock</h2>
+                <p>Update stock information</p>
+            </div>
+
+        </div>
+
+        <!-- FORM -->
+        <form method="POST" class="form">
+
+            {% csrf_token %}
+
+            <!-- PRODUCT -->
+            <div class="form-group">
+
+                <label>Product</label>
+
+                <select name="product">
+
+                    {% for product in products %}
+
+                        <option value="{{ product.id }}"
+                            {% if product.id == stock.product.id %}selected{% endif %}>
+
+                            {{ product.name }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <!-- SUPPLIER -->
+            <div class="form-group">
+
+                <label>Supplier</label>
+
+                <select name="supplier">
+
+                    {% for supplier in suppliers %}
+
+                        <option value="{{ supplier.id }}"
+                            {% if supplier.id == stock.supplier.id %}selected{% endif %}>
+
+                            {{ supplier.name }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <!-- QUANTITY -->
+            <div class="form-group">
+
+                <label>Quantity</label>
+
+                <input type="number"
+                       name="quantity"
+                       value="{{ stock.quantity }}">
+
+            </div>
+
+            <!-- TOTAL COST -->
+            <div class="form-group">
+
+                <label>Total Cost</label>
+
+                <input type="text"
+                       name="total_cost"
+                       value="{{ stock.total_cost }}">
+
+            </div>
+
+            <!-- COMMENTS -->
+            <div class="form-group">
+
+                <label>Comments</label>
+
+                <textarea name="comments"
+                          rows="4">{{ stock.comments }}</textarea>
+
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="buttons">
+
+                <button type="submit" class="btn-update">
+
+                    <i class="fas fa-save"></i>
+
+                    Update Stock
+
+                </button>
+
+                <a href="{% url 'stock_list' %}" class="btn-cancel">
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

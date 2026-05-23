@@ -11,13 +11,19 @@ class Employee(models.Model):
         ('manager', 'Store Manager'),
         ('admin', 'Accounts/Admin'),
     ]
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
+
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_profile')
     employee_id = models.CharField(max_length=50, unique=True)
     role = models.CharField(max_length=30, choices=ROLE_CHOICES)
-    gender = models.CharField(max_length=20)
+    gender = models.CharField(max_length=20, choices=GENDER_CHOICES)
 
     def __str__(self):
-        return self.user.username
+        return f"{self.user.username} - {self.role}"
 
 
 class Product(models.Model):

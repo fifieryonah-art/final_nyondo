@@ -13,42 +13,82 @@ from django.db.models import Sum
 
 # Create your views here.
 #Authentication pages
+# LOGIN PAGE
 def loginPage(request):
+
     if request.method == "POST":
 
         username = request.POST.get("username")
         password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
+
+        # authenticate user
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
 
         if user is not None:
+
+            # login user
             login(request, user)
 
+            # =========================
+            # SUPERUSER AUTHORIZATION
+            # =========================
+            if user.is_superuser:
+                return redirect("admin_dash")
+
+            # =========================
+            # EMPLOYEE AUTHORIZATION
+            # =========================
             try:
                 employee = Employee.objects.get(user=user)
 
+                # ADMIN
                 if employee.role == "admin":
                     return redirect("admin_dash")
-                
+
+                # MANAGER
                 elif employee.role == "manager":
                     return redirect("stock")
-                
-                elif employee.role == "cashier":
+
+                # SALES ATTENDANT
+                elif employee.role == "attendant":
                     return redirect("sales_dash")
-                
+
                 else:
-                    return redirect("employee_dash")
-                
+                    messages.error(
+                        request,
+                        "Unauthorized role"
+                    )
+                    return redirect("login")
+
             except Employee.DoesNotExist:
-                messages.error(request, "Employee profile not found")
+
+                messages.error(
+                    request,
+                    "Employee profile not found"
+                )
+
+                return redirect("login")
 
         else:
-            messages.error(request,"Invalid username or password")
+            messages.error(
+                request,
+                "Invalid username or password"
+            )
 
     return render(request, "login.html")
 
+
+# LOGOUT
 def logout_user(request):
+
     logout(request)
-    return redirect('login')
+
+    return redirect("login")
+
 
 def stockPage(request):
     products = Product.objects.all()
@@ -190,7 +230,24 @@ def stock_update(request, pk):
 
 
 
+def stock_report(request):
 
+    stocks = Stock.objects.all()
+
+    total_stock = stocks.count()
+    total_value = stocks.aggregate(total=Sum('total_cost'))['total'] or 0
+    paid_stock = stocks.filter(is_paid=True).count()
+    credit_stock = stocks.filter(is_paid=False).count()
+
+    context = {
+        "stocks": stocks,
+        "total_stock": total_stock,
+        "total_value": total_value,
+        "paid_stock": paid_stock,
+        "credit_stock": credit_stock,
+    }
+
+    return render(request, "stock_report.html", context)
 
 def employee_dash(request):
      sales = Sale.objects.all()

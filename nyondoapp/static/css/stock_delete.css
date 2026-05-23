@@ -1,0 +1,78 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+}
+
+/* CENTER WRAPPER */
+.delete-wrapper {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CARD */
+.delete-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* ICON */
+.icon-box {
+    font-size: 40px;
+    color: #ff4d4d;
+    margin-bottom: 15px;
+}
+
+/* TEXT */
+.delete-card h2 {
+    margin-bottom: 10px;
+    color: #222;
+}
+
+.delete-card p {
+    color: #555;
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+/* FORM BUTTONS */
+.delete-form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* DELETE BUTTON */
+.btn-delete {
+    background: #e63946;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-delete:hover {
+    background: #c92a36;
+}
+
+/* CANCEL BUTTON */
+.btn-cancel {
+    background: #ddd;
+    color: #333;
+    padding: 10px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-cancel:hover {
+    background: #ccc;
+}

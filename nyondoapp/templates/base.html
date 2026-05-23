@@ -1,73 +1,90 @@
 {% load static %}
+
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Nyondo Hardware{% endblock %}</title>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}
+            Nyondo Hardware
+        {% endblock %}
+    </title>
+
+    <!-- FONT AWESOME -->
 
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <style>
+    <!-- BASE CSS -->
 
-        *{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <link rel="stylesheet"
+          href="{% static 'css/base.css' %}">
 
-        body{
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f8fafc;
-        }
+    <!-- EXTRA PAGE CSS -->
 
-        .layout{
-            display: flex;
-        }
+    {% block extra_css %}
+    {% endblock %}
 
-        .main-content{
-            flex: 1;
-            padding: 25px;
-            margin-left: 260px;
-        }
-
-        footer{
-            margin-top: 30px;
-            background: white;
-            padding: 16px;
-            text-align: center;
-            border-radius: 12px;
-            color: #64748b;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        }
-
-    </style>
-
-    {% block extra_css %}{% endblock %}
 </head>
 
 <body>
 
-<div class="layout">
+    <!-- PAGE WRAPPER -->
 
-    <!-- SIDEBAR SLOT -->
-    {% block sidebar %}{% endblock %}
+    <div class="layout-wrapper">
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
+        <!-- SIDEBAR -->
 
-        {% include 'navbar.html' %}
+        <aside class="sidebar-section">
 
-        {% block content %}{% endblock %}
+            {% block sidebar %}
+            {% endblock %}
 
-        <footer>
-            <p>&copy; 2026 Nyondo Hardware System</p>
-        </footer>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+
+        <main class="main-content">
+
+            <!-- NAVBAR -->
+
+            <header class="top-navbar">
+
+                {% include 'navbar.html' %}
+
+            </header>
+
+            <!-- PAGE CONTENT -->
+
+            <section class="content-area">
+
+                {% block content %}
+                {% endblock %}
+
+            </section>
+
+            <!-- FOOTER -->
+
+            <footer class="footer">
+
+                <p>
+                    <i class="fas fa-copyright"></i>
+                    2026 Nyondo Hardware System
+                </p>
+
+            </footer>
+
+        </main>
 
     </div>
 
-</div>
-
 </body>
+
 </html>

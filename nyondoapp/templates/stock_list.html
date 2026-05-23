@@ -1,51 +1,152 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stock List</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Stock List | Nyondo Hardware</title>
+
+    <!-- FONT AWESOME -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- CSS -->
+    <link rel="stylesheet"
+          href="{% static 'css/stock_list.css' %}">
+
 </head>
+
 <body>
-  
 
-<h2>Stock List</h2>
-<a href="{% url 'add_stock' %}" class="btn btn-primary">Add Stock</a>
-<table>
-  <tr>
-    <th>ID</th>
-    <th>Product</th>
-    <th>Supplier</th>
-    <th>Quantity Added</th>
-    <th>Total Cost</th>
-    <th>Date</th>
-    <th>Payment</th>
-    <th>Actions</th>
-  </tr>
-  {% for stock in stocks %}
-  <tr>
-    <td>{{ stock.id }}</td>
-    <td>{{ stock.product.name | floatformat:0 }}</td>
-    <td>{{ stock.supplier.name|floatf:0 }}</td>
-    <td>{{ stock.total_cost| floatformat:0 }}</td>
-    <td>{{ stock.date_arrival| floatformat:0 }}</td>
-    <td>
-      {% if stock.is_paid %}
-      <span class="sucess">Paid</span>
+<div class="container">
 
-      {% else %}
-      <span class="warning">Credit</span>
-    </td>
+    <!-- HEADER -->
+    <div class="header">
 
-    {% endif %}
-    <td>
-      <a href="{% url 'stock_update' stock.id %}">Edit</a> |
-      <a href="{% url 'stock_delete' stock.id %}">Delete</a>
-    </td>
-  </tr>
-  {% endfor %}
-</table>
+        <h1>
+            <i class="fa-solid fa-boxes-stacked"></i>
+            Stock List
+        </h1>
 
+        <p>
+            View all stock items, supplier details, quantity, cost, and payment status.
+            Manage inventory efficiently.
+        </p>
 
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="button-row">
+
+        <a href="{% url 'stock' %}" class="btn back">
+            <i class="fa-solid fa-arrow-left"></i>
+            Dashboard
+        </a>
+
+        <a href="{% url 'add_stock' %}" class="btn add">
+            <i class="fa-solid fa-plus"></i>
+            Add Stock
+        </a>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-box">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>ID</th>
+                    <th>Product</th>
+                    <th>Supplier</th>
+                    <th>Quantity</th>
+                    <th>Total Cost</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for stock in stocks %}
+
+                <tr>
+
+                    <td>{{ stock.id }}</td>
+                    <td>{{ stock.product.name }}</td>
+                    <td>{{ stock.supplier.name }}</td>
+                    <td>{{ stock.quantity_added }}</td>
+                    <td>{{ stock.total_cost }}</td>
+                    <td>{{ stock.date_arrival }}</td>
+
+                    <td>
+
+                        {% if stock.is_paid %}
+
+                            <span class="status-paid">
+                                Paid
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-credit">
+                                Credit
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td class="actions">
+
+                        <a href="{% url 'stock_update' stock.id %}"
+                           class="edit">
+
+                            <i class="fa-solid fa-pen"></i>
+
+                            Edit
+
+                        </a>
+
+                        <a href="{% url 'stock_delete' stock.id %}"
+                           class="delete">
+
+                            <i class="fa-solid fa-trash"></i>
+
+                            Delete
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="8">
+                        No stock records found
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 
 </body>
+
 </html>

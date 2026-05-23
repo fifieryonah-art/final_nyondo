@@ -1,81 +1,74 @@
 <!DOCTYPE html>
+
+{% load static %}
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>welcome | Nyondo Hardware</title>
-    <style>
-        body{
-            background: #f2e7de;
-            font-family: 'poppins', sans-serif;
-        }
-        .welcome{
-            text-align: center;
-            margin: 50px;
-        }
 
-        .card{
-           
-            background: linear-gradient(135deg, #0B1F3A, #102B52, #163A6B); 
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 500px;
-            margin: 0 auto;
-            width: 400px;
-        }
+    <title>Welcome | Nyondo Hardware</title>
 
-        .card p{
-            color: #C7D2E0;
-            margin-bottom: 30px;
-        }
+    <!-- FONT AWESOME -->
 
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-        .btn{
-            display: inline-block;
-            background:  #E85D3F;
-            padding: 15px;
-            color: white;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: background 0.3s ease;
-            width: 100px;
-        }
-        h1{
-            color: #F5F7FA;
-            margin-top: -40px;
-        }
+    <!-- CSS -->
 
-        .slogan{
-             color: #FF8A65;
-        }
+    <link rel="stylesheet"
+          href="{% static 'css/index.css' %}">
 
-        .buttons a, i{
-            color: white;
-        }
-
-        .btn:hover{
-            background: #1E293B;
-        }
-
-        img{
-            width: 120px;
-            height: 120px;
-        }
-    </style>
 </head>
+
 <body>
-    <div class="welcome">
-       <div class="card">
-            <p><img src="../static/images/nyondologo.png" alt=""></p>
+
+<div class="welcome">
+
+    <div class="card">
+
+        <!-- LOGO -->
+
+        <div class="logo">
+
+            <img src="{% static 'images/nyondologo.png' %}"
+                 alt="Nyondo Hardware Logo">
+
+        </div>
+
+        <!-- TEXT -->
+
         <h1>WELCOME TO NYONDO HARDWARE</h1>
-        <p class="slogan">"Building Uganda, One Nail at a Time"</p>
-        <p>Manage business operations all in one place</p>
+
+        <p class="slogan">
+            "Building Uganda, One Nail at a Time"
+        </p>
+
+        <p>
+            Manage business operations all in one place
+        </p>
+
+        <!-- BUTTON -->
 
         <div class="buttons">
-            <a href="{% url 'login' %}" class="btn">LOGIN <i class="fas fa-arrow-right text-white"></i></a>
+
+            <a href="{% url 'login' %}"
+               class="btn">
+
+                LOGIN
+
+                <i class="fas fa-arrow-right"></i>
+
+            </a>
+
         </div>
-       </div>
+
     </div>
+
+</div>
+
 </body>
+
 </html>

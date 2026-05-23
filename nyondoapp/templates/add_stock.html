@@ -1,213 +1,257 @@
-<!doctype html>
+<!DOCTYPE html>
+
+{% load static %}
+
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>Add Stock | Nyondo Hardware</title>
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
+    <!-- FONT AWESOME -->
 
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-      body {
-        font-family: Arial, Helvetica, sans-serif;
-        background: #fdf6f0;
-        padding: 40px;
-      }
+    <!-- CUSTOM CSS -->
 
-      .container {
-        max-width: 650px;
-        margin: auto;
-      }
+    <link rel="stylesheet"
+          href="{% static 'css/add_stock.css' %}" />
 
-      .card {
+</head>
 
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      }
+<body>
 
-      .card h2 {
-        color: #0f172b;
-        margin-left: 10px;
-      }
+<div class="container">
 
-      .card p {
-        color: #666;
-        margin-bottom: 30px;
-      }
-
-      form {
-        width: 100%;
-        min-height: 70vh;
-      }
-
-      .form-row {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 15px;
-        flex-wrap: wrap;
-      }
-
-      .form-group {
-        flex: 1;
-        min-width: 200px;
-        display: flex;
-        flex-direction: column;
-      }
-
-      label {
-        margin-bottom: 8px;
-        font-weight: bold;
-        color: #0f172b;
-      }
-
-      input,
-      select,
-      textarea {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        outline: none;
-        font-size: 15px;
-      }
-
-      textarea {
-        width: 100%;
-        height: 70px;
-      }
-
-      .checkbox {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-top: 10px;
-      }
-
-      .btn {
-        background: #f54900;
-        color: white;
-        border: none;
-        padding: 14px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: bold;
-        transition: 0.3s;
-        margin-top: 20px;
-        flex: 1;
-      }
-
-      .cancel{
-        background: lightblue;
-        color: #0f172b;
-        border: none;
-        padding: 14px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: bold;
-        transition: 0.3s;
-        margin-top: 20px;
-        flex: 1;
-      }
-
-      .btn:hover {
-        background: #d63f00;
-      }
-      .cancel:hover{
-        background: #87ceeb;
-      }
-      .buttons{
-        display: flex;
-        justify-content: space-between;
-        margin-top: 20px;
-        gap: 20px;
-        width: 100%;
-      }
-
-      .form-row {
-        display: flex;
-        margin-bottom: 15px;
-        gap: 15px;
-        flex-wrap: wrap;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
     <div class="card">
-    <form method="post">
-      {% csrf_token %}
-      <h2>Add New Stock</h2>
-     <p>Enter product details and stock information</p><br>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Product:</label>
-          <select name="product">
-            {% for product in products %}
-            <option value="{{ product.id }}">{{ product.name }}</option>
-            {% endfor %}
-          </select>
+        <!-- HEADER -->
 
-          <label>Supplier:</label>
-          <select name="supplier">
-            {% for supplier in suppliers %}
-            <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
+        <div class="card-header">
+
+            <div class="header-icon">
+                <i class="fas fa-boxes-stacked"></i>
+            </div>
+
+            <div>
+                <h2>Add New Stock</h2>
+                <p>Enter product details and stock information</p>
+            </div>
 
         </div>
 
-      <div class="form-row">
+        <!-- FORM -->
 
-        <div class="form-group">
-          <label>Quantity:</label>
-          <input type="number" name="quantity" />
+        <form method="POST" class="stock-form">
 
-          <label>Cost Price:</label>
-          <input type="text" name="cost_price" />
-        </div>
+            {% csrf_token %}
 
-        <div class="form-group">
-          <label>Unit Price:</label>
-          <input type="text" name="unit_price" />
+            <!-- PRODUCT + SUPPLIER -->
 
-          <label>Total Cost:</label>
-          <input type="text" name="total_cost" />
-        </div>
+            <div class="form-row">
 
-        <div class="form-group">
-          <label>
-            <input type="checkbox" name="is_paid" checked />
-            Payment Completed
-          </label>
+                <div class="form-group">
 
-          <label>Entered by</label>
-          <input type="text" name="entered_by" />
-        </div>
-      </div>
-        
-          <label>Comments:</label>
-          <textarea name="comments"></textarea>
-    <div class="buttons">
-      <button type="submit" class="btn">Save Stock</button>
-      <button type="submit" class="cancel">Cancel</button>
-      </div>
-    </form>
+                    <label>
+                        <i class="fas fa-box"></i>
+                        Product
+                    </label>
+
+                    <select name="product" required>
+
+                        <option value="">Select Product</option>
+
+                        {% for product in products %}
+
+                            <option value="{{ product.id }}">
+                                {{ product.name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        <i class="fas fa-truck"></i>
+                        Supplier
+                    </label>
+
+                    <select name="supplier" required>
+
+                        <option value="">Select Supplier</option>
+
+                        {% for supplier in suppliers %}
+
+                            <option value="{{ supplier.id }}">
+                                {{ supplier.name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <!-- STOCK DETAILS -->
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>
+                        <i class="fas fa-layer-group"></i>
+                        Quantity
+                    </label>
+
+                    <input type="number"
+                           name="quantity"
+                           placeholder="Enter quantity"
+                           required>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        <i class="fas fa-money-bill"></i>
+                        Cost Price
+                    </label>
+
+                    <input type="number"
+                           step="0.01"
+                           name="cost_price"
+                           placeholder="Enter cost price"
+                           required>
+
+                </div>
+
+            </div>
+
+            <!-- UNIT PRICE + TOTAL -->
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>
+                        <i class="fas fa-coins"></i>
+                        Unit Price
+                    </label>
+
+                    <input type="number"
+                           step="0.01"
+                           name="unit_price"
+                           placeholder="Enter selling price"
+                           required>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        <i class="fas fa-calculator"></i>
+                        Total Cost
+                    </label>
+
+                    <input type="number"
+                           step="0.01"
+                           name="total_cost"
+                           placeholder="Enter total cost">
+
+                </div>
+
+            </div>
+
+            <!-- PAYMENT + ENTERED BY -->
+
+            <div class="form-row">
+
+                <div class="form-group checkbox-group">
+
+                    <label class="checkbox-label">
+
+                        <input type="checkbox"
+                               name="is_paid"
+                               checked>
+
+                        Payment Completed
+
+                    </label>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        <i class="fas fa-user-pen"></i>
+                        Entered By
+                    </label>
+
+                    <input type="text"
+                           name="entered_by"
+                           placeholder="Enter staff name">
+
+                </div>
+
+            </div>
+
+            <!-- COMMENTS -->
+
+            <div class="form-group">
+
+                <label>
+                    <i class="fas fa-comment-dots"></i>
+                    Comments
+                </label>
+
+                <textarea name="comments"
+                          rows="4"
+                          placeholder="Enter stock comments..."></textarea>
+
+            </div>
+
+            <!-- BUTTONS -->
+
+            <div class="buttons">
+
+                <button type="submit"
+                        class="btn-save">
+
+                    <i class="fas fa-save"></i>
+
+                    Save Stock
+
+                </button>
+
+                <a href="{% url 'stock_list' %}"
+                   class="btn-cancel">
+
+                    <i class="fas fa-times"></i>
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+        </form>
+
     </div>
-  </div>
-  </body>
+
+</div>
+
+</body>
+
 </html>

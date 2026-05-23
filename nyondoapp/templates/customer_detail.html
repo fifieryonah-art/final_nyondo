@@ -1,141 +1,280 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}
-Customer Detail
+    Customer Detail | Nyondo Hardware
 {% endblock %}
 
 {% block extra_css %}
-<style>
 
-.wrapper{
-    padding: 30px;
-    background: #f3f4f6;
-    min-height: 100vh;
-}
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-.header{
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-}
+<link rel="stylesheet"
+      href="{% static 'css/customer_detail.css' %}">
 
-.cards{
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-bottom: 25px;
-}
+{% endblock %}
 
-.card{
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.card h3{
-    color: #ff5a00;
-}
-
-.section{
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-}
-
-table{
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td{
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-}
-
-th{
-    background: #ff5a00;
-    color: white;
-}
-
-</style>
+{% block sidebar %}
+    {% include 'salessidebar.html' %}
 {% endblock %}
 
 {% block content %}
 
 <div class="wrapper">
 
+    <!-- CUSTOMER HEADER -->
+
     <div class="header">
-        <h2>{{ customer.name }}</h2>
-        <p>{{ customer.phone }} | {{ customer.nin }}</p>
+
+        <div class="customer-profile">
+
+            <div class="customer-avatar">
+                {{ customer.name|slice:":1" }}
+            </div>
+
+            <div>
+
+                <h2>{{ customer.name }}</h2>
+
+                <p>
+
+                    <i class="fas fa-phone"></i>
+                    {{ customer.phone }}
+
+                    &nbsp; | &nbsp;
+
+                    <i class="fas fa-id-card"></i>
+                    {{ customer.nin }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="header-actions">
+
+            <a href="#"
+               class="btn-edit">
+
+                <i class="fas fa-pen"></i>
+
+                Edit Customer
+
+            </a>
+
+        </div>
+
     </div>
+
+    <!-- SUMMARY CARDS -->
 
     <div class="cards">
 
-        <div class="card">
-            <h3>UGX {{ total_sales }}</h3>
-            <p>Total Sales</p>
-        </div>
+        <!-- TOTAL SALES -->
 
         <div class="card">
-            <h3>UGX {{ total_paid }}</h3>
-            <p>Total Paid</p>
+
+            <div class="card-icon blue">
+                <i class="fas fa-cart-shopping"></i>
+            </div>
+
+            <div>
+
+                <h3>UGX {{ total_sales }}</h3>
+
+                <p>Total Sales</p>
+
+            </div>
+
         </div>
 
+        <!-- TOTAL PAID -->
+
         <div class="card">
-            <h3>UGX {{ balance }}</h3>
-            <p>Balance</p>
+
+            <div class="card-icon green">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+
+            <div>
+
+                <h3>UGX {{ total_paid }}</h3>
+
+                <p>Total Paid</p>
+
+            </div>
+
+        </div>
+
+        <!-- BALANCE -->
+
+        <div class="card">
+
+            <div class="card-icon red">
+                <i class="fas fa-wallet"></i>
+            </div>
+
+            <div>
+
+                <h3>UGX {{ balance }}</h3>
+
+                <p>Balance</p>
+
+            </div>
+
         </div>
 
     </div>
 
+    <!-- SALES SECTION -->
+
     <div class="section">
 
-        <h3>Sales</h3>
+        <div class="section-header">
 
-        <table>
-            <tr>
-                <th>Product</th>
-                <th>Qty</th>
-                <th>Total</th>
-            </tr>
+            <h3>
 
-            {% for sale in sales %}
-            <tr>
-                <td>{{ sale.name }}</td>
-                <td>{{ sale.quantity }}</td>
-                <td>{{ sale.final_amount }}</td>
-            </tr>
-            {% endfor %}
+                <i class="fas fa-box"></i>
 
-        </table>
+                Sales History
+
+            </h3>
+
+        </div>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Total Amount</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for sale in sales %}
+
+                    <tr>
+
+                        <td>{{ sale.name }}</td>
+
+                        <td>{{ sale.quantity }}</td>
+
+                        <td>
+                            <strong>
+                                UGX {{ sale.final_amount }}
+                            </strong>
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="3"
+                            class="empty-state">
+
+                            <i class="fas fa-folder-open"></i>
+
+                            No sales found
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
+    <!-- PAYMENTS SECTION -->
+
     <div class="section">
 
-        <h3>Payments</h3>
+        <div class="section-header">
 
-        <table>
-            <tr>
-                <th>Receipt</th>
-                <th>Amount Paid</th>
-                <th>Balance</th>
-                <th>Date</th>
-            </tr>
+            <h3>
 
-            {% for payment in payments %}
-            <tr>
-                <td>{{ payment.receipt_number }}</td>
-                <td>{{ payment.amount_paid }}</td>
-                <td>{{ payment.balance }}</td>
-                <td>{{ payment.created_at }}</td>
-            </tr>
-            {% endfor %}
+                <i class="fas fa-credit-card"></i>
 
-        </table>
+                Payment History
+
+            </h3>
+
+        </div>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Receipt</th>
+                        <th>Amount Paid</th>
+                        <th>Balance</th>
+                        <th>Date</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for payment in payments %}
+
+                    <tr>
+
+                        <td>{{ payment.receipt_number }}</td>
+
+                        <td>
+                            <strong>
+                                UGX {{ payment.amount_paid }}
+                            </strong>
+                        </td>
+
+                        <td>UGX {{ payment.balance }}</td>
+
+                        <td>{{ payment.created_at }}</td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="4"
+                            class="empty-state">
+
+                            <i class="fas fa-folder-open"></i>
+
+                            No payments found
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 

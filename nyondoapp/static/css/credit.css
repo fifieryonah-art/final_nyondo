@@ -1,0 +1,197 @@
+body{
+    background: #f4f6f9;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* PAGE HEADER */
+
+.page-header{
+    margin: 20px;
+}
+
+.page-header h1{
+    color: #0F172B;
+    margin-bottom: 5px;
+}
+
+.page-header p{
+    color: #666;
+}
+
+/* DASHBOARD CARDS */
+
+.cards{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap: 20px;
+    margin: 20px;
+}
+
+.card{
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    border-top: 5px solid #F54900;
+    transition: 0.3s ease;
+}
+
+.card:hover{
+    transform: translateY(-5px);
+}
+
+.card h5{
+    color: #555;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+
+.card p{
+    font-size: 28px;
+    font-weight: bold;
+    color: #0F172B;
+}
+
+/* SEARCH BOX */
+
+.search-container{
+    width: 95%;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.search-container h3{
+    margin-bottom: 15px;
+    color: #0F172B;
+}
+
+.search-form{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.search-form input{
+    flex: 1;
+    padding: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    font-size: 15px;
+}
+
+.search-form input:focus{
+    border-color: #F54900;
+}
+
+.search-btn{
+    background: #0F172B;
+    color: white;
+    border: none;
+    padding: 14px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    font-weight: bold;
+}
+
+.search-btn:hover{
+    background: #F54900;
+}
+
+/* TABLE */
+
+.section-title{
+    margin: 20px;
+    color: #0F172B;
+}
+
+.table-container{
+    width: 95%;
+    margin: auto;
+    overflow-x: auto;
+}
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+th{
+    background: #0F172B;
+    color: white;
+    padding: 14px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+td{
+    padding: 14px;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+}
+
+tr:hover{
+    background: #f9f9f9;
+}
+
+/* STATUS */
+
+.status-active{
+    background: #d1fae5;
+    color: #065f46;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* BUTTONS */
+
+.actions{
+    display: flex;
+    gap: 8px;
+}
+
+.deposit-btn,
+.withdraw-btn{
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+    transition: 0.3s ease;
+}
+
+.deposit-btn{
+    background: #0F172B;
+}
+
+.deposit-btn:hover{
+    background: #F54900;
+}
+
+.withdraw-btn{
+    background: #198754;
+}
+
+.withdraw-btn:hover{
+    background: #157347;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+    .search-form{
+        flex-direction: column;
+    }
+
+}

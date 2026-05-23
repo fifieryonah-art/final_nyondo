@@ -1,130 +1,185 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}
-    Customer| Nyondo Hardware
+    Customer | Nyondo Hardware
 {% endblock %}
 
 {% block extra_css %}
-    <style>
-    .dashboard {
-        padding: 20px;
-    }
 
-    .cards {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        margin-bottom: 20px;
-    }
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    .card {
-        background: #fff;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        text-align: center;
-    }
+<link rel="stylesheet"
+      href="{% static 'css/customer_list.css' %}">
 
-    .card h2 {
-        margin: 0;
-        font-size: 22px;
-    }
+{% endblock %}
 
-    .card p {
-        margin: 5px 0 0;
-        color: gray;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    th, td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-    }
-
-    th {
-        background: #f4f6f8;
-    }
-
-    .badge {
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-    }
-
-    .scheme {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .normal {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .btn-edit {
-    padding: 5px 10px;
-    background: #3b82f6;
-    color: white;
-    border-radius: 5px;
-    text-decoration: none;
-    margin-right: 5px;
-    }
-
-    .btn-delete{
-        padding: 5px 10px;
-        background: #ef4444;
-        color: white;
-        border-radius: 5px;
-        text-decoration: none;
-    }
-
-</style>
+{% block sidebar %}
+    {% include 'salessidebar.html' %}
 {% endblock %}
 
 {% block content %}
-    <h3>Customers</h3>
-    <p>Manage customers</p>
-     <table>
+
+<!-- PAGE HEADER -->
+
+<div class="page-header">
+
+    <div>
+
+        <h2>
+            <i class="fas fa-users"></i>
+            Customers
+        </h2>
+
+        <p>Manage all registered customers</p>
+
+    </div>
+
+    <div class="header-actions">
+
+        <a href="{% url 'add_customer' %}"
+           class="btn-add">
+
+            <i class="fas fa-user-plus"></i>
+
+            Add Customer
+
+        </a>
+
+    </div>
+
+</div>
+
+<!-- TABLE -->
+
+<div class="table-container">
+
+    <table>
+
         <thead>
+
             <tr>
-                <th> Customer Name</th>
+
+                <th>Customer Name</th>
                 <th>Phone Number</th>
                 <th>NIN</th>
                 <th>Status</th>
                 <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-    {% for customer in customers %}
-        <tr>
-            <td>{{ customer.name }}</td>
-            <td>{{ customer.phone }}</td>
-            <td>{{ customer.nin}}</td>
-            <td>
-                {% if customer.on_scheme %}
-                    <span class="badge scheme">On Scheme</span>
-                {% else %}
-                   <span class="badge normal">Normal</span>
-                {% endif %}
-            </td>
 
-            <td>
-                <a href="{% url 'customer_detail' customer.id %}">View</a>
-                <a href="{% url 'customer_edit' customer.id %}">Edit</a>
-                <a href="{% url 'delete_customer' customer.id %}"class="btn-delete">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
-    
-    </tbody>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for customer in customers %}
+
+            <tr>
+
+                <td>
+
+                    <div class="customer-info">
+
+                        <div class="avatar">
+                            {{ customer.name|slice:":1" }}
+                        </div>
+
+                        <span>{{ customer.name }}</span>
+
+                    </div>
+
+                </td>
+
+                <td>{{ customer.phone }}</td>
+
+                <td>{{ customer.nin }}</td>
+
+                <td>
+
+                    {% if customer.on_scheme %}
+
+                        <span class="badge scheme">
+
+                            <i class="fas fa-piggy-bank"></i>
+
+                            On Scheme
+
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge normal">
+
+                            <i class="fas fa-user"></i>
+
+                            Normal
+
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <a href="{% url 'customer_detail' customer.id %}"
+                           class="btn-view">
+
+                            <i class="fas fa-eye"></i>
+
+                            View
+
+                        </a>
+
+                        <a href="{% url 'customer_edit' customer.id %}"
+                           class="btn-edit">
+
+                            <i class="fas fa-pen"></i>
+
+                            Edit
+
+                        </a>
+
+                        <a href="{% url 'delete_customer' customer.id %}"
+                           class="btn-delete">
+
+                            <i class="fas fa-trash"></i>
+
+                            Delete
+
+                        </a>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+
+                <td colspan="5"
+                    class="empty-state">
+
+                    <i class="fas fa-folder-open"></i>
+
+                    No customers found
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
     </table>
+
+</div>
+
 {% endblock %}
