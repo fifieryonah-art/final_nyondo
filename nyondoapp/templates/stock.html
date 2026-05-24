@@ -11,8 +11,7 @@ Stock Dashboard | Nyondo Hardware
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<link rel="stylesheet"
-      href="{% static 'css/stock.css' %}">
+<link rel="stylesheet" href="{% static 'css/stock.css' %}?v=202605241100">
 
 {% endblock %}
 
@@ -24,201 +23,209 @@ Stock Dashboard | Nyondo Hardware
 
 <!-- PAGE HEADER -->
 
-<div class="page-header">
+<div class="page-shell">
 
-    <div>
+    <!-- PAGE HEADER -->
 
-        <h2>
-            <i class="fas fa-boxes-stacked"></i>
-            Stock Dashboard
-        </h2>
+    <div class="page-header">
 
-        <p>Monitor stock movement and inventory status</p>
+        <div>
 
-    </div>
+            <h2>
+                <i class="fas fa-boxes-stacked"></i>
+                Stock Dashboard
+            </h2>
 
-    <a href="{% url 'add_stock' %}" class="add-btn">
+            <p>
+                Monitor stock movement and inventory status
+            </p>
 
-        <i class="fas fa-plus"></i>
-        Add Stock
+        </div>
 
-    </a>
+        <a href="{% url 'add_stock' %}" class="add-btn">
 
-</div>
+            <i class="fas fa-plus"></i>
+            Add Stock
 
-<!-- DASHBOARD CARDS -->
-
-<div class="cards">
-
-    <div class="card">
-
-        <h5>
-            <i class="fas fa-box" style="color: green;"></i>
-            Total Products
-        </h5>
-
-        <p>{{ total_products }}</p>
+        </a>
 
     </div>
 
-    <div class="card">
+    <!-- DASHBOARD CARDS -->
 
-        <h5>
-            <i class="fas fa-triangle-exclamation" style="color: red;"></i>
-            Low Stock
-        </h5>
+    <div class="cards">
 
-        <p>{{ low_stock }}</p>
+        <div class="card">
+
+            <h5>
+                <i class="fas fa-box" style="color: green;"></i>
+                Total Products
+            </h5>
+
+            <p>{{ total_products }}</p>
+
+        </div>
+
+        <div class="card">
+
+            <h5>
+                <i class="fas fa-triangle-exclamation" style="color: red;"></i>
+                Low Stock
+            </h5>
+
+            <p>{{ low_stock }}</p>
+
+        </div>
+
+        <div class="card">
+
+            <h5>
+                <i class="fas fa-ban" style="color: red;"></i>
+                Out of Stock
+            </h5>
+
+            <p>{{ out_of_stock }}</p>
+
+        </div>
+
+        <div class="card">
+
+            <h5>
+                <i class="fas fa-sack-dollar" style="color: goldenrod;"></i>
+                Total Stock Value
+            </h5>
+
+            <p>{{ total_value }}</p>
+
+        </div>
 
     </div>
 
-    <div class="card">
+    <!-- QUICK ACTIONS -->
 
-        <h5>
-            <i class="fas fa-ban" style="color: red;"></i>
-            Out of Stock
-        </h5>
+    <div class="quick-actions">
 
-        <p>{{ out_of_stock }}</p>
+        <a href="{% url 'add_stock' %}">
+            <i class="fas fa-plus"></i>
+            Add Stock
+        </a>
+
+        <a href="{% url 'stock_list' %}">
+            <i class="fas fa-boxes"></i>
+            View Inventory
+        </a>
+
+        <a href="{% url 'stock_report' %}">
+            <i class="fas fa-file-lines"></i>
+            Reports
+        </a>
+
+        <a href="#">
+            <i class="fas fa-truck"></i>
+            Suppliers
+        </a>
 
     </div>
 
-    <div class="card">
+    <!-- LOW STOCK TABLE -->
 
-        <h5>
-            <i class="fas fa-sack-dollar" style="color: goldenrod;"></i>
-            Total Stock Value
-        </h5>
+    <h3 class="section-title">
+        Low Stock Alerts
+    </h3>
 
-        <p>{{ total_value }}</p>
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Reorder Level</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for product in low_stock_items %}
+
+                <tr>
+
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.stock_quantity }}</td>
+                    <td>{{ product.reorder_level }}</td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="3">
+                        All items are sufficiently stocked
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
 
     </div>
 
-</div>
+    <!-- RECENT STOCK ENTRIES -->
 
-<!-- QUICK ACTIONS -->
+    <h3 class="section-title">
+        Recent Stock Entries
+    </h3>
 
-<div class="quick-actions">
+    <div class="table-container">
 
-    <a href="{% url 'add_stock' %}">
-        <i class="fas fa-plus"></i>
-        Add Stock
-    </a>
+        <table>
 
-    <a href="{% url 'stock_list' %}">
-        <i class="fas fa-boxes"></i>
-        View Inventory
-    </a>
+            <thead>
 
-    <a href="{% url 'stock_report' %}">
-        <i class="fas fa-file-lines"></i>
-        Reports
-    </a>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity Received</th>
+                    <th>Cost Price</th>
+                    <th>Date Added</th>
+                    <th>Recorded By</th>
+                </tr>
 
-    <a href="#">
-        <i class="fas fa-truck"></i>
-        Suppliers
-    </a>
+            </thead>
 
-</div>
+            <tbody>
 
-<!-- LOW STOCK TABLE -->
+                {% for stock in recent_stock %}
 
-<h3 class="section-title">
-    Low Stock Alerts
-</h3>
+                <tr>
 
-<div class="table-container">
+                    <td>{{ stock.product.name }}</td>
+                    <td>{{ stock.quantity }}</td>
+                    <td>{{ stock.cost_price }}</td>
+                    <td>{{ stock.date_added }}</td>
+                    <td>{{ stock.recorded_by }}</td>
 
-    <table>
+                </tr>
 
-        <thead>
+                {% empty %}
 
-            <tr>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Reorder Level</th>
-            </tr>
+                <tr>
+                    <td colspan="5">
+                        No recent stock entries found
+                    </td>
+                </tr>
 
-        </thead>
+                {% endfor %}
 
-        <tbody>
+            </tbody>
 
-            {% for product in low_stock_items %}
+        </table>
 
-            <tr>
-
-                <td>{{ product.name }}</td>
-                <td>{{ product.stock_quantity }}</td>
-                <td>{{ product.reorder_level }}</td>
-
-            </tr>
-
-            {% empty %}
-
-            <tr>
-                <td colspan="3">
-                    All items are sufficiently stocked
-                </td>
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
-</div>
-
-<!-- RECENT STOCK ENTRIES -->
-
-<h3 class="section-title">
-    Recent Stock Entries
-</h3>
-
-<div class="table-container">
-
-    <table>
-
-        <thead>
-
-            <tr>
-                <th>Product</th>
-                <th>Quantity Received</th>
-                <th>Cost Price</th>
-                <th>Date Added</th>
-                <th>Recorded By</th>
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            {% for stock in recent_stock %}
-
-            <tr>
-
-                <td>{{ stock.product.name }}</td>
-                <td>{{ stock.quantity }}</td>
-                <td>{{ stock.cost_price }}</td>
-                <td>{{ stock.date_added }}</td>
-                <td>{{ stock.recorded_by }}</td>
-
-            </tr>
-
-            {% empty %}
-
-            <tr>
-                <td colspan="5">
-                    No recent stock entries found
-                </td>
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
+    </div>
 
 </div>
 

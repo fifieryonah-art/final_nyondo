@@ -4,122 +4,55 @@
 
 {% block content %}
 
-<style>
-.page-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
+<div class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <h2>Employees</h2>
+            <p>Maintain staff access and keep the employee roster aligned with current operations.</p>
+        </div>
 
-.add-btn{
-    background:#F54900;
-    color:white;
-    padding:10px 15px;
-    border-radius:6px;
-    text-decoration:none;
-}
+        <a href="{% url 'create_employee' %}" class="admin-btn-primary">
+            + Add Employee
+        </a>
+    </div>
 
-.card{
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.08);
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th{
-    background:#163A6B;
-    color:white;
-    padding:12px;
-}
-
-td{
-    padding:12px;
-    border-bottom:1px solid #eee;
-}
-
-.active{
-    color:green;
-    font-weight:bold;
-}
-
-.inactive{
-    color:red;
-    font-weight:bold;
-}
-
-.edit-btn{
-    background:#3498db;
-    color:white;
-    padding:6px 10px;
-    border-radius:5px;
-    text-decoration:none;
-}
-
-.toggle-btn{
-    background:#e67e22;
-    color:white;
-    padding:6px 10px;
-    border-radius:5px;
-    text-decoration:none;
-}
-</style>
-
-<div class="page-header">
-    <h2>Employees</h2>
-
-    <a href="{% url 'create_employee' %}" class="add-btn">
-        + Add Employee
-    </a>
-</div>
-
-<div class="card">
-
-<table>
-    <tr>
-        <th>Username</th>
-        <th>Employee ID</th>
-        <th>Role</th>
-        <th>Gender</th>
-        <th>Status</th>
-        <th>Actions</th>
-    </tr>
-
-    {% for emp in employees %}
-    <tr>
-
-        <td>{{ emp.user.username }}</td>
-        <td>{{ emp.employee_id }}</td>
-        <td>{{ emp.get_role_display }}</td>
-        <td>{{ emp.gender }}</td>
-
-        <td>
-            {% if emp.user.is_active %}
-                <span class="active">Active</span>
-            {% else %}
-                <span class="inactive">Inactive</span>
-            {% endif %}
-        </td>
-
-        <td>
-            <a href="{% url 'edit_employee' emp.id %}" class="edit-btn">
-                Edit
-            </a>
-
-            <a href="{% url 'toggle_employee_status' emp.id %}" class="toggle-btn">
-                Toggle Status
-            </a>
-        </td>
-
-    </tr>
-    {% endfor %}
-</table>
-
+    <div class="admin-panel">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Employee ID</th>
+                    <th>Role</th>
+                    <th>Gender</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in employees %}
+                <tr>
+                    <td>{{ emp.user.username }}</td>
+                    <td>{{ emp.employee_id }}</td>
+                    <td>{{ emp.get_role_display }}</td>
+                    <td>{{ emp.gender }}</td>
+                    <td>
+                        {% if emp.user.is_active %}
+                            <span class="admin-badge admin-badge--active">Active</span>
+                        {% else %}
+                            <span class="admin-badge admin-badge--inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="admin-actions">
+                            <a href="{% url 'edit_employee' emp.id %}">Edit</a>
+                            <a href="{% url 'toggle_employee_status' emp.id %}">Toggle Status</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}

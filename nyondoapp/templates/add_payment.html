@@ -1,249 +1,216 @@
 {% extends 'base.html' %}
 
 {% load static %}
+ {% block title %} Payment | Nyondo Hardware {% endblock %} 
+ {% block extra_css %}
 
-{% block title %}
-Payment | Nyondo Hardware
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+/>
+
+<link rel="stylesheet" href="{% static 'css/add_payment.css' %}" />
+
+<style>
+  .layout-wrapper .sidebar-section {
+    display: none;
+  }
+
+  .layout-wrapper .top-navbar {
+    left: 0;
+    width: 100%;
+  }
+</style>
+
 {% endblock %}
 
-{% block extra_css %}
-
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-<link rel="stylesheet"
-      href="{% static 'css/add_payment.css' %}">
-
+{% block sidebar %}
 {% endblock %}
 
 {% block content %}
-
-{% block sidebar %}
-    {% include 'salessidebar.html' %}
-{% endblock %}
-
 <div class="payment-wrapper">
-
-    <div class="payment-card">
-
-        <!-- HEADER -->
-
-        <div class="card-header">
-
-            <div class="header-icon">
-                <i class="fas fa-money-bill-wave"></i>
-            </div>
-
-            <div>
-                <h2 class="title">New Payment</h2>
-                <p>Record customer payment transaction</p>
-            </div>
-
-        </div>
-
-        <!-- FORM -->
-
-        <form method="POST" class="payment-form">
-
-            {% csrf_token %}
-
-            <!-- CUSTOMER + SALE -->
-
-            <div class="form-row">
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-user"></i>
-                        Customer
-                    </label>
-
-                    <select name="customer" required>
-
-                        <option value="">Select Customer</option>
-
-                        {% for customer in customers %}
-
-                            <option value="{{ customer.id }}">
-                                {{ customer.name }}
-                            </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-cart-shopping"></i>
-                        Sale
-                    </label>
-
-                    <select name="sale" required>
-
-                        <option value="">Select Sale</option>
-
-                        {% for sale in sales %}
-
-                            <option value="{{ sale.id }}">
-                                Sale #{{ sale.id }} - {{ sale.customer_name }}
-                            </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                </div>
-
-            </div>
-
-            <!-- TOTAL + PAID -->
-
-            <div class="form-row">
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-wallet"></i>
-                        Total Amount
-                    </label>
-
-                    <input type="number"
-                           name="total"
-                           step="0.01"
-                           placeholder="Enter total amount"
-                           required>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-coins"></i>
-                        Amount Paid
-                    </label>
-
-                    <input type="number"
-                           name="amount_paid"
-                           step="0.01"
-                           placeholder="Enter amount paid"
-                           required>
-
-                </div>
-
-            </div>
-
-            <!-- METHOD + RECEIPT -->
-
-            <div class="form-row">
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-credit-card"></i>
-                        Payment Method
-                    </label>
-
-                    <select name="payment_method" required>
-
-                        {% for key, value in payment_methods %}
-
-                            <option value="{{ key }}">
-                                {{ value }}
-                            </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-receipt"></i>
-                        Receipt Number
-                    </label>
-
-                    <input type="text"
-                           name="receipt_number"
-                           value="{{ receipt_number }}"
-                           readonly>
-
-                </div>
-
-            </div>
-
-            <!-- COMMENTS -->
-
-            <div class="form-group">
-
-                <label>
-                    <i class="fas fa-comment-dots"></i>
-                    Comments
-                </label>
-
-                <textarea name="comments"
-                          rows="4"
-                          placeholder="Enter payment comments..."></textarea>
-
-            </div>
-
-            <!-- SUMMARY -->
-
-            <div class="summary-box">
-
-                <div class="summary-header">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    <h4>Payment Summary</h4>
-                </div>
-
-                <div class="summary-item">
-                    <span>Total Amount</span>
-                    <strong>UGX {{ total|default:'0.00' }}</strong>
-                </div>
-
-                <div class="summary-item">
-                    <span>Amount Paid</span>
-                    <strong>UGX {{ amount_paid|default:'0.00' }}</strong>
-                </div>
-
-                <div class="summary-item balance">
-                    <span>Balance</span>
-                    <strong>UGX {{ balance|default:'0.00' }}</strong>
-                </div>
-
-            </div>
-
-            <!-- BUTTONS -->
-
-            <div class="buttons">
-
-                <button type="submit" class="btn-save">
-
-                    <i class="fas fa-save"></i>
-
-                    Save Payment
-
-                </button>
-
-                <a href="{% url 'payment_list' %}"
-                   class="btn-cancel">
-
-                    <i class="fas fa-times"></i>
-
-                    Cancel
-
-                </a>
-
-            </div>
-
-        </form>
-
+  <div class="payment-card">
+    <!-- HEADER -->
+
+    <div class="card-header">
+      <div class="header-icon">
+        <i class="fas fa-money-bill-wave"></i>
+      </div>
+
+      <div>
+        <h2 class="title">New Payment</h2>
+        <p>Record customer payment transaction</p>
+      </div>
     </div>
 
+    <!-- FORM -->
+
+    <form method="POST" class="payment-form">
+      {% csrf_token %}
+
+      <!-- CUSTOMER + SALE -->
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>
+            <i class="fas fa-user"></i>
+            Customer
+          </label>
+
+          <select name="customer" required>
+            <option value="">Select Customer</option>
+
+            {% for customer in customers %}
+
+            <option value="{{ customer.id }}">{{ customer.name }}</option>
+
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <i class="fas fa-cart-shopping"></i>
+            Sale
+          </label>
+
+          <select name="sale" required>
+            <option value="">Select Sale</option>
+
+            {% for sale in sales %}
+
+            <option value="{{ sale.id }}">
+              Sale #{{ sale.id }} - {{ sale.customer_name }}
+            </option>
+
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- TOTAL + PAID -->
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>
+            <i class="fas fa-wallet"></i>
+            Total Amount
+          </label>
+
+          <input
+            type="number"
+            name="total"
+            step="0.01"
+            placeholder="Enter total amount"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>
+            <i class="fas fa-coins"></i>
+            Amount Paid
+          </label>
+
+          <input
+            type="number"
+            name="amount_paid"
+            step="0.01"
+            placeholder="Enter amount paid"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- METHOD + RECEIPT -->
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>
+            <i class="fas fa-credit-card"></i>
+            Payment Method
+          </label>
+
+          <select name="payment_method" required>
+            {% for key, value in payment_methods %}
+
+            <option value="{{ key }}">{{ value }}</option>
+
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <i class="fas fa-receipt"></i>
+            Receipt Number
+          </label>
+
+          <input
+            type="text"
+            name="receipt_number"
+            value="{{ receipt_number }}"
+            readonly
+          />
+        </div>
+      </div>
+
+      <!-- COMMENTS -->
+
+      <div class="form-group">
+        <label>
+          <i class="fas fa-comment-dots"></i>
+          Comments
+        </label>
+
+        <textarea
+          name="comments"
+          rows="4"
+          placeholder="Enter payment comments..."
+        ></textarea>
+      </div>
+
+      <!-- SUMMARY -->
+
+      <div class="summary-box">
+        <div class="summary-header">
+          <i class="fas fa-file-invoice-dollar"></i>
+          <h4>Payment Summary</h4>
+        </div>
+
+        <div class="summary-item">
+          <span>Total Amount</span>
+          <strong>UGX {{ total|default:'0.00' }}</strong>
+        </div>
+
+        <div class="summary-item">
+          <span>Amount Paid</span>
+          <strong>UGX {{ amount_paid|default:'0.00' }}</strong>
+        </div>
+
+        <div class="summary-item balance">
+          <span>Balance</span>
+          <strong>UGX {{ balance|default:'0.00' }}</strong>
+        </div>
+      </div>
+
+      <!-- BUTTONS -->
+
+      <div class="buttons">
+        <button type="submit" class="btn-save">
+          <i class="fas fa-save"></i>
+
+          Save Payment
+        </button>
+
+        <a href="{% url 'payment_list' %}" class="btn-cancel">
+          <i class="fas fa-times"></i>
+
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
 </div>
 
 {% endblock %}

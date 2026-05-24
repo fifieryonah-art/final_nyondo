@@ -1,9 +1,8 @@
-{% extends 'base.html' %}
-
+{% extends 'admin_base.html' %}
 {% load static %}
 
 {% block title %}
-    Employee Dashboard | Nyondo Hardware
+Sales Dashboard | Nyondo Hardware
 {% endblock %}
 
 {% block extra_css %}
@@ -11,239 +10,392 @@
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<link rel="stylesheet"
-      href="{% static 'css/employee_dashboard.css' %}">
+<style>
+
+/* =========================
+   GLOBAL LAYOUT
+========================= */
+
+/* :root{
+    --sidebar-width: 260px;
+    --navbar-height: 60px;
+} */
+
+body{
+    background: #f4f6f9;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* MAIN WRAPPER */
+.dashboard-container{
+    padding: 20px;
+    margin-left: var(--sidebar-width);
+    margin-top: var(--navbar-height);
+    width: calc(100% - var(--sidebar-width));
+    box-sizing: border-box;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.dashboard-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.dashboard-header h2{
+    font-size: 26px;
+    color: #0f172a;
+}
+
+.dashboard-header p{
+    font-size: 14px;
+    color: #64748b;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.add-btn{
+    background: #0f172a;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.add-btn:hover{
+    background: #1e293b;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.cards{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.card{
+    background: #fff;
+    padding: 14px 16px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-left: 4px solid #0f172a;
+    transition: 0.3s;
+}
+
+.card:hover{
+    transform: translateY(-3px);
+}
+
+.card-icon{
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.sales-icon i{ color: #2563eb; }
+.revenue-icon i{ color: #16a34a; }
+.product-icon i{ color: #9333ea; }
+.lowstock-icon i{ color: #dc2626; }
+
+.card h3{
+    font-size: 13px;
+    color: #64748b;
+}
+
+.card h1{
+    font-size: 20px;
+    color: #0f172a;
+}
+
+.card span{
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* =========================
+   TABLES
+========================= */
+
+.table-card{
+    background: #fff;
+    padding: 16px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.table-title h4{
+    font-size: 18px;
+    color: #0f172a;
+    margin-bottom: 10px;
+}
+
+/* TABLE STYLE */
+table{
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+thead{
+    background: #e2e8f0;
+}
+
+thead th{
+    text-align: left;
+    padding: 10px;
+    font-size: 13px;
+}
+
+tbody td{
+    padding: 10px;
+    font-size: 13px;
+    border-bottom: 1px solid #eef2f7;
+    color: #334155;
+}
+
+tbody tr:nth-child(even){
+    background: #f8fafc;
+}
+
+tbody tr:hover{
+    background: #eaf2ff;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.status-good{
+    background: #dcfce7;
+    color: #166534;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+}
+
+.status-low{
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+}
+
+.status-pending{
+    background: #e2e8f0;
+    color: #334155;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width: 1200px){
+    .cards{
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media(max-width: 700px){
+    .cards{
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-container{
+        margin-left: 0;
+    }
+
+    .dashboard-header{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+</style>
 
 {% endblock %}
 
-{% block sidebar %}
-    {% include 'salessidebar.html' %}
-{% endblock %}
 
 {% block content %}
 
 <div class="dashboard-container">
 
     <!-- HEADER -->
-
     <div class="dashboard-header">
+        <div>
+            <h2><i class="fas fa-chart-line"></i> Sales Dashboard</h2>
+            <p>Full overview of sales, inventory, revenue & performance</p>
+        </div>
 
-        <h2>
-            <i class="fa-solid fa-gauge"></i>
-            Employee Dashboard
-        </h2>
-
-        <p>
-            Monitor sales, products, stock and recent transactions
-        </p>
-
+        <a href="{% url 'add_sales' %}" class="add-btn">
+            <i class="fas fa-plus"></i> New Sale
+        </a>
     </div>
 
-    <!-- CARDS -->
-
+    <!-- KPI CARDS (MERGED CLEANLY) -->
     <div class="cards">
 
         <div class="card">
-
-            <div class="card-icon">
-                <i class="fa-solid fa-cart-shopping"></i>
+            <div class="card-icon sales-icon">
+                <i class="fas fa-chart-line"></i>
             </div>
-
             <h3>Total Sales</h3>
-
             <h1>{{ total_sales }}</h1>
-
-            <span>Sales recorded today</span>
-
         </div>
 
         <div class="card">
-
-            <div class="card-icon">
-                <i class="fa-solid fa-money-bill"></i>
+            <div class="card-icon revenue-icon">
+                <i class="fas fa-money-bill-wave"></i>
             </div>
-
-            <h3>Total Revenue</h3>
-
+            <h3>Revenue</h3>
             <h1>UGX {{ total_revenue|floatformat:0 }}</h1>
-
-            <span>Revenue collected</span>
-
         </div>
 
         <div class="card">
-
-            <div class="card-icon">
-                <i class="fa-solid fa-box"></i>
+            <div class="card-icon product-icon">
+                <i class="fas fa-boxes-stacked"></i>
             </div>
-
-            <h3>Total Products</h3>
-
+            <h3>Products</h3>
             <h1>{{ products.count }}</h1>
-
-            <span>Products available</span>
-
         </div>
 
         <div class="card">
-
-            <div class="card-icon">
-                <i class="fa-solid fa-triangle-exclamation"></i>
+            <div class="card-icon lowstock-icon">
+                <i class="fas fa-triangle-exclamation"></i>
             </div>
-
-            <h3>Low Stock Items</h3>
-
+            <h3>Low Stock</h3>
             <h1>{{ low_stock }}</h1>
+        </div>
 
-            <span>Need restocking</span>
+        <div class="card">
+            <div class="card-icon sales-icon">
+                <i class="fas fa-cart-shopping"></i>
+            </div>
+            <h3>Items Sold</h3>
+            <h1>{{ total_items_sold }}</h1>
+        </div>
 
+        <div class="card">
+            <div class="card-icon revenue-icon">
+                <i class="fas fa-truck"></i>
+            </div>
+            <h3>Transport</h3>
+            <h1>{{ transport_total }}</h1>
+        </div>
+
+        <div class="card">
+            <div class="card-icon product-icon">
+                <i class="fas fa-hand-holding-dollar"></i>
+            </div>
+            <h3>Supplier Credit</h3>
+            <h1>{{ supplier_credit }}</h1>
+        </div>
+
+        <div class="card">
+            <div class="card-icon lowstock-icon">
+                <i class="fas fa-piggy-bank"></i>
+            </div>
+            <h3>Deposits</h3>
+            <h1>{{ deposits }}</h1>
         </div>
 
     </div>
 
     <!-- RECENT SALES -->
-
-    <div class="table-section">
-
-        <h3>
-            <i class="fa-solid fa-clock"></i>
-            Recent Sales
-        </h3>
-
+    <div class="table-card">
+        <div class="table-title"><h4>Recent Sales</h4></div>
         <table>
-
             <thead>
-
                 <tr>
-
                     <th>Receipt</th>
                     <th>Customer</th>
                     <th>Product</th>
-                    <th>Quantity</th>
+                    <th>Qty</th>
                     <th>Amount</th>
                     <th>Date</th>
-                    <th>Status</th>
-
                 </tr>
-
             </thead>
-
             <tbody>
-
                 {% for sale in recent_sales %}
-
                 <tr>
-
                     <td>{{ sale.receipt_number }}</td>
-
                     <td>{{ sale.customer_name }}</td>
-
                     <td>{{ sale.name }}</td>
-
                     <td>{{ sale.quantity }}</td>
-
                     <td>UGX {{ sale.final_amount|floatformat:0 }}</td>
-
                     <td>{{ sale.date }}</td>
-
-                    <td>
-                        <span class="status-pending">
-                            {{ sale.payment_method }}
-                        </span>
-                    </td>
-
                 </tr>
-
-                {% empty %}
-
-                <tr>
-                    <td colspan="7">No recent sales found</td>
-                </tr>
-
                 {% endfor %}
-
             </tbody>
-
         </table>
-
     </div>
 
-    <!-- PRODUCT TABLE -->
-
-    <div class="table-section">
-
-        <h3>
-            <i class="fa-solid fa-boxes-stacked"></i>
-            Product Inventory
-        </h3>
-
+    <!-- INVENTORY -->
+    <div class="table-card">
+        <div class="table-title"><h4>Product Inventory</h4></div>
         <table>
-
             <thead>
-
                 <tr>
-
                     <th>Product</th>
                     <th>Description</th>
-                    <th>Specification</th>
                     <th>Stock</th>
-                    <th>Unit Price</th>
-                    <th>Status</th>
-
+                    <th>Price</th>
                 </tr>
-
             </thead>
-
             <tbody>
-
                 {% for product in products %}
-
                 <tr>
-
                     <td>{{ product.name }}</td>
-
                     <td>{{ product.description }}</td>
-
-                    <td>{{ product.specification }}</td>
-
                     <td>{{ product.stock_quantity }}</td>
-
-                    <td>
-                        UGX {{ product.unit_price|floatformat:0 }}
-                    </td>
-
-                    <td>
-
-                        {% if product.stock_quantity < 10 %}
-
-                            <span class="status-low">
-                                Low Stock
-                            </span>
-
-                        {% else %}
-
-                            <span class="status-good">
-                                Available
-                            </span>
-
-                        {% endif %}
-
-                    </td>
-
+                    <td>UGX {{ product.unit_price|floatformat:0 }}</td>
                 </tr>
-
-                {% empty %}
-
-                <tr>
-                    <td colspan="6">No products available</td>
-                </tr>
-
                 {% endfor %}
-
             </tbody>
-
         </table>
+    </div>
 
+    <!-- LOW STOCK -->
+    <div class="table-card">
+        <div class="table-title"><h4>Low Stock Alerts</h4></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in low_stock %}
+                <tr>
+                    <td>{{ stock.name }}</td>
+                    <td>{{ stock.stock_quantity }}</td>
+                    <td><span class="status-low">Low</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
 </div>

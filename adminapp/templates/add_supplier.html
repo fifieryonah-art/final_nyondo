@@ -11,98 +11,119 @@
 
     <style>
         body {
-            background: #f4f6f9;
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
             font-family: Arial, sans-serif;
-        }
-
-        .form-container {
-            max-width: 650px;
-            margin: 60px auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        .form-title {
-            text-align: center;
-            margin-bottom: 25px;
             color: #0f172b;
-            font-weight: bold;
+            padding: 32px 16px;
         }
 
- 
-
-        label {
-            font-weight: 600;
-            margin-top: 10px;
+        .form-shell {
+            max-width: 760px;
+            margin: 0 auto;
         }
 
-        .button-group {
+        .form-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-start;
+            margin-bottom: 22px;
+        }
+
+        .eyebrow {
+            color: #f54900;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .form-header h1 {
+            margin: 0 0 6px;
+            color: #0f172b;
+            font-size: 1.6rem;
+        }
+
+        .form-header p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .form-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 20px;
-            margin-top: 25px;
+            gap: 14px;
+            margin-top: 24px;
         }
-
 
         .btn {
-            padding: 12px 28px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
             text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
+            font-weight: 700;
             border: none;
-            transition: 0.3s ease;
-            display: inline-block;
+            transition: 0.2s ease;
         }
 
-
-        .save-btn {
+        .btn-primary {
             background: #f54900;
-            color: white;
+            color: #fff;
         }
 
-        .save-btn:hover {
-            background: #d63f00;
+        .btn-primary:hover {
+            background: #d84200;
         }
 
-        .cancel-btn {
-            background: #e5e7eb;
-            color: #111827;
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #0f172b;
         }
 
-        .cancel-btn:hover {
-            background: #d1d5db;
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        @media(max-width: 768px) {
+            .form-header {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="form-container">
+<div class="form-shell">
+    <div class="form-card">
+        <div class="form-header">
+            <div>
+                <p class="eyebrow">Supplier module</p>
+                <h1>Add New Supplier</h1>
+                <p>Capture supplier details and keep credit tracking accurate.</p>
+            </div>
+            <a href="{% url 'supplier_dashboard' %}" class="btn btn-secondary">Back</a>
+        </div>
 
-    <h3 class="form-title">Add New Supplier</h3>
+        <form method="POST" novalidate>
+            {% csrf_token %}
+            {{ form|crispy }}
 
-    <form method="POST" novalidate>
-        {% csrf_token %}
-
-        {{ form|crispy }}
-
-        <div class="button-group">
-
-    <a href="{% url 'supplier_dashboard' %}" class="btn cancel-btn">
-        Cancel
-    </a>
-
-    <button type="submit" class="btn save-btn">
-        Save Supplier
-    </button>
-
-</div>
-    </form>
-
+            <div class="form-actions">
+                <a href="{% url 'supplier_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Supplier</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from datetime import datetime, date
-from nyondoapp.models import Sale, Payment, Customer, Product
-from django.db.models import Sum, Max
+from decimal import Decimal
+from nyondoapp.models import Sale, Payment, Customer, Product, Stock
+from django.db.models import Sum, Max, F
 from .forms import SupplierForm, SupplierPaymentForm
 from .models import Supplier, DepositScheme, DepositPayment
 from django.contrib import messages
@@ -340,11 +341,20 @@ def add_deposit(request):
         customer = Customer.objects.get(id=customer_id)
         product = Product.objects.get(id=product_id)
 
-        deposit = DepositScheme.objects.create(
+        quantity_value = int(quantity or 0)
+        amount_paid_value = Decimal(amount_paid or 0)
+        total_amount = (product.unit_price * Decimal(quantity_value))
+        balance = total_amount - amount_paid_value
+        status = 'Completed' if balance <= 0 else 'Active'
+
+        DepositScheme.objects.create(
             customer=customer,
             product=product,
-            quantity_expected=quantity,
-            amount_paid=amount_paid,
+            total_amount=total_amount,
+            quantity_expected=quantity_value,
+            amount_paid=amount_paid_value,
+            balance=balance,
+            status=status,
         )
 
         return redirect('deposit_dashboard')
@@ -428,3 +438,82 @@ def view_deposit(request, pk):
     }
 
     return render(request, "view_deposit.html", context)
+
+
+
+def reports(request):
+
+    sales = Sale.objects.all().order_by('-date')
+    payments = Payment.objects.all().order_by('-created_at')
+    products = Product.objects.all()
+    suppliers = Supplier.objects.all()
+    customers = Customer.objects.all()
+
+    total_sales = sales.aggregate(total=Sum('final_amount'))['total'] or 0
+    total_paid = payments.aggregate(total=Sum('amount_paid'))['total'] or 0
+    total_balance = total_sales - total_paid
+
+    total_quantity_sold = sales.aggregate(total=Sum('quantity'))['total'] or 0
+    total_transactions = sales.count()
+    average_sale_value = round((total_sales / total_transactions), 2) if total_transactions else 0
+
+    collection_rate = round((total_paid / total_sales) * 100, 2) if total_sales else 0
+
+    total_products = products.count()
+    low_stock = products.filter(stock_quantity__lt=10)
+    out_of_stock = products.filter(stock_quantity=0)
+    total_stock_quantity = products.aggregate(total=Sum('stock_quantity'))['total'] or 0
+    stock_value = products.aggregate(total=Sum(F('unit_price') * F('stock_quantity')))['total'] or 0
+
+    total_customers = customers.count()
+    customers_with_balance = (
+        sales.filter(customer_name__isnull=False, final_amount__gt=F('sub_total'))
+        .values_list('customer_name_id', flat=True)
+        .distinct()
+        .count()
+    )
+
+    total_payments = payments.aggregate(total=Sum('amount_paid'))['total'] or 0
+
+    recent_sales = sales[:10]
+    for sale in recent_sales:
+        sale.balance = (sale.final_amount or 0) - (sale.sub_total or 0)
+
+    recent_payments = payments[:10]
+
+    top_products = (
+        sales.values('name__name')
+        .annotate(total_qty=Sum('quantity'))
+        .order_by('-total_qty')[:5]
+    )
+
+    total_suppliers = suppliers.count()
+
+    context = {
+        'sales': sales,
+        'recent_sales': recent_sales,
+        'total_sales': total_sales,
+        'total_paid': total_paid,
+        'total_balance': total_balance,
+        'total_quantity_sold': total_quantity_sold,
+        'total_transactions': total_transactions,
+        'average_sale_value': average_sale_value,
+        'collection_rate': collection_rate,
+        'expected_money': total_sales,
+        'products': products,
+        'total_products': total_products,
+        'low_stock': low_stock,
+        'out_of_stock': out_of_stock,
+        'total_stock_quantity': total_stock_quantity,
+        'stock_value': stock_value,
+        'customers': customers,
+        'total_customers': total_customers,
+        'customers_with_balance': customers_with_balance,
+        'payments': payments,
+        'recent_payments': recent_payments,
+        'total_payments': total_payments,
+        'top_products': top_products,
+        'total_suppliers': total_suppliers,
+    }
+
+    return render(request, 'reports.html', context)

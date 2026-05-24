@@ -6,7 +6,7 @@ from django.db.models import F
 from .models import Stock, Product, Sale, Payment, Customer,Employee
 from decimal import Decimal
 from .forms import CustomerForm
-from adminapp.models import Supplier
+from adminapp.models import Supplier, DepositScheme, DepositPayment
 
 from django.db.models import Sum
 #from django.contrib.auth.decorators import login_required
@@ -182,7 +182,7 @@ def stock_delete(request, pk):
         'stock': stock
     }
 
-    return render(request,'stock/delete_stock.html', context)
+    return render(request,'stock_delete.html', context)
 
 def stock_update(request, pk):
     stock = get_object_or_404( Stock, pk=pk)
@@ -226,7 +226,7 @@ def stock_update(request, pk):
         'suppliers': suppliers
     }
 
-    return render(request,'stock/update_stock.html', context)
+    return render(request,'stock_update.html', context)
 
 
 
@@ -264,8 +264,41 @@ def employee_dash(request):
      }
      return render(request, 'employee_dash.html', context)
 
+
 def creditPage(request):
-    return render(request, 'credit.html')
+    deposit_schemes = DepositScheme.objects.select_related('customer', 'product').order_by('-payment_date')
+
+    total_scheme_customers = deposit_schemes.values('customer').distinct().count()
+    total_deposits = deposit_schemes.aggregate(total=Sum('total_amount'))['total'] or 0
+    active_accounts = deposit_schemes.filter(status='Active').count()
+    total_withdraws = DepositPayment.objects.count()
+
+    scheme_customers = []
+    for scheme in deposit_schemes:
+        customer = scheme.customer
+        if not customer:
+            continue
+
+        last_payment = scheme.payments.order_by('-payment_date').first()
+        total_paid = scheme.payments.aggregate(total=Sum('amount_paid'))['total'] or 0
+
+        scheme_customers.append({
+            'name': customer.name,
+            'phone': customer.phone,
+            'total_deposit': total_paid,
+            'last_deposit': last_payment.payment_date if last_payment else scheme.payment_date,
+            'status': 'Completed' if total_paid >= (scheme.total_amount or 0) else 'Active',
+        })
+
+    context = {
+        'total_scheme_customers': total_scheme_customers,
+        'total_deposits': total_deposits,
+        'active_accounts': active_accounts,
+        'total_withdraws': total_withdraws,
+        'scheme_customers': scheme_customers,
+    }
+
+    return render(request, 'credit.html', context)
 
 
 def indexPage(request):
@@ -377,12 +410,10 @@ def sales_dash(request):
 
     total_items_sold = sales.aggregate(
         Sum('quantity'))['quantity__sum'] or 0
-    
 
     transport_total = sales.aggregate(
         Sum('transport')
     )['transport__sum'] or 0
-    
 
     low_stock = Product.objects.filter(stock_quantity__lt=10)
 
@@ -391,7 +422,7 @@ def sales_dash(request):
     top_selling_items = Sale.objects.all().order_by('-quantity')[:5]
 
     supplier_credit = 0
-    deposits = 0
+    deposits = DepositScheme.objects.count()
 
     context = {
         'sales': sales,
@@ -610,6 +641,14 @@ def payment_list(request):
 
         total_balance += payment.balance
 
+    show_sidebar = not (
+        request.user.is_superuser
+        or (
+            hasattr(request.user, 'employee_profile')
+            and request.user.employee_profile.role == 'admin'
+        )
+    )
+
     context = {
 
         'payments': payments,
@@ -619,6 +658,7 @@ def payment_list(request):
         'total_paid': total_paid,
 
         'total_balance': total_balance,
+        'show_sidebar': show_sidebar,
     }
 
     return render(request, 'payment_list.html', context)

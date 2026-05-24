@@ -2,77 +2,86 @@ body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f4f6f9;
+    padding: 40px 20px;
+    color: #0f172b;
 }
 
-/* CENTER WRAPPER */
 .delete-wrapper {
-    height: 100vh;
+    min-height: calc(100vh - 80px);
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* CARD */
 .delete-card {
-    background: #fff;
-    padding: 30px;
-    border-radius: 12px;
-    width: 400px;
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 16px;
+    width: min(480px, 100%);
     text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(15, 23, 43, 0.08);
+    border-top: 5px solid #0f172b;
 }
 
-/* ICON */
 .icon-box {
     font-size: 40px;
-    color: #ff4d4d;
+    color: #0f172b;
     margin-bottom: 15px;
 }
 
-/* TEXT */
 .delete-card h2 {
     margin-bottom: 10px;
-    color: #222;
+    color: #0f172b;
 }
 
 .delete-card p {
-    color: #555;
+    color: #64748b;
     font-size: 14px;
     margin-bottom: 25px;
 }
 
-/* FORM BUTTONS */
 .delete-form {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-/* DELETE BUTTON */
+.btn-delete,
+.btn-cancel {
+    padding: 12px 16px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    min-width: 140px;
+}
+
 .btn-delete {
-    background: #e63946;
-    color: white;
+    background: #0f172b;
+    color: #ffffff;
     border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
 }
 
 .btn-delete:hover {
-    background: #c92a36;
+    background: #1e293b;
 }
 
-/* CANCEL BUTTON */
 .btn-cancel {
-    background: #ddd;
-    color: #333;
-    padding: 10px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: bold;
+    background: #e2e8f0;
+    color: #0f172b;
 }
 
 .btn-cancel:hover {
-    background: #ccc;
+    background: #cbd5e1;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 20px;
+    }
+
+    .delete-card {
+        padding: 24px;
+    }
 }

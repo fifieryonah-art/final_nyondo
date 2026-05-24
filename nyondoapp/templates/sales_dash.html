@@ -7,13 +7,7 @@ Sales Dashboard | Nyondo Hardware
 {% endblock %}
 
 {% block extra_css %}
-
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-<link rel="stylesheet"
-      href="{% static 'css/sales_dash.css' %}">
-
+<link rel="stylesheet" href="{% static 'css/sales_dash.css' %}?v=202605241100">
 {% endblock %}
 
 {% block sidebar %}
@@ -21,271 +15,182 @@ Sales Dashboard | Nyondo Hardware
 {% endblock %}
 
 {% block content %}
+<div class="content-area">
+    <div class="page-shell">
 
-<div class="dash-body">
+        <div class="dash-header">
+            <div class="header-text">
+                <h2>
+                    <i class="fas fa-chart-line"></i>
+                    Nyondo Hardware
+                </h2>
+                <p>NYONDO General Hardware LTD - Sales & Inventory Management</p>
+            </div>
 
-    <!-- HEADER -->
-
-    <div class="dash-header">
-
-        <div class="header-text">
-
-            <h2>
-                <i class="fas fa-chart-line"></i>
-                Nyondo Hardware
-            </h2>
-
-            <p>NYONDO General Hardware LTD - Sales & Inventory Management</p>
-
+            <a href="{% url 'add_sales' %}" class="add-btn">
+                <i class="fas fa-plus"></i>
+                New Sale
+            </a>
         </div>
 
-        <a href="{% url 'add_sales' %}"
-           class="add-btn">
+        <div class="cards">
+            <div class="card">
+                <h3>Total Sales (Today)</h3>
+                <p>{{ total_sales }}</p>
+                <span>UGX {{ total_revenue }}</span>
+            </div>
 
-            <i class="fas fa-plus"></i>
+            <div class="card">
+                <h3>Total Items Sold</h3>
+                <p>{{ total_items_sold }}</p>
+                <span>Products sold today</span>
+            </div>
 
-            New Sale
+            <div class="card">
+                <h3>Transport Charges</h3>
+                <p>{{ transport_total }}</p>
+                <span>Delivery revenue</span>
+            </div>
 
-        </a>
+            <div class="card">
+                <h3>Supplier Credit</h3>
+                <p>{{ supplier_credit }}</p>
+                <span>Outstanding balances</span>
+            </div>
+
+            <div class="card">
+                <h3>Deposit Scheme</h3>
+                <p>{{ deposits }}</p>
+                <span>Customer deposits</span>
+            </div>
+
+            <div class="card">
+                <h3>Low Stock Items</h3>
+                <p>{{ low_stock_count }}</p>
+                <span>Need restocking</span>
+            </div>
+        </div>
+
+        <section class="table-card">
+            <div class="table-title">
+                <h4>
+                    <i class="fas fa-clock"></i>
+                    Recent Transactions
+                </h4>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sale ID</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Amount Paid</th>
+                        <th>Transport</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td>{{ sale.id }}</td>
+                        <td>{{ sale.date }}</td>
+                        <td>{{ sale.customer_name }}</td>
+                        <td>{{ sale.product }}</td>
+                        <td>{{ sale.category }}</td>
+                        <td>{{ sale.quantity }}</td>
+                        <td>UGX {{ sale.amount_paid }}</td>
+                        <td>{{ sale.transport }}</td>
+                        <td>
+                            {% if sale.status == "Completed" %}
+                                <span class="status-completed">{{ sale.status }}</span>
+                            {% else %}
+                                <span class="status-pending">{{ sale.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ sale.payment_method }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10">No sales found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section class="table-card">
+            <div class="table-title">
+                <h4>
+                    <i class="fas fa-triangle-exclamation"></i>
+                    Low Stock Alerts
+                </h4>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in low_stock %}
+                    <tr>
+                        <td>{{ stock.name }}</td>
+                        <td>{{ stock.description }}</td>
+                        <td>{{ stock.stock_quantity }}</td>
+                        <td><span class="status-pending">Low Stock</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">No low stock items</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section class="table-card">
+            <div class="table-title">
+                <h4>
+                    <i class="fas fa-fire"></i>
+                    Top Selling Products
+                </h4>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Quantity Sold</th>
+                        <th>Period</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in top_selling_items %}
+                    <tr>
+                        <td>{{ item.product }}</td>
+                        <td>{{ item.category }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.period }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
 
     </div>
-
-    <!-- CARDS -->
-
-    <div class="cards">
-
-        <div class="card">
-            <h3>Total Sales (Today)</h3>
-            <p>{{ total_sales }}</p>
-            <span>UGX {{ total_revenue }}</span>
-        </div>
-
-        <div class="card">
-            <h3>Total Items Sold</h3>
-            <p>{{ total_items_sold }}</p>
-            <span>Products sold today</span>
-        </div>
-
-        <div class="card">
-            <h3>Transport Charges</h3>
-            <p>{{ transport_total }}</p>
-            <span>Delivery revenue</span>
-        </div>
-
-        <div class="card">
-            <h3>Supplier Credit</h3>
-            <p>{{ supplier_credit }}</p>
-            <span>Outstanding balances</span>
-        </div>
-
-        <div class="card">
-            <h3>Deposit Scheme</h3>
-            <p>{{ deposits }}</p>
-            <span>Customer deposits</span>
-        </div>
-
-        <div class="card">
-            <h3>Low Stock Items</h3>
-            <p>{{ low_stock_count }}</p>
-            <span>Need restocking</span>
-        </div>
-
-    </div>
-
-    <!-- RECENT TRANSACTIONS -->
-
-    <div class="table-card">
-
-        <div class="table-title">
-
-            <h4>
-                <i class="fas fa-clock"></i>
-                Recent Transactions
-            </h4>
-
-        </div>
-
-        <table>
-
-            <thead>
-
-                <tr>
-                    <th>Sale ID</th>
-                    <th>Date</th>
-                    <th>Customer</th>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Quantity</th>
-                    <th>Amount Paid</th>
-                    <th>Transport</th>
-                    <th>Status</th>
-                    <th>Payment</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for sale in sales %}
-
-                <tr>
-
-                    <td>{{ sale.id }}</td>
-                    <td>{{ sale.date }}</td>
-                    <td>{{ sale.customer_name }}</td>
-                    <td>{{ sale.product }}</td>
-                    <td>{{ sale.category }}</td>
-                    <td>{{ sale.quantity }}</td>
-                    <td>UGX {{ sale.amount_paid }}</td>
-                    <td>{{ sale.transport }}</td>
-
-                    <td>
-
-                        {% if sale.status == "Completed" %}
-
-                            <span class="status-completed">
-                                {{ sale.status }}
-                            </span>
-
-                        {% else %}
-
-                            <span class="status-pending">
-                                {{ sale.status }}
-                            </span>
-
-                        {% endif %}
-
-                    </td>
-
-                    <td>{{ sale.payment_method }}</td>
-
-                </tr>
-
-                {% empty %}
-
-                <tr>
-                    <td colspan="10">No sales found</td>
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-    <!-- LOW STOCK -->
-
-    <div class="table-card">
-
-        <div class="table-title">
-
-            <h4>
-                <i class="fas fa-triangle-exclamation"></i>
-                Low Stock Alerts
-            </h4>
-
-        </div>
-
-        <table>
-
-            <thead>
-
-                <tr>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Current Stock</th>
-                    <th>Status</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for stock in low_stock %}
-
-                <tr>
-
-                    <td>{{ stock.name }}</td>
-                    <td>{{ stock.description }}</td>
-                    <td>{{ stock.stock_quantity }}</td>
-
-                    <td>
-                        <span class="status-pending">
-                            Low Stock
-                        </span>
-                    </td>
-
-                </tr>
-
-                {% empty %}
-
-                <tr>
-                    <td colspan="4">No low stock items</td>
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-    <!-- TOP SELLING -->
-
-    <div class="table-card">
-
-        <div class="table-title">
-
-            <h4>
-                <i class="fas fa-fire"></i>
-                Top Selling Products
-            </h4>
-
-        </div>
-
-        <table>
-
-            <thead>
-
-                <tr>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Quantity Sold</th>
-                    <th>Period</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for item in top_selling_items %}
-
-                <tr>
-
-                    <td>{{ item.product }}</td>
-                    <td>{{ item.category }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.period }}</td>
-
-                </tr>
-
-                {% empty %}
-
-                <tr>
-                    <td colspan="4">No data available</td>
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
 </div>
-
 {% endblock %}

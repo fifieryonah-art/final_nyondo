@@ -1,125 +1,131 @@
+
 {% load static %}
+
+<style>
+    .sidebar{
+        width: 100%;
+        min-height: 100vh;
+        background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+        padding: 28px 18px;
+        display: flex;
+        flex-direction: column;
+        color: #f8fafc;
+        box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .sidebar-header{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 18px 0 28px;
+        padding-left: 6px;
+    }
+
+    .sidebar-header img{
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+    }
+
+    .sidebar-header h3{
+        color: #ffffff;
+        font-size: 1rem;
+        line-height: 1.2;
+        margin: 0;
+    }
+
+    .sidebar ul{
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .sidebar ul li a{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        color: #e2e8f0;
+        text-decoration: none;
+        border-radius: 10px;
+        transition: 0.2s ease;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .sidebar ul li a:hover,
+    .sidebar ul li a.active{
+        background: #f54900;
+        color: #ffffff;
+        box-shadow: 0 8px 18px rgba(245, 73, 0, 0.24);
+    }
+
+    .logout-area{
+        margin-top: auto;
+        padding: 0 6px;
+    }
+
+    .logout-btn{
+        width: 100%;
+        border: none;
+        padding: 14px;
+        border-radius: 10px;
+        background: #dc2626;
+        color: #ffffff;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .logout-btn:hover{
+        background: #b91c1c;
+    }
+</style>
+
 <div class="sidebar">
 
-    <style>
-
-        .sidebar{
-            width:260px;
-            background:#0f172a;
-            color:white;
-            height:100vh;
-            position:fixed;
-            left:0;
-            top:0;
-            padding:30px 20px;
-            display:flex;
-            flex-direction:column;
-        }
-
-        /* LOGO AREA */
-
-        .sidebar-header{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            margin-top:20px;
-            margin-bottom:40px;
-            padding-left:5px;
-        }
-
-        .sidebar-header img{
-            width:65px;
-            height:65px;
-            object-fit:contain;
-            border-radius:10px;
-            background:white;
-            padding:5px;
-        }
-
-        .sidebar-header h3{
-            font-size:22px;
-            color:white;
-            line-height:1.3;
-        }
-
-        /* LINKS */
-
-        .links a{
-            display:flex;
-            align-items:center;
-            gap:10px;
-            color:#cbd5e1;
-            padding:14px 16px;
-            text-decoration:none;
-            margin-bottom:12px;
-            border-radius:10px;
-            transition:0.3s ease;
-            font-weight:600;
-        }
-
-        .links a:hover{
-            background:#ea580c;
-            color:white;
-        }
-
-        /* LOGOUT */
-
-        .logout-area{
-            margin-top:auto;
-        }
-
-        .logout-btn{
-            width:100%;
-            background:#dc2626;
-            border:none;
-            color:white;
-            padding:14px;
-            border-radius:10px;
-            font-size:15px;
-            font-weight:bold;
-            cursor:pointer;
-        }
-
-        .logout-btn:hover{
-            background:#b91c1c;
-        }
-
-    </style>
-
-    <!-- HEADER -->
     <div class="sidebar-header">
-        <img src="{% static 'images/logo.png' %}" alt="Logo">
-        <h3>Stock Panel</h3>
+        <img src="{% static 'images/nyondologo.png' %}" alt="Nyondo Hardware Logo">
+        <h3>Nyondo<br>Hardware</h3>
     </div>
 
-    <!-- LINKS -->
-    <div class="links">
+    <ul>
+        <li {% if request.resolver_match.url_name == 'stock' %}class="active"{% endif %}>
+            <a href="{% url 'stock' %}" {% if request.resolver_match.url_name == 'stock' %}class="active"{% endif %}>
+                <i class="fas fa-chart-line"></i>
+                Dashboard
+            </a>
+        </li>
 
-        <a href="{% url 'stock' %}">
-            <i class="fas fa-chart-line"></i>
-            Dashboard
-        </a>
+        <li {% if request.resolver_match.url_name == 'add_stock' %}class="active"{% endif %}>
+            <a href="{% url 'add_stock' %}" {% if request.resolver_match.url_name == 'add_stock' %}class="active"{% endif %}>
+                <i class="fas fa-boxes-stacked"></i>
+                Add Stock
+            </a>
+        </li>
 
-        <a href="{% url 'add_stock' %}">
-            <i class="fas fa-boxes-stacked"></i>
-            Add Stock
-        </a>
+        <li {% if request.resolver_match.url_name == 'stock_list' %}class="active"{% endif %}>
+            <a href="{% url 'stock_list' %}" {% if request.resolver_match.url_name == 'stock_list' %}class="active"{% endif %}>
+                <i class="fas fa-box"></i>
+                Products
+            </a>
+        </li>
 
-        <a href="{% url 'product_list' %}">
-            <i class="fas fa-box"></i>
-            Products
-        </a>
+        <li {% if request.resolver_match.url_name == 'stock_report' %}class="active"{% endif %}>
+            <a href="{% url 'stock_report' %}" {% if request.resolver_match.url_name == 'stock_report' %}class="active"{% endif %}>
+                <i class="fas fa-file-lines"></i>
+                Reports
+            </a>
+        </li>
+    </ul>
 
-        <a href="{% url 'stock_report' %}">
-            <i class="fas fa-file-lines"></i>
-            Reports
-        </a>
-
-    </div>
-
-    <!-- LOGOUT -->
     <div class="logout-area">
-
         <form method="POST" action="{% url 'logout' %}">
             {% csrf_token %}
             <button type="submit" class="logout-btn">
@@ -127,7 +133,6 @@
                 Logout
             </button>
         </form>
-
     </div>
 
 </div>

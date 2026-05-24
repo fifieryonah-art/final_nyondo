@@ -1,14 +1,14 @@
 {% load static %}
 
 <link rel="stylesheet"
-      href="{% static 'css/navbar.css' %}">
+      href="{% static 'css/navbar.css' %}?v=202605241100">
 
 <div class="main-navbar">
 
     <div class="nav-left">
 
         <h3 class="brand">
-            <i class="fas fa-hammer"></i>
+            <img src="{% static 'images/nyondologo.png' %}" alt="Nyondo Hardware Logo" class="brand-logo">
             Nyondo Hardware
         </h3>
 
@@ -63,23 +63,6 @@
             </h4>
 
         </div>
-
-        <!-- LOGOUT -->
-
-        <form method="POST"
-              action="{% url 'logout' %}"
-              class="logout-form">
-
-            {% csrf_token %}
-
-            <button type="submit"
-                    class="logout-btn">
-
-                <i class="fas fa-right-from-bracket"></i>
-
-                Logout
-
-            </button>
 
         </form>
 

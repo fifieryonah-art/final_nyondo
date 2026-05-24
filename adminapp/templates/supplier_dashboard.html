@@ -1,256 +1,87 @@
 {% extends 'admin_base.html' %}
+
 {% block title %}
-    
-{% endblock %}
-
-{% block extra_css %}
-    <style>
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  background: #fdf6f0;
-  padding: 20px;
-}
-
-/* .container {
-  max-width: 1100px;
-  margin: auto;
-} */
-
-.head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-}
-
-.head h1 {
-  color: #0f172b;
-  margin: 0;
-}
-
-.head p {
-  color: #666;
-  margin: 5px 0 0;
-}
-
-.head button {
-  background: #f54900; /* your usual orange */
-  color: white;
-  padding: 12px 20px;
-  border-radius: 6px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.head button:hover {
-  background: #d63f00;
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.card p {
-  font-weight: bold;
-  color: #0f172b;
-  margin-bottom: 10px;
-}
-
-.card span {
-  font-size: 20px;
-  font-weight: bold;
-  color: #333;
-}
-
-.table-container {
-    width: 100%;
-    overflow-x: auto;
-    background: white;
-    border-radius: 12px;
-    padding: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
- table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-}
-
-th {
-    background: #f3f4f6;
-    color: #111827;
-    padding: 14px;
-    text-align: left;
-    font-size: 14px;
-    gap: 10px;
-}
-
-th:first-child,
-td:first-child{
-  width: 60px;
-  text-align: center;
-}
-
-td {
-    padding: 14px;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 14px;
-    color: #374151;
-     word-wrap: break-word;
-     gap: 10px;
-}
-
-tr:hover {
-    background: #f9fafb;
-}
-
-.table-data a {
-  margin-right: 10px;
-  text-decoration: none;
-  color: #f54900;
-  font-weight: bold;
-}
-
-.table-data a:hover {
-  color: #d63f00;
-}
-
-.cancel {
-  display: block;
-  margin: 100px;
-  background: lightblue;
-  color: #0f172b;
-  border: none;
-  padding: 30px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-.cancel:hover {
-  background: #87ceeb;
-}
-
-.action-head {
-    width: 180px;
-}
-
-.actions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: nowrap;
-}
-
-.actions a {
-    text-decoration: none;
-    padding: 10px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-    background: #f3f4f6;
-    color: #111827;
-    transition: 0.3s;
-}
-
-.actions a:hover {
-    background: #e5e7eb;
-}
-
-
-    </style>
+Supplier Management
 {% endblock %}
 
 {% block content %}
-<div class="container">
-<div class="head">
-<h1>Supplier Management</h1>
-<p>Manage Supplier and track Credit orders</p>
-<a href="{% url 'add_supplier'%}"><button>Add New Supplier</button></a>
+<div class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <h1>Supplier Management</h1>
+            <p>Track supplier accounts, credit status, and payment progress in one place.</p>
+        </div>
+        <a href="{% url 'add_supplier' %}" class="admin-btn-primary">Add New Supplier</a>
+    </div>
+
+    <div class="admin-stat-grid">
+        <div class="admin-stat-card">
+            <h4>Active Suppliers</h4>
+            <strong>{{ total_suppliers }}</strong>
+        </div>
+
+        <div class="admin-stat-card">
+            <h4>Pending Credit Orders</h4>
+            <strong>{{ pending_credit }}</strong>
+        </div>
+
+        <div class="admin-stat-card">
+            <h4>Total Outstanding Credit</h4>
+            <strong>UGX {{ total_credit|floatformat:0 }}</strong>
+        </div>
+    </div>
+
+    <div class="admin-panel">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Supplier Name</th>
+                    <th>Address</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Category</th>
+                    <th>Outstanding Credit</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for supplier in suppliers %}
+                <tr>
+                    <td>{{ supplier.id }}</td>
+                    <td>{{ supplier.name }}</td>
+                    <td>{{ supplier.address }}</td>
+                    <td>{{ supplier.contact }}</td>
+                    <td>{{ supplier.email }}</td>
+                    <td>{{ supplier.category }}</td>
+                    <td>UGX {{ supplier.outstanding_credit|floatformat:0 }}</td>
+                    <td>
+                        {% if supplier.status == 'Pending' %}
+                            <span class="admin-badge admin-badge--pending">Pending</span>
+                        {% elif supplier.status == 'Partial' %}
+                            <span class="admin-badge admin-badge--partial">Partial</span>
+                        {% else %}
+                            <span class="admin-badge admin-badge--completed">Paid</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="admin-actions">
+                            <a href="{% url 'view_supplier' supplier.id %}">View</a>
+                            <a href="{% url 'edit_supplier' supplier.id %}">Edit</a>
+                            <a href="{% url 'record_payment' supplier.id %}">Payment</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align:center; padding:28px; color:#64748b;">
+                        No suppliers found yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
-<div class="cards">
-
-    <div class="card">
-        <div class="card1">
-        <p><i class="fa-solid fa-truck color=blue "></i>Activate Supplier</p>
-        <span>{{ total_suppliers }}</span>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card2">
-        <p><i class="fa-solid fa-clock"></i>Pending Credit orders</p>
-        <span>{{ pending_credit }}</span>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card3">
-        <p><i class="fa-solid fa-money-bill-wave"></i>Total Outstanding Credit</p>
-        <span>{{ total_credit }}</span>
-        </div>
-    </div>
-</div>
-
-<div class="table-container">
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Supplier Name</th>
-                <th>Address</th>
-                <th>Contact</th>
-                <th>Email</th>
-                <th>Category</th>
-                <th>Outstanding Credit</th>
-                <th>Status</th>
-                <th class="action-head">Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for supplier in suppliers %}
-            <tr>
-                <td>{{ supplier.id }}</td>
-                <td>{{ supplier.name }}</td>
-                <td>{{ supplier.address }}</td>
-                <td>{{ supplier.contact }}</td>
-                <td>{{ supplier.email }}</td>
-                <td>{{ supplier.category }}</td>
-
-                <td>
-                    {{ supplier.outstanding_credit|floatformat:0 }}
-                </td>
-
-                <td class="status">{{ supplier.status }}</td>
-
-                <td class="actions">
-                    <a href="{% url 'view_supplier' supplier.id %}">View</a>
-                    <a href="{% url 'edit_supplier' supplier.id %}">Edit</a>
-                    <a href="{% url 'delete_supplier' supplier.id %}">Delete</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-</div>          			
-</div> 
 {% endblock %}
