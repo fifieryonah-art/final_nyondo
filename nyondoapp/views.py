@@ -108,10 +108,12 @@ def stock_records(request):
     return render(request, "stock_records.html", {"stocks": stocks})
 
 def add_stock(request):
-     products = Product.objects.all()
-     suppliers = Supplier.objects.all()
 
-     if request.method == "POST":
+    products = Product.objects.all()
+    suppliers = Supplier.objects.all()
+
+    if request.method == "POST":
+
         product_id = request.POST.get("product")
         supplier_id = request.POST.get("supplier")
         quantity = int(request.POST.get("quantity") or 0)
@@ -121,25 +123,91 @@ def add_stock(request):
         is_on_credit = "is_on_credit" in request.POST
         is_paid = "is_paid" in request.POST
 
-        if not product_id or not supplier_id:
-            messages.error(request, "Please select both product and supplier.")
-            return render(request, "add_stock.html", {"products": products, "suppliers": suppliers})
+        # VALIDATE PRODUCT + SUPPLIER
 
-        # auto calculate total cost
-        total_cost = cost_price * quantity
+        if not product_id or not supplier_id:
+            messages.error(request,"Please select both product and supplier.")
+            return render(request,"add_stock.html",
+                {
+                    "products": products,
+                    "suppliers": suppliers
+                }
+            )
+
+
+
+        # VALIDATE QUANTITY
 
         if quantity <= 0:
-            messages.error(request, "Quantity must be greater than zero.")
-            return render(request, "add_stock.html", {"products": products, "suppliers": suppliers})
+            messages.error(request,
+                "Quantity must be greater than zero."
+            )
+
+            return render(request,"add_stock.html",
+                {
+                    "products": products,
+                    "suppliers": suppliers
+                }
+            )
+
+
+
+        # VALIDATE NEGATIVE VALUES
+
+        if cost_price < 0 or unit_price < 0:
+
+            messages.error(request,
+                "Prices cannot be negative."
+            )
+
+            return render(request,
+                "add_stock.html",
+                {
+                    "products": products,
+                    "suppliers": suppliers
+                }
+            )
+
+
+
+        # VALIDATE SELLING PRICE
+
+        if unit_price < cost_price:
+            messages.error(request,
+                "Unit price cannot be lower than cost price."
+            )
+
+            return render(request,
+                "add_stock.html",
+                {
+                    "products": products,
+                    "suppliers": suppliers
+                }
+            )
+
+
+
+        # GET OBJECTS
 
         product = get_object_or_404(Product, id=product_id)
         supplier = get_object_or_404(Supplier, id=supplier_id)
 
-        # update product prices and stock quantity
+
+
+        # CALCULATE TOTAL COST
+
+        total_cost = cost_price * quantity
+
+        # UPDATE PRODUCT
+
         product.cost_price = cost_price
         product.unit_price = unit_price
         product.stock_quantity += quantity
         product.save()
+
+
+
+        # CREATE STOCK ENTRY
 
         Stock.objects.create(
             product=product,
@@ -149,18 +217,28 @@ def add_stock(request):
             total_cost=total_cost,
             is_on_credit=is_on_credit,
             is_paid=is_paid,
-            entered_by=request.user if request.user.is_authenticated else None,
+            entered_by=request.user
+            if request.user.is_authenticated
+            else None,
         )
 
-        messages.success(request, "Stock added successfully!")
-        return redirect("stock")
-     
-     context = {
-        "products": products,
-        "suppliers": suppliers 
-     }
+        # SUCCESS MESSAGE
 
-     return render(request, "add_stock.html", context)
+        messages.success(request,
+            "Stock added successfully!"
+        )
+
+        return redirect("stock")
+
+
+
+    context = {
+        "products": products,
+        "suppliers": suppliers,
+
+    }
+
+    return render(request, "add_stock.html",context)
 
 def stock_delete(request, pk):
     stock = get_object_or_404(Stock,pk=pk)
@@ -223,7 +301,6 @@ def stock_update(request, pk):
     }
 
     return render(request,'stock_update.html', context)
-
 
 
 def stock_report(request):

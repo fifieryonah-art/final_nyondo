@@ -95,17 +95,25 @@
     </div>
 
     <ul>
+         <li {% if request.resolver_match.url_name == 'sales_dash' or request.resolver_match.url_name == 'sales_list' %}class="active"{% endif %}>
+            <a href="{% url 'sales_dash' %}" {% if request.resolver_match.url_name == 'sales_dash' or request.resolver_match.url_name == 'sales_list' %}class="active"{% endif %}>
+                <i class="fas fa-chart-line"></i>
+                Sales
+            </a>
+        </li>
+
+
         <li {% if request.resolver_match.url_name == 'add_sales' %}class="active"{% endif %}>
             <a href="{% url 'add_sales' %}" {% if request.resolver_match.url_name == 'add_sales' %}class="active"{% endif %}>
                 <i class="fas fa-cart-plus"></i>
                 New Sale
             </a>
         </li>
+        
 
-        <li {% if request.resolver_match.url_name == 'sales_dash' or request.resolver_match.url_name == 'sales_list' %}class="active"{% endif %}>
-            <a href="{% url 'sales_dash' %}" {% if request.resolver_match.url_name == 'sales_dash' or request.resolver_match.url_name == 'sales_list' %}class="active"{% endif %}>
-                <i class="fas fa-chart-line"></i>
-                Sales
+        <li {% if request.resolver_match.url_name == 'product_list' %}class="active"{% endif %}>
+            <a href="{% url 'product_list' %}" {% if request.resolver_match.url_name == 'product_list' %}class="activate"{% endif %}>
+                Products
             </a>
         </li>
 

@@ -160,10 +160,10 @@
             </div>
 
             <div class="buttons">
-                <button type="submit" class="btn-save">
+                <a href="{% url 'add_payment' %}" class="btn-save">
                     <i class="fas fa-check-circle"></i>
-                    Save Sale
-                </button>
+                     Save Sale
+                </a>
                 <a href="{% url 'sales_dash' %}" class="btn-cancel">
                     <i class="fas fa-times-circle"></i>
                     Cancel
@@ -463,169 +463,83 @@
 </style>
 
 <script>
-    const itemsContainer = document.getElementById('itemsContainer');
-    const addItemBtn = document.getElementById('addItemBtn');
-    const subtotalDisplay = document.getElementById('subtotalDisplay');
-    const transportDisplay = document.getElementById('transportDisplay');
-    const totalDisplay = document.getElementById('totalDisplay');
-    const distanceInput = document.getElementById('distanceInput');
-    const selectedItemsBody = document.getElementById('selectedItemsBody');
-    const selectedItemsCount = document.getElementById('selectedItemsCount');
+// Format currency
+function formatCurrency(value) {
+    return new Intl.NumberFormat('en-UG', { style: 'currency', currency: 'UGX', maximumFractionDigits: 0 }).format(value);
+}
 
-    function formatCurrency(value) {
-        return new Intl.NumberFormat('en-UG', {
-            style: 'currency',
-            currency: 'UGX',
-            maximumFractionDigits: 0,
-        }).format(value);
-    }
-
-    function createItemRow(index) {
-        const row = document.createElement('div');
-        row.className = 'item-row';
-        row.dataset.rowIndex = index;
-        row.innerHTML = `
-            <div class="form-group">
-                <label>Product</label>
-                <select name="product" class="item-product" required>
-                    <option value="">Select Product</option>
-                    {% for product in products %}
-                        <option value="{{ product.id }}" data-unit-price="{{ product.unit_price }}">{{ product.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Quantity</label>
-                <input type="number" name="quantity" class="item-quantity" min="1" value="1" required>
-            </div>
-            <div class="form-group">
-                <label>Unit Price</label>
-                <div class="unit-price-pill">UGX <span class="unit-price-value">0</span></div>
-            </div>
-            <div class="form-group">
-                <label>Line Total</label>
-                <div class="line-total-pill">UGX <span class="line-total-value">0</span></div>
-            </div>
-            <button type="button" class="remove-item-btn">Remove</button>`;
-
-        return row;
-    }
-
-    function updateRow(row) {
+// Add item to table
+document.getElementById('itemsContainer').addEventListener('click', function(event) {
+    if (event.target.classList.contains('btn-add-item')) {
+        const row = event.target.closest('.item-row');
         const productSelect = row.querySelector('.item-product');
         const quantityInput = row.querySelector('.item-quantity');
-        const unitPriceValue = row.querySelector('.unit-price-value');
-        const lineTotalValue = row.querySelector('.line-total-value');
-
         const selected = productSelect.options[productSelect.selectedIndex];
-        const unitPrice = parseFloat(selected?.dataset.unitPrice || 0);
-        const quantity = parseFloat(quantityInput.value) || 0;
+
+        const productId = productSelect.value;
+        const productName = selected.textContent.trim();
+        const unitPrice = parseFloat(selected.dataset.unitPrice || 0);
+        const quantity = parseInt(quantityInput.value) || 0;
         const lineTotal = unitPrice * quantity;
 
-        unitPriceValue.textContent = new Intl.NumberFormat('en-UG', {
-            maximumFractionDigits: 0,
-        }).format(unitPrice);
-        lineTotalValue.textContent = new Intl.NumberFormat('en-UG', {
-            maximumFractionDigits: 0,
-        }).format(lineTotal);
-    }
-
-    function calculateSummary() {
-        let subtotal = 0;
-
-        document.querySelectorAll('.item-row').forEach((row) => {
-            const selected = row.querySelector('.item-product').options[row.querySelector('.item-product').selectedIndex];
-            const unitPrice = parseFloat(selected?.dataset.unitPrice || 0);
-            const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
-            subtotal += unitPrice * quantity;
-        });
-
-        const distance = parseFloat(distanceInput.value) || 0;
-        const transport = distance <= 10 && subtotal >= 500000 ? 0 : 30000;
-        const total = subtotal + transport;
-
-        subtotalDisplay.textContent = formatCurrency(subtotal);
-        transportDisplay.textContent = formatCurrency(transport);
-        totalDisplay.textContent = formatCurrency(total);
-        updateSelectedItemsTable();
-    }
-
-    function updateSelectedItemsTable() {
-        const rows = Array.from(document.querySelectorAll('.item-row'));
-        const selectedItems = rows.map((row) => {
-            const productSelect = row.querySelector('.item-product');
-            const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
-            const selected = productSelect.options[productSelect.selectedIndex];
-            const unitPrice = parseFloat(selected?.dataset.unitPrice || 0);
-
-            if (!productSelect.value || quantity <= 0) {
-                return null;
-            }
-
-            return {
-                productName: selected.textContent.trim(),
-                quantity,
-                unitPrice,
-                lineTotal: unitPrice * quantity,
-            };
-        }).filter(Boolean);
-
-        selectedItemsCount.textContent = `${selectedItems.length} item${selectedItems.length === 1 ? '' : 's'}`;
-
-        if (!selectedItems.length) {
-            selectedItemsBody.innerHTML = '<tr><td colspan="4">No sale items added yet.</td></tr>';
+        if (!productId || quantity <= 0) {
+            alert("Please select a product and enter a valid quantity.");
             return;
         }
 
-        selectedItemsBody.innerHTML = selectedItems.map((item) => `
-            <tr>
-                <td>${item.productName}</td>
-                <td>${item.quantity}</td>
-                <td>${formatCurrency(item.unitPrice)}</td>
-                <td>${formatCurrency(item.lineTotal)}</td>
-            </tr>
-        `).join('');
-    }
+        const tableBody = document.getElementById('selectedItemsBody');
+        if (tableBody.querySelector('td[colspan]')) {
+            tableBody.innerHTML = "";
+        }
 
-    addItemBtn.addEventListener('click', () => {
-        const rowCount = itemsContainer.querySelectorAll('.item-row').length;
-        itemsContainer.appendChild(createItemRow(rowCount));
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>${productName}</td>
+            <td>${quantity}</td>
+            <td>${formatCurrency(unitPrice)}</td>
+            <td>${formatCurrency(lineTotal)}</td>
+            <td><button type="button" class="remove-item-btn">Remove</button></td>
+            <input type="hidden" name="product" value="${productId}">
+            <input type="hidden" name="quantity" value="${quantity}">
+        `;
+        tableBody.appendChild(newRow);
+
+        // Reset inputs
+        productSelect.value = "";
+        quantityInput.value = 1;
+
         calculateSummary();
+    }
+});
+
+// Remove item from table
+document.getElementById('selectedItemsBody').addEventListener('click', function(event) {
+    if (event.target.classList.contains('remove-item-btn')) {
+        event.target.closest('tr').remove();
+        calculateSummary();
+    }
+});
+
+// Calculate totals
+function calculateSummary() {
+    let subtotal = 0;
+    document.querySelectorAll('#selectedItemsBody tr').forEach(row => {
+        const qty = parseInt(row.children[1]?.textContent) || 0;
+        const unitPriceText = row.children[2]?.textContent.replace(/[^\d]/g, "");
+        const unitPrice = parseInt(unitPriceText) || 0;
+        subtotal += qty * unitPrice;
     });
 
-    itemsContainer.addEventListener('change', (event) => {
-        if (event.target.classList.contains('item-product') || event.target.classList.contains('item-quantity')) {
-            const row = event.target.closest('.item-row');
-            updateRow(row);
-            calculateSummary();
-        }
-    });
+    const distance = parseFloat(document.getElementById('distanceInput').value) || 0;
+    const transport = distance <= 10 && subtotal >= 500000 ? 0 : 30000;
+    const total = subtotal + transport;
 
-    itemsContainer.addEventListener('click', (event) => {
-        if (event.target.classList.contains('remove-item-btn')) {
-            const rows = itemsContainer.querySelectorAll('.item-row');
-            if (rows.length > 1) {
-                event.target.closest('.item-row').remove();
-                calculateSummary();
-            }
-        }
-    });
+    document.getElementById('subtotalDisplay').textContent = formatCurrency(subtotal);
+    document.getElementById('transportDisplay').textContent = formatCurrency(transport);
+    document.getElementById('totalDisplay').textContent = formatCurrency(total);
 
-    document.getElementById('saleForm').addEventListener('submit', function (event) {
-        const selectedRows = Array.from(itemsContainer.querySelectorAll('.item-row'));
-        const hasValidItem = selectedRows.some((row) => {
-            const product = row.querySelector('.item-product').value;
-            const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
-            return product && quantity > 0;
-        });
-
-        if (!hasValidItem) {
-            event.preventDefault();
-            alert('Add at least one product and a quantity before saving the sale.');
-        }
-    });
-
-    calculateSummary();
-    updateRow(itemsContainer.querySelector('.item-row'));
+    const count = document.querySelectorAll('#selectedItemsBody tr').length;
+    document.getElementById('selectedItemsCount').textContent = `${count} item${count === 1 ? '' : 's'}`;
+}
 </script>
 {% endblock %}

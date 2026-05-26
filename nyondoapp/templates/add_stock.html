@@ -21,7 +21,7 @@
     <!-- CUSTOM CSS -->
 
     <link rel="stylesheet"
-          href="{% static 'css/add_stock.css' %}?v=20260525" />
+          href="{% static 'css/add_stock.css' %}?v=20260526" />
 
 </head>
 
@@ -48,21 +48,33 @@
 
         <!-- FORM -->
 
-        <form method="POST" class="stock-form" novalidate>
+        <form method="POST"
+              class="stock-form"
+              novalidate>
 
             {% csrf_token %}
 
+            <!-- DJANGO MESSAGES -->
+
             {% if messages %}
                 <div class="form-messages">
+
                     {% for message in messages %}
-                        <p class="{{ message.tags }}">{{ message }}</p>
+
+                        <p class="{{ message.tags }}">
+                            {{ message }}
+                        </p>
+
                     {% endfor %}
+
                 </div>
             {% endif %}
 
             <!-- PRODUCT + SUPPLIER -->
 
             <div class="form-row">
+
+                <!-- PRODUCT -->
 
                 <div class="form-group">
 
@@ -71,16 +83,22 @@
                         Product
                     </label>
 
-                    <select name="product" id="productSelect" required>
+                    <select name="product"
+                            id="productSelect"
+                            required>
 
-                        <option value="">Select Product</option>
+                        <option value="">
+                            Select Product
+                        </option>
 
                         {% for product in products %}
 
                             <option value="{{ product.id }}"
                                     data-cost-price="{{ product.cost_price }}"
                                     data-unit-price="{{ product.unit_price }}">
+
                                 {{ product.name }}
+
                             </option>
 
                         {% endfor %}
@@ -89,6 +107,8 @@
 
                 </div>
 
+                <!-- SUPPLIER -->
+
                 <div class="form-group">
 
                     <label>
@@ -96,9 +116,12 @@
                         Supplier
                     </label>
 
-                    <select name="supplier" required>
+                    <select name="supplier"
+                            required>
 
-                        <option value="">Select Supplier</option>
+                        <option value="">
+                            Select Supplier
+                        </option>
 
                         {% for supplier in suppliers %}
 
@@ -114,9 +137,11 @@
 
             </div>
 
-            <!-- STOCK DETAILS -->
+            <!-- QUANTITY + COST PRICE -->
 
             <div class="form-row">
+
+                <!-- QUANTITY -->
 
                 <div class="form-group">
 
@@ -128,10 +153,13 @@
                     <input type="number"
                            id="quantityInput"
                            name="quantity"
+                           min="1"
                            placeholder="Enter quantity"
                            required>
 
                 </div>
+
+                <!-- COST PRICE -->
 
                 <div class="form-group">
 
@@ -142,6 +170,7 @@
 
                     <input type="number"
                            step="0.01"
+                           min="0"
                            id="costPriceInput"
                            name="cost_price"
                            placeholder="Enter cost price"
@@ -155,6 +184,8 @@
 
             <div class="form-row">
 
+                <!-- UNIT PRICE -->
+
                 <div class="form-group">
 
                     <label>
@@ -164,12 +195,24 @@
 
                     <input type="number"
                            step="0.01"
+                           min="0"
                            id="unitPriceInput"
                            name="unit_price"
                            placeholder="Enter selling price"
                            required>
 
+                    <!-- LIVE VALIDATION MESSAGE -->
+
+                    <small id="priceError"
+                           style="color:red; display:none; margin-top:8px;">
+
+                        Unit price cannot be lower than cost price
+
+                    </small>
+
                 </div>
+
+                <!-- TOTAL COST -->
 
                 <div class="form-group">
 
@@ -182,18 +225,30 @@
                            step="0.01"
                            id="totalCostInput"
                            name="total_cost"
-                           placeholder="Enter total cost"
                            readonly>
 
-                    <p id="stockSummary" style="margin-top: 10px; color: #334155; font-size: 14px;">
-                        Estimated purchase total: UGX 0.00 | Estimated sale value: UGX 0.00
+                    <!-- STOCK SUMMARY -->
+
+                    <p id="stockSummary"
+                       style="
+                            margin-top:10px;
+                            color:#334155;
+                            font-size:14px;
+                       ">
+
+                        Estimated purchase total:
+                        UGX 0.00 |
+
+                        Estimated sale value:
+                        UGX 0.00
+
                     </p>
 
                 </div>
 
             </div>
 
-            <!-- PAYMENT + ENTERED BY -->
+            <!-- PAYMENT -->
 
             <div class="form-row">
 
@@ -208,19 +263,6 @@
                         Payment Completed
 
                     </label>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-user-pen"></i>
-                        Entered By
-                    </label>
-
-                    <input type="text"
-                           name="entered_by"
-                           placeholder="Enter staff name">
 
                 </div>
 
@@ -245,6 +287,8 @@
 
             <div class="buttons">
 
+                <!-- SAVE -->
+
                 <button type="submit"
                         class="btn-save">
 
@@ -253,6 +297,8 @@
                     Save Stock
 
                 </button>
+
+                <!-- CANCEL -->
 
                 <a href="{% url 'stock' %}"
                    class="btn-cancel">
@@ -272,51 +318,242 @@
 </div>
 
 <script>
-    const productSelect = document.getElementById('productSelect');
-    const quantityInput = document.getElementById('quantityInput');
-    const costPriceInput = document.getElementById('costPriceInput');
-    const unitPriceInput = document.getElementById('unitPriceInput');
-    const totalCostInput = document.getElementById('totalCostInput');
-    const stockSummary = document.getElementById('stockSummary');
 
-    function formatCurrency(value) {
-        return new Intl.NumberFormat('en-UG', {
-            style: 'currency',
-            currency: 'UGX',
-            maximumFractionDigits: 2,
-        }).format(value);
+    // PRODUCT SELECT
+
+    const productSelect =
+        document.getElementById('productSelect');
+
+
+
+    // INPUTS
+
+    const quantityInput =
+        document.getElementById('quantityInput');
+
+    const costPriceInput =
+        document.getElementById('costPriceInput');
+
+    const unitPriceInput =
+        document.getElementById('unitPriceInput');
+
+    const totalCostInput =
+        document.getElementById('totalCostInput');
+
+
+
+    // OTHER ELEMENTS
+
+    const stockSummary =
+        document.getElementById('stockSummary');
+
+    const priceError =
+        document.getElementById('priceError');
+
+
+
+    // FORMAT MONEY
+
+    function formatCurrency(value){
+
+        return new Intl.NumberFormat(
+            'en-UG',
+            {
+                style: 'currency',
+                currency: 'UGX',
+                maximumFractionDigits: 0,
+            }
+        ).format(value);
+
     }
 
-    function updateStockSummary() {
-        const quantity = parseFloat(quantityInput.value) || 0;
-        const costPrice = parseFloat(costPriceInput.value) || 0;
-        const unitPrice = parseFloat(unitPriceInput.value) || 0;
 
-        const purchaseTotal = quantity * costPrice;
-        const saleTotal = quantity * unitPrice;
 
-        totalCostInput.value = purchaseTotal.toFixed(2);
-        stockSummary.textContent = `Estimated purchase total: ${formatCurrency(purchaseTotal)} | Estimated sale value: ${formatCurrency(saleTotal)}`;
+    // UPDATE TOTALS
+
+    function updateStockSummary(){
+
+        const quantity =
+            parseFloat(quantityInput.value) || 0;
+
+        const costPrice =
+            parseFloat(costPriceInput.value) || 0;
+
+        const unitPrice =
+            parseFloat(unitPriceInput.value) || 0;
+
+
+
+        // CALCULATE TOTALS
+
+        const purchaseTotal =
+            quantity * costPrice;
+
+        const saleTotal =
+            quantity * unitPrice;
+
+
+
+        // UPDATE TOTAL COST
+
+        totalCostInput.value =
+            purchaseTotal.toFixed(2);
+
+
+
+        // UPDATE SUMMARY TEXT
+
+        stockSummary.textContent =
+
+            `Estimated purchase total:
+            ${formatCurrency(purchaseTotal)}
+            |
+
+            Estimated sale value:
+            ${formatCurrency(saleTotal)}`;
+
     }
 
-    productSelect.addEventListener('change', function () {
-        const selected = this.options[this.selectedIndex];
-        const costPrice = parseFloat(selected.dataset.costPrice || 0);
-        const unitPrice = parseFloat(selected.dataset.unitPrice || 0);
 
-        if (selected.value) {
-            costPriceInput.value = costPrice.toFixed(2);
-            unitPriceInput.value = unitPrice.toFixed(2);
+
+    // AUTO FILL PRICES WHEN PRODUCT CHANGES
+
+    productSelect.addEventListener('change', function(){
+
+        const selected =
+            this.options[this.selectedIndex];
+
+
+
+        const costPrice =
+            parseFloat(
+                selected.dataset.costPrice || 0
+            );
+
+
+
+        const unitPrice =
+            parseFloat(
+                selected.dataset.unitPrice || 0
+            );
+
+
+
+        if(selected.value){
+
+            costPriceInput.value =
+                costPrice.toFixed(2);
+
+            unitPriceInput.value =
+                unitPrice.toFixed(2);
+
         }
 
+
+
         updateStockSummary();
+
     });
 
-    quantityInput.addEventListener('input', updateStockSummary);
-    costPriceInput.addEventListener('input', updateStockSummary);
-    unitPriceInput.addEventListener('input', updateStockSummary);
+
+
+    // LIVE VALIDATION FOR UNIT PRICE
+
+    unitPriceInput.addEventListener('input', function(){
+
+        const costPrice =
+            parseFloat(costPriceInput.value) || 0;
+
+        const unitPrice =
+            parseFloat(unitPriceInput.value) || 0;
+
+
+
+        // NEGATIVE PRICE BLOCK
+
+        if(unitPrice < 0){
+
+            unitPriceInput.value = '';
+
+            alert(
+                'Unit price cannot be negative'
+            );
+
+            return;
+        }
+
+
+
+        // LOWER THAN COST PRICE
+
+        if(unitPrice < costPrice){
+
+            unitPriceInput.style.border =
+                '2px solid red';
+
+            priceError.style.display =
+                'block';
+
+        }
+
+        else{
+
+            unitPriceInput.style.border =
+                '1px solid #cbd5e1';
+
+            priceError.style.display =
+                'none';
+
+        }
+
+
+
+        updateStockSummary();
+
+    });
+
+
+
+    // LIVE UPDATE TOTALS
+
+    quantityInput.addEventListener(
+        'input',
+        updateStockSummary
+    );
+
+
+
+    costPriceInput.addEventListener(
+        'input',
+        updateStockSummary
+    );
+
+
+
+    // INITIAL UPDATE
 
     updateStockSummary();
+
+
+
+    // AUTO REMOVE DJANGO MESSAGES
+
+    setTimeout(() => {
+
+        const messages =
+            document.querySelector(
+                '.form-messages'
+            );
+
+        if(messages){
+
+            messages.style.display =
+                'none';
+
+        }
+
+    }, 3000);
+
 </script>
 
 </body>
