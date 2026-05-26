@@ -48,13 +48,13 @@
 
 .cards{
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
 }
 
 .card{
     background: white;
-    padding: 18px;
+    padding: 16px;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     border-left: 4px solid #0F172B;
@@ -62,30 +62,30 @@
 }
 
 .card:hover{
-    transform: translateY(-5px);
+    transform: translateY(-4px);
 }
 
 .card h5{
     color: #64748b;
-    margin-bottom: 12px;
-    font-size: 13px;
+    margin-bottom: 10px;
+    font-size: 12px;
 }
 
 .card p{
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     color: #0F172B;
 }
 
 .quick-actions{
     display: flex;
-    gap: 14px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .quick-actions a{
     background: white;
-    padding: 12px 18px;
+    padding: 11px 16px;
     border-radius: 8px;
     text-decoration: none;
     color: #0F172B;
@@ -95,9 +95,11 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    font-size: 14px;
 }
 
-.quick-actions a:hover{
+.quick-actions a:hover,
+.quick-actions a.active{
     background: #0F172B;
     color: white;
 }
@@ -106,6 +108,33 @@
     color: #0F172B;
     font-size: 20px;
     margin-top: 6px;
+}
+
+.section-title-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.section-title-row .section-title{
+    margin-top: 0;
+}
+
+.table-list-tag{
+    color: #0F172B;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+    border-bottom: 2px solid #0F172B;
+    padding-bottom: 2px;
+}
+
+.table-list-tag:hover{
+    color: #2563eb;
+    border-color: #2563eb;
 }
 
 .table-container{

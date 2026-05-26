@@ -1,13 +1,56 @@
+import re
+
 from django import forms
+from django.core.exceptions import ValidationError
+
 from .models import Supplier, SupplierPayment
 from django.contrib.auth.models import User
 from nyondoapp.models import Employee
 
 
+UGANDAN_PHONE_REGEX = re.compile(r"^07\d{8}$")
+
+
+def normalize_ugandan_phone(value):
+    phone = (value or "").strip().replace(" ", "").replace("-", "")
+
+    if phone.startswith("+"):
+        phone = phone[1:]
+
+    if phone.startswith("256"):
+        phone = "0" + phone[3:]
+
+    return phone
+
+
+def validate_ugandan_phone(value):
+    normalized_phone = normalize_ugandan_phone(value)
+
+    if not normalized_phone:
+        raise ValidationError("Phone number is required.")
+
+    if not UGANDAN_PHONE_REGEX.fullmatch(normalized_phone):
+        raise ValidationError(
+            "Enter a valid Ugandan mobile number, for example 0770123456 or +256770123456."
+        )
+
+    return normalized_phone
+
+
 class SupplierForm(forms.ModelForm):
+    contact = forms.CharField(
+        required=True,
+        label="Phone Number",
+        widget=forms.TextInput(attrs={"placeholder": "0770123456"}),
+    )
+
     class Meta:
         model = Supplier
         fields = "__all__"
+
+    def clean_contact(self):
+        return validate_ugandan_phone(self.cleaned_data.get("contact"))
+
 
 class SupplierPaymentForm(forms.ModelForm):
 

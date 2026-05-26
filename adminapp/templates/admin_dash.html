@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load humanize %}
 
 {% block content %}
 
@@ -13,17 +14,17 @@
     <div class="admin-stat-grid">
         <div class="admin-stat-card">
             <h4>Sales Today</h4>
-            <strong>UGX {{ sales_total }}</strong>
+            <strong>UGX {{ sales_total|floatformat:0|intcomma }}</strong>
         </div>
 
         <div class="admin-stat-card">
             <h4>Total Revenue</h4>
-            <strong>UGX {{ total_revenue }}</strong>
+            <strong>UGX {{ total_revenue|floatformat:0|intcomma }}</strong>
         </div>
 
         <div class="admin-stat-card">
             <h4>Outstanding Credit</h4>
-            <strong>UGX {{ total_credit }}</strong>
+            <strong>UGX {{ total_credit|floatformat:0|intcomma }}</strong>
         </div>
 
         <div class="admin-stat-card">
@@ -43,7 +44,10 @@
     </div>
 
     <div class="admin-panel">
-        <h3>Recent Sales</h3>
+        <div class="admin-panel-header">
+            <h3>Recent Sales</h3>
+            <a href="{% url 'sales_list' %}" class="admin-list-tag">View Sales List</a>
+        </div>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -71,7 +75,10 @@
     </div>
 
     <div class="admin-panel">
-        <h3>Top Selling Products</h3>
+        <div class="admin-panel-header">
+            <h3>Top Selling Products</h3>
+            <a href="{% url 'product_list' %}" class="admin-list-tag">View Product List</a>
+        </div>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -95,7 +102,10 @@
     </div>
 
     <div class="admin-panel admin-note">
-        <h3>Low Stock Alerts</h3>
+        <div class="admin-panel-header">
+            <h3>Low Stock Alerts</h3>
+            <a href="{% url 'product_list' %}" class="admin-list-tag">View Product List</a>
+        </div>
         {% for product in low_stock_products %}
             <p><strong>{{ product.name }}</strong> ({{ product.stock_quantity }} left)</p>
         {% empty %}

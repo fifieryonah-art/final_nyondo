@@ -96,31 +96,45 @@
     </div>
 
     <ul>
-        <li {% if request.resolver_match.url_name == 'stock' %}class="active"{% endif %}>
-            <a href="{% url 'stock' %}" {% if request.resolver_match.url_name == 'stock' %}class="active"{% endif %}>
+        <li>
+            <a href="{% url 'stock' %}" class="{% if request.resolver_match.url_name == 'stock' %}active{% endif %}">
                 <i class="fas fa-chart-line"></i>
-                Dashboard
+                <span>Dashboard</span>
             </a>
         </li>
 
-        <li {% if request.resolver_match.url_name == 'add_stock' %}class="active"{% endif %}>
-            <a href="{% url 'add_stock' %}" {% if request.resolver_match.url_name == 'add_stock' %}class="active"{% endif %}>
+        <li>
+            <a href="{% url 'add_stock' %}" class="{% if request.resolver_match.url_name == 'add_stock' %}active{% endif %}">
                 <i class="fas fa-boxes-stacked"></i>
-                Add Stock
+                <span>Add Stock</span>
             </a>
         </li>
 
-        <li {% if request.resolver_match.url_name == 'stock_list' %}class="active"{% endif %}>
-            <a href="{% url 'stock_list' %}" {% if request.resolver_match.url_name == 'stock_list' %}class="active"{% endif %}>
+        <li>
+            <a href="{% url 'stock_list' %}" class="{% if request.resolver_match.url_name == 'stock_list' %}active{% endif %}">
                 <i class="fas fa-box"></i>
-                Products
+                <span>Stock Available</span>
             </a>
         </li>
 
-        <li {% if request.resolver_match.url_name == 'stock_report' %}class="active"{% endif %}>
-            <a href="{% url 'stock_report' %}" {% if request.resolver_match.url_name == 'stock_report' %}class="active"{% endif %}>
+        <li>
+            <a href="{% url 'stock_records' %}" class="{% if request.resolver_match.url_name == 'stock_records' %}active{% endif %}">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Stock Records</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'stock_supplier_dashboard' %}" class="{% if request.resolver_match.url_name == 'stock_supplier_dashboard' %}active{% endif %}">
+                <i class="fas fa-truck"></i>
+                <span>Suppliers</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'stock_report' %}" class="{% if request.resolver_match.url_name == 'stock_report' %}active{% endif %}">
                 <i class="fas fa-file-lines"></i>
-                Reports
+                <span>Reports</span>
             </a>
         </li>
     </ul>

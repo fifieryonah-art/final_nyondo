@@ -39,21 +39,28 @@ body {
 .button-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 12px;
     margin: 15px 0 20px;
     flex-wrap: wrap;
 }
 
 .btn {
-    padding: 11px 16px;
-    border-radius: 10px;
+    min-height: 38px;
+    padding: 9px 13px;
+    border-radius: 8px;
     text-decoration: none;
     color: #ffffff;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
+    line-height: 1;
+    width: auto;
+    max-width: max-content;
+    white-space: nowrap;
 }
 
 .back {
@@ -138,14 +145,18 @@ tr:hover {
 }
 
 .actions a {
+    min-height: 32px;
     padding: 7px 10px;
     border-radius: 8px;
     text-decoration: none;
-    font-size: 13px;
-    margin-right: 6px;
+    font-size: 12px;
+    margin-right: 4px;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .edit {

@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from decimal import Decimal
 from nyondoapp.models import Sale, Payment, Customer, Product, Stock
 from django.db.models import Sum, Max, F
+from django.utils import timezone
 from .forms import SupplierForm, SupplierPaymentForm
 from .models import Supplier, DepositScheme, DepositPayment
 from django.contrib import messages
@@ -11,22 +12,52 @@ from nyondoapp.models import Employee
 from .forms import EmployeeCreationForm
 
 
+def _deposit_summary(deposit):
+    payments_total = deposit.payments.aggregate(total=Sum("amount_paid"))["total"] or Decimal("0.00")
+    saved_paid = deposit.amount_paid or Decimal("0.00")
+    total_paid = max(payments_total, saved_paid)
+    total_amount = deposit.total_amount or Decimal("0.00")
+    balance = total_amount - total_paid
+
+    if total_paid <= 0:
+        status = "Pending"
+    elif balance <= 0:
+        status = "Completed"
+    else:
+        status = "Active"
+
+    return {
+        "total_paid": total_paid,
+        "balance": balance,
+        "display_balance": max(balance, Decimal("0.00")),
+        "status": status,
+    }
+
+
+def _attach_deposit_summary(deposit):
+    summary = _deposit_summary(deposit)
+    deposit.total_paid = summary["total_paid"]
+    deposit.remaining_balance = summary["display_balance"]
+    deposit.live_status = summary["status"]
+    return deposit
+
+
 # Create your views here.
 def admin_dash(request):
     today = date.today()
-    sales_today = Sale.objects.filter(date=today)
+    sales_today = Sale.objects.filter(date__date=today)
     sales_total = sales_today.aggregate(total=Sum('final_amount'))['total'] or 0
     total_revenue = Payment.objects.aggregate(
         total=Sum('amount_paid')
     )['total'] or 0
     customer_count = Customer.objects.count() or 0
     stock_count = Product.objects.count() or 0
-    low_stock = Product.objects.filter(stock_quantity__lte=10)
+    low_stock = Product.objects.filter(stock_quantity__lt=F('reorder_level'))
     low_stock_count = low_stock.count() or 0
     total_sales = Sale.objects.aggregate(total=Sum('final_amount'))['total'] or 0
     total_paid = Payment.objects.aggregate(total=Sum('amount_paid'))['total'] or 0
     total_credit = total_sales - total_paid
-    recent_sales = Sale.objects.order_by('-date')[:5]
+    recent_sales = sales_today.order_by('-date')[:5]
     recent_payments = Payment.objects.order_by('-id')[:5]
     top_products = ( Sale.objects.values('name__name')   
     .annotate(total_qty=Sum('quantity')).order_by('-total_qty')[:5]
@@ -247,45 +278,39 @@ def record_payment(request, pk):
 
 def deposit_dashboard(request):
 
-    deposits = DepositScheme.objects.all()
+    deposits = DepositScheme.objects.select_related("customer", "product").all()
 
     active = 0
     completed = 0
+    pending = 0
 
-    total_paid_all = 0
-    total_balance_all = 0
+    total_expected_all = Decimal("0.00")
+    total_paid_all = Decimal("0.00")
+    total_balance_all = Decimal("0.00")
 
     for d in deposits:
+        _attach_deposit_summary(d)
 
-        paid = DepositPayment.objects.filter(scheme=d).aggregate(
-            total=Sum("amount_paid")
-        )["total"] or 0
-
-        balance = (d.total_amount or 0) - paid
-
-        # attach runtime values (NOT DB)
-        d.paid = paid
-        d.balance = balance
-
-        # STATUS LOGIC (LIVE)
-        if paid == 0:
-            d.status = "Pending"
-        elif balance <= 0:
-            d.status = "Completed"
+        if d.live_status == "Pending":
+            pending += 1
+        elif d.live_status == "Completed":
             completed += 1
         else:
-            d.status = "Active"
             active += 1
 
-        total_paid_all += paid
-        total_balance_all += balance
+        total_expected_all += d.total_amount or Decimal("0.00")
+        total_paid_all += d.total_paid
+        total_balance_all += d.remaining_balance
 
     context = {
         "deposits": deposits,
+        "total_deposits": deposits.count(),
 
+        "pending_schemes": pending,
         "active_schemes": active,
         "completed_schemes": completed,
 
+        "total_expected": total_expected_all,
         "total_paid": total_paid_all,
         "total_balance": total_balance_all,
     }
@@ -293,7 +318,7 @@ def deposit_dashboard(request):
     return render(request, "deposit_dashboard.html", context)
 def deposit_list(request):
 
-    deposits = DepositScheme.objects.all()
+    deposits = DepositScheme.objects.select_related("customer", "product").all()
     deposit_rows = []
 
     for deposit in deposits:
@@ -304,21 +329,14 @@ def deposit_list(request):
             last=Max("payment_date")
         )["last"]
 
-        total_paid = payments.aggregate(
-            total=Sum("amount_paid")
-        )["total"] or 0
-
-        # status logic (safe version)
-        if hasattr(deposit, "balance") and deposit.balance is not None:
-            status = "Completed" if deposit.balance <= 0 else "Active"
-        else:
-            status = "Active"
+        summary = _deposit_summary(deposit)
 
         deposit_rows.append({
             "deposit": deposit,
             "last_payment": last_payment,
-            "total_paid": total_paid,
-            "status": status,
+            "total_paid": summary["total_paid"],
+            "balance": summary["display_balance"],
+            "status": summary["status"],
         })
 
     return render(request, "deposit_list.html", {
@@ -345,9 +363,14 @@ def add_deposit(request):
         amount_paid_value = Decimal(amount_paid or 0)
         total_amount = (product.unit_price * Decimal(quantity_value))
         balance = total_amount - amount_paid_value
-        status = 'Completed' if balance <= 0 else 'Active'
+        if amount_paid_value <= 0:
+            status = 'Pending'
+        elif balance <= 0:
+            status = 'Completed'
+        else:
+            status = 'Active'
 
-        DepositScheme.objects.create(
+        deposit = DepositScheme.objects.create(
             customer=customer,
             product=product,
             total_amount=total_amount,
@@ -356,6 +379,15 @@ def add_deposit(request):
             balance=balance,
             status=status,
         )
+
+        if amount_paid_value > 0:
+            DepositPayment.objects.create(
+                scheme=deposit,
+                amount_paid=amount_paid_value,
+                payment_method=request.POST.get("payment_method", "cash"),
+                comment="Opening deposit payment",
+                received_by=request.user if request.user.is_authenticated else None,
+            )
 
         return redirect('deposit_dashboard')
 
@@ -366,6 +398,7 @@ def add_deposit(request):
 
 def record_deposit(request, pk):
     scheme = get_object_or_404(DepositScheme, id=pk)
+    _attach_deposit_summary(scheme)
 
     if request.method == "POST":
         amount = request.POST.get("amount_paid")
@@ -373,28 +406,30 @@ def record_deposit(request, pk):
         comment = request.POST.get("comment")
 
         if amount:
-            amount = float(amount)
+            amount = Decimal(amount or "0")
 
             DepositPayment.objects.create(
                 scheme=scheme,
                 amount_paid=amount,
                 payment_method=method,
                 comment=comment,
-                received_by=request.user
+                received_by=request.user if request.user.is_authenticated else None
             )
 
             # update scheme
-            scheme.amount_paid = (scheme.amount_paid or 0) + amount
+            scheme.amount_paid = (scheme.amount_paid or Decimal("0.00")) + amount
             scheme.balance = scheme.total_amount - scheme.amount_paid
 
-            if scheme.balance <= 0:
+            if scheme.amount_paid <= 0:
+                scheme.status = "Pending"
+            elif scheme.balance <= 0:
                 scheme.status = "Completed"
             else:
                 scheme.status = "Active"
 
             scheme.save()
 
-        return redirect('deposit_dashboard')
+        return redirect('view_deposit', pk=scheme.id)
 
     return render(request, "record_deposit.html", {
         "scheme": scheme
@@ -402,11 +437,19 @@ def record_deposit(request, pk):
 
 def edit_deposit(request, pk):
     deposit = get_object_or_404(DepositScheme, id=pk)
+    _attach_deposit_summary(deposit)
+
     if request.method == "POST":
-        deposit.quantity_expected = request.POST.get("quantity_expected")
+        quantity_expected = request.POST.get("quantity_expected")
+        deposit.quantity_expected = int(quantity_expected or 0)
         deposit.save()
+        summary = _deposit_summary(deposit)
+        deposit.amount_paid = summary["total_paid"]
+        deposit.balance = summary["balance"]
+        deposit.status = summary["status"]
+        deposit.save(update_fields=["amount_paid", "balance", "status"])
         return redirect("deposit_list")
-    
+
     return render(request, "edit_deposit.html", {"deposit": deposit})
 
 def delete_deposit(request, pk):
@@ -426,15 +469,16 @@ def view_deposit(request, pk):
 
     total_paid = payments.aggregate(
         total=Sum("amount_paid")
-    )["total"] or 0
+    )["total"] or Decimal("0.00")
 
-    balance = (deposit.total_amount or 0) - total_paid
+    summary = _deposit_summary(deposit)
 
     context = {
         "deposit": deposit,
         "payments": payments,
-        "total_paid": total_paid,
-        "balance": balance,
+        "total_paid": summary["total_paid"],
+        "balance": summary["display_balance"],
+        "status": summary["status"],
     }
 
     return render(request, "view_deposit.html", context)
@@ -443,8 +487,21 @@ def view_deposit(request, pk):
 
 def reports(request):
 
+    period = request.GET.get('period', 'all')
+    today = timezone.localdate()
     sales = Sale.objects.all().order_by('-date')
     payments = Payment.objects.all().order_by('-created_at')
+
+    if period == 'today':
+        sales = sales.filter(date__date=today)
+        payments = payments.filter(created_at__date=today)
+    elif period == 'week':
+        week_start = today - timedelta(days=today.weekday())
+        sales = sales.filter(date__date__gte=week_start)
+        payments = payments.filter(created_at__date__gte=week_start)
+    elif period == 'month':
+        sales = sales.filter(date__year=today.year, date__month=today.month)
+        payments = payments.filter(created_at__year=today.year, created_at__month=today.month)
     products = Product.objects.all()
     suppliers = Supplier.objects.all()
     customers = Customer.objects.all()
@@ -460,7 +517,7 @@ def reports(request):
     collection_rate = round((total_paid / total_sales) * 100, 2) if total_sales else 0
 
     total_products = products.count()
-    low_stock = products.filter(stock_quantity__lt=10)
+    low_stock = products.filter(stock_quantity__lt=F('reorder_level'))
     out_of_stock = products.filter(stock_quantity=0)
     total_stock_quantity = products.aggregate(total=Sum('stock_quantity'))['total'] or 0
     stock_value = products.aggregate(total=Sum(F('unit_price') * F('stock_quantity')))['total'] or 0
@@ -514,6 +571,7 @@ def reports(request):
         'total_payments': total_payments,
         'top_products': top_products,
         'total_suppliers': total_suppliers,
+        'period': period,
     }
 
     return render(request, 'reports.html', context)

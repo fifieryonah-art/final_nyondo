@@ -94,13 +94,41 @@
     overflow-x: auto;
 }
 
+.table-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
 .table-title h4 {
     color: #0f172a;
     font-size: 18px;
-    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 8px;
+    margin: 0;
+}
+
+.table-view-btn,
+.table-list-tag {
+    color: #0f172a;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 2px;
+    transition: 0.2s ease;
+}
+
+.table-view-btn:hover,
+.table-list-tag:hover {
+    color: #2563eb;
+    border-color: #2563eb;
 }
 
 table {

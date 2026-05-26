@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% load static %}
 
@@ -83,7 +84,7 @@
 
             <div>
 
-                <h3>UGX {{ total_sales }}</h3>
+                <h3>UGX {{ total_sales|floatformat:0|intcomma }}</h3>
 
                 <p>Total Sales</p>
 
@@ -101,7 +102,7 @@
 
             <div>
 
-                <h3>UGX {{ total_paid }}</h3>
+                <h3>UGX {{ total_paid|floatformat:0|intcomma }}</h3>
 
                 <p>Total Paid</p>
 
@@ -119,7 +120,7 @@
 
             <div>
 
-                <h3>UGX {{ balance }}</h3>
+                <h3>UGX {{ balance|floatformat:0|intcomma }}</h3>
 
                 <p>Balance</p>
 
@@ -171,7 +172,7 @@
 
                         <td>
                             <strong>
-                                UGX {{ sale.final_amount }}
+                                UGX {{ sale.final_amount|floatformat:0|intcomma }}
                             </strong>
                         </td>
 
@@ -243,11 +244,11 @@
 
                         <td>
                             <strong>
-                                UGX {{ payment.amount_paid }}
+                                UGX {{ payment.amount_paid|floatformat:0|intcomma }}
                             </strong>
                         </td>
 
-                        <td>UGX {{ payment.balance }}</td>
+                        <td>UGX {{ payment.balance|floatformat:0|intcomma }}</td>
 
                         <td>{{ payment.created_at }}</td>
 

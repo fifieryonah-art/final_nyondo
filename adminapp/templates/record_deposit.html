@@ -1,148 +1,150 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Record Deposit</title>
+{% extends "admin_base.html" %}
+{% load humanize %}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            margin: 0;
-            padding: 30px;
-        }
+{% block title %}
+Record Deposit Payment | Nyondo Hardware
+{% endblock %}
 
-        .container {
-            max-width: 600px;
-            margin: auto;
-        }
+{% block extra_css %}
+<style>
+    .admin-form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+    }
 
-        .box {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+    .admin-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
-        h2 {
-            text-align: center;
-            color: #0f172b;
-            margin-bottom: 20px;
-        }
+    .admin-form-group label {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172b;
+    }
 
-        .info {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #374151;
-            line-height: 1.6;
-        }
+    .admin-form-group input,
+    .admin-form-group select,
+    .admin-form-group textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+    }
 
-        label {
-            font-weight: bold;
-            font-size: 14px;
-            display: block;
-            margin-top: 10px;
-        }
+    .summary-card {
+        margin: 18px 0;
+        padding: 18px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        display: grid;
+        gap: 10px;
+    }
 
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+    }
 
-        button {
-            width: 100%;
-            margin-top: 15px;
-            padding: 12px;
-            background: #f54900;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+    .summary-row span {
+        color: #64748b;
+    }
 
-        button:hover {
-            background: #d63f00;
-        }
+    .summary-row strong {
+        color: #0f172b;
+        font-size: 1rem;
+    }
 
-        .nav {
-            margin-bottom: 15px;
-            display: flex;
-            gap: 10px;
-        }
+    .button-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}
 
-        .nav a {
-            text-decoration: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 13px;
-        }
+{% block content %}
+<div class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <h1>Record Deposit Payment</h1>
+            <p>Apply a payment for the deposit scheme and review the updated balance.</p>
+        </div>
+        <div class="admin-actions">
+            <a href="{% url 'deposit_dashboard' %}" class="admin-btn-secondary">Dashboard</a>
+            <a href="{% url 'deposit_list' %}" class="admin-btn-secondary">Deposit List</a>
+        </div>
+    </div>
 
-        .back {
-            background: #0f172b;
-            color: white;
-        }
-
-        .list {
-            background: #e5e7eb;
-            color: #111;
-        }
-
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <div class="box">
-
-        <h2>Record Deposit Payment</h2>
-
-        <!-- NAV -->
-        <div class="nav">
-            <a href="{% url 'deposit_dashboard' %}" class="back">Dashboard</a>
-            <a href="{% url 'deposit_list' %}" class="list">Deposit List</a>
+    <div class="admin-panel">
+        <div class="summary-card">
+            <div class="summary-row">
+                <span>Customer</span>
+                <strong>{{ scheme.customer.name }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Product</span>
+                <strong>{{ scheme.product.name }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Quantity Expected</span>
+                <strong>{{ scheme.quantity_expected }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Total Expected</span>
+                <strong class="money-value">UGX {{ scheme.total_amount|default:0|floatformat:0|intcomma }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Amount Already Paid</span>
+                <strong class="money-value">UGX {{ scheme.total_paid|default:0|floatformat:0|intcomma }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Remaining Balance</span>
+                <strong class="money-value">UGX {{ scheme.remaining_balance|default:0|floatformat:0|intcomma }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Status</span>
+                <strong>{{ scheme.live_status }}</strong>
+            </div>
         </div>
 
-        <!-- DEPOSIT INFO -->
-        <div class="info">
-            <strong>Customer:</strong> {{ scheme.customer.name }} <br>
-            <strong>Product:</strong> {{ scheme.product.name }} <br>
-            <strong>Quantity Expected:</strong> {{ scheme.quantity_expected }} <br>
-            <strong>Amount Already Paid:</strong> {{ scheme.amount_paid }} <br>
-        </div>
-
-        <!-- FORM -->
         <form method="POST">
             {% csrf_token %}
 
-            <label>Amount Paid</label>
-            <input type="number" name="amount_paid" step="0.01" required>
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label>Amount Paid</label>
+                    <input type="number" name="amount_paid" step="0.01" required>
+                </div>
 
-            <label>Payment Method</label>
-            <select name="payment_method">
-                <option value="cash">Cash</option>
-                <option value="mtn">MTN Mobile Money</option>
-                <option value="airtel">Airtel Money</option>
-                <option value="card">Bank Card</option>
-            </select>
+                <div class="admin-form-group">
+                    <label>Payment Method</label>
+                    <select name="payment_method">
+                        <option value="cash">Cash</option>
+                        <option value="mtn">MTN Mobile Money</option>
+                        <option value="airtel">Airtel Money</option>
+                        <option value="bank">Bank Transfer</option>
+                    </select>
+                </div>
+            </div>
 
-            <label>Comment</label>
-            <textarea name="comment" placeholder="Optional note..."></textarea>
+            <div class="admin-form-group" style="margin-top:16px;">
+                <label>Comment</label>
+                <textarea name="comment" rows="4" placeholder="Optional note..."></textarea>
+            </div>
 
-            <button type="submit">Save Payment</button>
+            <div class="button-row">
+                <button type="submit" class="admin-btn-primary">Save Payment</button>
+                <a href="{% url 'view_deposit' scheme.id %}" class="admin-btn-secondary">Cancel</a>
+            </div>
         </form>
-
     </div>
-
 </div>
-
-</body>
-</html>
+{% endblock %}

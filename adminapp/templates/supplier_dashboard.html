@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load humanize %}
 
 {% block title %}
 Supplier Management
@@ -27,11 +28,15 @@ Supplier Management
 
         <div class="admin-stat-card">
             <h4>Total Outstanding Credit</h4>
-            <strong>UGX {{ total_credit|floatformat:0 }}</strong>
+            <strong>UGX {{ total_credit|floatformat:0|intcomma }}</strong>
         </div>
     </div>
 
     <div class="admin-panel">
+        <div class="admin-panel-header">
+            <h3>Supplier List</h3>
+            <a href="{% url 'supplier_dashboard' %}" class="admin-list-tag">View Supplier List</a>
+        </div>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -55,7 +60,7 @@ Supplier Management
                     <td>{{ supplier.contact }}</td>
                     <td>{{ supplier.email }}</td>
                     <td>{{ supplier.category }}</td>
-                    <td>UGX {{ supplier.outstanding_credit|floatformat:0 }}</td>
+                    <td>UGX {{ supplier.outstanding_credit|floatformat:0|intcomma }}</td>
                     <td>
                         {% if supplier.status == 'Pending' %}
                             <span class="admin-badge admin-badge--pending">Pending</span>

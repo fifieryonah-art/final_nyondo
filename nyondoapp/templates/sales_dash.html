@@ -1,6 +1,7 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% load static %}
+{% load humanize %}
 
 {% block title %}
 Sales Dashboard | Nyondo Hardware
@@ -11,20 +12,19 @@ Sales Dashboard | Nyondo Hardware
 {% endblock %}
 
 {% block sidebar %}
-    {% include 'salessidebar.html' %}
+    {% include "salessidebar.html" %}
 {% endblock %}
 
 {% block content %}
 <div class="content-area">
     <div class="page-shell">
-
         <div class="dash-header">
             <div class="header-text">
                 <h2>
                     <i class="fas fa-chart-line"></i>
-                    Nyondo Hardware
+                    Sales Overview
                 </h2>
-                <p>NYONDO General Hardware LTD - Sales & Inventory Management</p>
+                <p>Track the latest sales activity and key performance indicators.</p>
             </div>
 
             <a href="{% url 'add_sales' %}" class="add-btn">
@@ -35,33 +35,21 @@ Sales Dashboard | Nyondo Hardware
 
         <div class="cards">
             <div class="card">
-                <h3>Total Sales (Today)</h3>
+                <h3>Total Sales</h3>
                 <p>{{ total_sales }}</p>
-                <span>UGX {{ total_revenue }}</span>
+                <span>UGX {{ total_revenue|floatformat:0|intcomma }}</span>
             </div>
 
             <div class="card">
                 <h3>Total Items Sold</h3>
                 <p>{{ total_items_sold }}</p>
-                <span>Products sold today</span>
+                <span>Products sold</span>
             </div>
 
             <div class="card">
                 <h3>Transport Charges</h3>
-                <p>{{ transport_total }}</p>
+                <p>UGX {{ transport_total|floatformat:0|intcomma }}</p>
                 <span>Delivery revenue</span>
-            </div>
-
-            <div class="card">
-                <h3>Supplier Credit</h3>
-                <p>{{ supplier_credit }}</p>
-                <span>Outstanding balances</span>
-            </div>
-
-            <div class="card">
-                <h3>Deposit Scheme</h3>
-                <p>{{ deposits }}</p>
-                <span>Customer deposits</span>
             </div>
 
             <div class="card">
@@ -75,8 +63,11 @@ Sales Dashboard | Nyondo Hardware
             <div class="table-title">
                 <h4>
                     <i class="fas fa-clock"></i>
-                    Recent Transactions
+                    Recent Sales
                 </h4>
+                <a href="{% url 'sales_list' %}" class="table-list-tag">
+                    View Sales List
+                </a>
             </div>
 
             <table>
@@ -86,11 +77,9 @@ Sales Dashboard | Nyondo Hardware
                         <th>Date</th>
                         <th>Customer</th>
                         <th>Product</th>
-                        <th>Category</th>
-                        <th>Quantity</th>
-                        <th>Amount Paid</th>
+                        <th>Qty</th>
+                        <th>Total</th>
                         <th>Transport</th>
-                        <th>Status</th>
                         <th>Payment</th>
                     </tr>
                 </thead>
@@ -98,59 +87,17 @@ Sales Dashboard | Nyondo Hardware
                     {% for sale in sales %}
                     <tr>
                         <td>{{ sale.id }}</td>
-                        <td>{{ sale.date }}</td>
-                        <td>{{ sale.customer_name }}</td>
-                        <td>{{ sale.product }}</td>
-                        <td>{{ sale.category }}</td>
+                        <td>{{ sale.date|date:'Y-m-d H:i' }}</td>
+                        <td>{{ sale.customer_name.name|default:'Walk-in Customer' }}</td>
+                        <td>{{ sale.name.name }}</td>
                         <td>{{ sale.quantity }}</td>
-                        <td>UGX {{ sale.amount_paid }}</td>
-                        <td>{{ sale.transport }}</td>
-                        <td>
-                            {% if sale.status == "Completed" %}
-                                <span class="status-completed">{{ sale.status }}</span>
-                            {% else %}
-                                <span class="status-pending">{{ sale.status }}</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ sale.payment_method }}</td>
+                        <td>UGX {{ sale.final_amount|floatformat:0|intcomma }}</td>
+                        <td>UGX {{ sale.transport|floatformat:0|intcomma }}</td>
+                        <td>{{ sale.payment_method|title }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="10">No sales found</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
-
-        <section class="table-card">
-            <div class="table-title">
-                <h4>
-                    <i class="fas fa-triangle-exclamation"></i>
-                    Low Stock Alerts
-                </h4>
-            </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Category</th>
-                        <th>Current Stock</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for stock in low_stock %}
-                    <tr>
-                        <td>{{ stock.name }}</td>
-                        <td>{{ stock.description }}</td>
-                        <td>{{ stock.stock_quantity }}</td>
-                        <td><span class="status-pending">Low Stock</span></td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4">No low stock items</td>
+                        <td colspan="8">No sales found</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -163,34 +110,32 @@ Sales Dashboard | Nyondo Hardware
                     <i class="fas fa-fire"></i>
                     Top Selling Products
                 </h4>
+                <a href="{% url 'product_list' %}" class="table-list-tag">
+                    View Product List
+                </a>
             </div>
 
             <table>
                 <thead>
                     <tr>
                         <th>Product</th>
-                        <th>Category</th>
                         <th>Quantity Sold</th>
-                        <th>Period</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in top_selling_items %}
                     <tr>
-                        <td>{{ item.product }}</td>
-                        <td>{{ item.category }}</td>
+                        <td>{{ item.name.name }}</td>
                         <td>{{ item.quantity }}</td>
-                        <td>{{ item.period }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4">No data available</td>
+                        <td colspan="2">No data available</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </section>
-
     </div>
 </div>
 {% endblock %}

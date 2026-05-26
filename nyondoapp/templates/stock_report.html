@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load humanize %}
 
 {% block title %}
 Stock Report | Nyondo Hardware
@@ -44,7 +45,7 @@ Stock Report | Nyondo Hardware
 
     <div class="card">
         <h3>Total Value</h3>
-        <p>UGX {{ total_value }}</p>
+        <p>UGX {{ total_value|floatformat:0|intcomma }}</p>
     </div>
 
     <div class="card">
@@ -92,8 +93,8 @@ Stock Report | Nyondo Hardware
                 <td>{{ stock.id }}</td>
                 <td>{{ stock.product.name }}</td>
                 <td>{{ stock.supplier.name }}</td>
-                <td>{{ stock.quantity }}</td>
-                <td>{{ stock.total_cost }}</td>
+                <td>{{ stock.quantity|intcomma }}</td>
+                <td>UGX {{ stock.total_cost|floatformat:0|intcomma }}</td>
                 <td>{{ stock.date_arrival }}</td>
 
                 <td>

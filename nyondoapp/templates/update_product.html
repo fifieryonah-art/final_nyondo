@@ -2,60 +2,77 @@
 {% load static %}
 
 {% block title %}
-Update Stock
+    Update Stock
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/update_product.css' %}">
+    <link rel="stylesheet" href="{% static 'css/stock_update.css' %}?v=20260525">
 {% endblock %}
 
 {% block content %}
 
-<div class="form-container">
+<div class="form-wrapper">
 
-    <h2>Edit Stock</h2>
+    <div class="form-card">
 
-    <form method="post">
-        {% csrf_token %}
+        <div class="form-header">
 
-        <!-- Product -->
-        <label>Product</label>
-        <input type="text" name="product"
-               value="{{ product.name }}" readonly>
+            <i class="fas fa-pen-to-square"></i>
 
-        <!-- Quantity -->
-        <label>Quantity</label>
-        <input type="number"
-               name="quantity"
-               value="{{ stock.quantity }}">
+            <div>
+                <h2>Edit Stock</h2>
+                <p>Update stock information</p>
+            </div>
 
-        <!-- Cost Price -->
-        <label>Cost Price</label>
-        <input type="text"
-               name="cost_price"
-               value="{{ product.cost_price }}">
+        </div>
 
-        <!-- Unit Price -->
-        <label>Unit Price</label>
-        <input type="text"
-               name="unit_price"
-               value="{{ product.unit_price }}">
+        <form method="post" class="form">
+            {% csrf_token %}
 
-        <!-- Profit Margin -->
-        <label>Profit Margin</label>
-        <input type="text"
-               name="profit_margin"
-               value="{{ product.profit_margin }}">
+            <div class="form-group">
+                <label>Product</label>
+                <input type="text" name="product" value="{{ product.name }}" readonly>
+            </div>
 
-        <!-- Comments -->
-        <label>Comments</label>
-        <textarea name="comments">{{ stock.comments }}</textarea>
+            <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" name="quantity" value="{{ stock.quantity }}">
+            </div>
 
-        <button type="submit" class="btn">
-            Update Stock
-        </button>
+            <div class="form-group">
+                <label>Cost Price</label>
+                <input type="text" name="cost_price" value="{{ product.cost_price }}">
+            </div>
 
-    </form>
+            <div class="form-group">
+                <label>Unit Price</label>
+                <input type="text" name="unit_price" value="{{ product.unit_price }}">
+            </div>
+
+            <div class="form-group">
+                <label>Profit Margin</label>
+                <input type="text" name="profit_margin" value="{{ product.profit_margin }}">
+            </div>
+
+            <div class="form-group">
+                <label>Comments</label>
+                <textarea name="comments" rows="4">{{ stock.comments }}</textarea>
+            </div>
+
+            <div class="buttons">
+                <button type="submit" class="btn-update">
+                    <i class="fas fa-save"></i>
+                    Update Stock
+                </button>
+
+                <a href="{% url 'product_list' %}" class="btn-cancel">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+
+    </div>
 
 </div>
 

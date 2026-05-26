@@ -1,119 +1,86 @@
-<!DOCTYPE html>
+{% extends "admin_base.html" %}
 {% load crispy_forms_tags %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+{% block title %}
+Add Supplier | Nyondo Hardware
+{% endblock %}
 
-    <title>Add Supplier</title>
+{% block extra_css %}
+<style>
+    .admin-form-card {
+        max-width: 840px;
+        margin: 0 auto;
+    }
 
-    <style>
-        body {
-            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-            font-family: Arial, sans-serif;
-            color: #0f172b;
-            padding: 32px 16px;
-        }
+    .admin-form-card .form-shell {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+    }
 
-        .form-shell {
-            max-width: 760px;
-            margin: 0 auto;
-        }
+    .admin-form-card .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+    }
 
-        .form-card {
-            background: #fff;
-            border-radius: 18px;
-            padding: 30px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-            border: 1px solid #e2e8f0;
-        }
+    .admin-form-card .form-actions .btn {
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+    }
 
-        .form-header {
-            display: flex;
-            justify-content: space-between;
-            gap: 16px;
-            align-items: flex-start;
-            margin-bottom: 22px;
-        }
+    .admin-form-card .btn-primary {
+        background: #0f172b;
+        color: #fff;
+    }
 
-        .eyebrow {
-            color: #f54900;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            font-size: 12px;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
+    .admin-form-card .btn-secondary {
+        background: #e2e8f0;
+        color: #0f172b;
+    }
 
-        .form-header h1 {
-            margin: 0 0 6px;
-            color: #0f172b;
-            font-size: 1.6rem;
-        }
+    .admin-form-card .btn-primary:hover {
+        background: #1e293b;
+    }
 
-        .form-header p {
-            margin: 0;
-            color: #64748b;
-            font-size: 14px;
-        }
+    .admin-form-card .btn-secondary:hover {
+        background: #cbd5e1;
+    }
 
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 14px;
-            margin-top: 24px;
-        }
+    .admin-form-card .form-label,
+    .admin-form-card label {
+        font-weight: 700;
+        color: #0f172b;
+    }
 
-        .btn {
-            padding: 12px 24px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            border: none;
-            transition: 0.2s ease;
-        }
+    .admin-form-card input,
+    .admin-form-card select,
+    .admin-form-card textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 0.95rem;
+    }
+</style>
+{% endblock %}
 
-        .btn-primary {
-            background: #f54900;
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: #d84200;
-        }
-
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #0f172b;
-        }
-
-        .btn-secondary:hover {
-            background: #cbd5e1;
-        }
-
-        @media(max-width: 768px) {
-            .form-header {
-                flex-direction: column;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="form-shell">
-    <div class="form-card">
-        <div class="form-header">
-            <div>
-                <p class="eyebrow">Supplier module</p>
-                <h1>Add New Supplier</h1>
-                <p>Capture supplier details and keep credit tracking accurate.</p>
-            </div>
-            <a href="{% url 'supplier_dashboard' %}" class="btn btn-secondary">Back</a>
+{% block content %}
+<div class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <h1>Add New Supplier</h1>
+            <p>Capture supplier details and keep credit tracking accurate.</p>
         </div>
+        <a href="{% url 'supplier_dashboard' %}" class="admin-btn-secondary">Back</a>
+    </div>
 
+    <div class="admin-panel admin-form-card">
         <form method="POST" novalidate>
             {% csrf_token %}
             {{ form|crispy }}
@@ -125,8 +92,4 @@
         </form>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>
+{% endblock %}

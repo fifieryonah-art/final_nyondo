@@ -1,148 +1,212 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Payment Receipt | Nyondo Hardware
 {% endblock %}
 
-{% block extra_css %}
-
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-<link rel="stylesheet" href="{% static 'css/receipt.css' %}">
-
-{% endblock %}
-
 {% block content %}
-
 <div class="receipt-wrapper">
-
     <div class="receipt-card">
-
-        <!-- HEADER -->
-
         <div class="receipt-header">
-
-            <h1>
-                <i class="fas fa-store"></i>
-                NYONDO HARDWARE
-            </h1>
-
-            <p>Payment Receipt</p>
-
+            <div>
+                <h1>Nyondo Hardware</h1>
+                <p>Official payment receipt</p>
+            </div>
+            <div class="receipt-badge">{{ payment.receipt_number }}</div>
         </div>
 
-        <!-- INFO -->
-
-        <div class="receipt-info">
-
-            <div class="info-row">
-                <span>Receipt Number</span>
-                <strong>{{ payment.receipt_number }}</strong>
-            </div>
-
-            <div class="info-row">
+        <div class="receipt-info-grid">
+            <div>
                 <span>Customer</span>
-                <strong>{{ payment.customer }}</strong>
+                <strong>{{ customer.name|default:'Walk-in Customer' }}</strong>
             </div>
-
-            <div class="info-row">
-                <span>Sale ID</span>
-                <strong>#{{ payment.order_id.id }}</strong>
-            </div>
-
-            <div class="info-row">
-                <span>Payment Method</span>
-                <strong>{{ payment.payment_method }}</strong>
-            </div>
-
-            <div class="info-row">
+            <div>
                 <span>Date</span>
                 <strong>{{ payment.created_at }}</strong>
             </div>
-
-            <div class="info-row">
-                <span>Recorded By</span>
-                <strong>{{ payment.entered_by }}</strong>
+            <div>
+                <span>Payment Method</span>
+                <strong>{{ payment.payment_method|title }}</strong>
             </div>
-
+            <div>
+                <span>Recorded By</span>
+                <strong>{{ payment.entered_by|default:'System' }}</strong>
+            </div>
         </div>
 
-        <!-- SUMMARY -->
+        <div class="items-table-wrap">
+            <h3>Items Paid</h3>
+            <table class="receipt-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Sub Total</th>
+                        <th>Transport</th>
+                        <th>Line Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in payment_items %}
+                    <tr>
+                        <td>{{ item.product_name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>UGX {{ item.unit_price|floatformat:0|intcomma }}</td>
+                        <td>UGX {{ item.sub_total|floatformat:0|intcomma }}</td>
+                        <td>UGX {{ item.transport|floatformat:0|intcomma }}</td>
+                        <td>UGX {{ item.line_total|floatformat:0|intcomma }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">No receipt items found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         <div class="payment-summary">
-
-            <h3>
-                <i class="fas fa-file-invoice-dollar"></i>
-                Payment Summary
-            </h3>
-
-            <div class="info-row">
+            <div class="summary-row">
+                <span>Sub Total</span>
+                <strong>UGX {{ subtotal_total|floatformat:0|intcomma }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Transport</span>
+                <strong>UGX {{ transport_total|floatformat:0|intcomma }}</strong>
+            </div>
+            <div class="summary-row">
                 <span>Total Amount</span>
-                <strong>UGX {{ payment.total }}</strong>
+                <strong>UGX {{ total|floatformat:0|intcomma }}</strong>
             </div>
-
-            <div class="info-row">
+            <div class="summary-row">
                 <span>Amount Paid</span>
-                <strong>UGX {{ payment.amount_paid }}</strong>
+                <strong>UGX {{ amount_paid|floatformat:0|intcomma }}</strong>
             </div>
-
-            <div class="info-row">
+            <div class="summary-row">
                 <span>Balance</span>
-                <strong>UGX {{ payment.balance }}</strong>
+                <strong>UGX {{ balance|floatformat:0|intcomma }}</strong>
             </div>
-
-            <div class="info-row total">
-
-                <span>Status</span>
-
-                {% if payment.balance <= 0 %}
-
-                    <strong class="status-paid">
-                        PAID
-                    </strong>
-
-                {% else %}
-
-                    <strong class="status-pending">
-                        PENDING
-                    </strong>
-
-                {% endif %}
-
-            </div>
-
         </div>
 
-        <!-- ACTIONS -->
-
-        <div class="buttons">
-
-            <a href="#"
-               onclick="window.print()"
-               class="btn btn-print">
-
-                <i class="fas fa-print"></i>
-
-                Print Receipt
-
-            </a>
-
-            <a href="{% url 'payment_list' %}"
-               class="btn btn-back">
-
-                <i class="fas fa-arrow-left"></i>
-
-                Back
-
-            </a>
-
+        <div class="button-row">
+            <a href="#" onclick="window.print()" class="btn-print">Print Receipt</a>
+            <a href="{% url 'payment_list' %}" class="btn-back">Back to Payments</a>
         </div>
-
     </div>
-
 </div>
 
+<style>
+    .receipt-wrapper {
+        min-height: 100vh;
+        padding: 24px;
+        background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+
+    .receipt-card {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+    }
+
+    .receipt-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+    }
+
+    .receipt-badge {
+        background: #0f172a;
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 800;
+    }
+
+    .receipt-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        padding: 16px;
+        border-radius: 16px;
+        background: #f8fafc;
+        margin-bottom: 18px;
+    }
+
+    .receipt-info-grid span {
+        display: block;
+        color: #475569;
+        margin-bottom: 4px;
+    }
+
+    .receipt-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+    }
+
+    .receipt-table th,
+    .receipt-table td {
+        border-bottom: 1px solid #e2e8f0;
+        padding: 12px 8px;
+        text-align: left;
+    }
+
+    .payment-summary {
+        margin-top: 20px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 16px;
+        display: grid;
+        gap: 10px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .button-row {
+        margin-top: 20px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .btn-print,
+    .btn-back {
+        text-decoration: none;
+        font-weight: 800;
+        border-radius: 999px;
+        padding: 12px 18px;
+    }
+
+    .btn-print {
+        background: #0f172a;
+        color: #fff;
+    }
+
+    .btn-back {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+
+    @media print {
+        .btn-print,
+        .btn-back {
+            display: none;
+        }
+    }
+</style>
 {% endblock %}

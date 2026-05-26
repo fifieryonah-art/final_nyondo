@@ -14,7 +14,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/admin_shared.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin_shared.css' %}?v=202605251200">
 
     <style>
 
@@ -26,7 +26,7 @@
         }
 
         body{
-            background: #f1f5f9;
+            background: #f8fafc;
             display: flex;
             color: #0f172a;
         }
@@ -59,7 +59,7 @@
         }
 
         .logo-text h2{
-            color: #f54900;
+            color: #f8fafc;
             font-size: 0.96rem;
         }
 
@@ -91,17 +91,21 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 13px 14px;
-            border-radius: 10px;
-            transition: 0.2s ease;
-            font-weight: 600;
+            padding: 14px 15px;
+            border-radius: 12px;
+            transition: 0.2s ease, transform 0.2s ease;
+            font-weight: 700;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid transparent;
         }
 
         .sidebar ul li a:hover,
         .sidebar ul li.active a{
-            background: #f54900;
-            color: white;
-            box-shadow: 0 8px 18px rgba(245, 73, 0, 0.24);
+            background: linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+            color: #ffffff;
+            border-color: rgba(255,255,255,0.08);
+            box-shadow: 0 12px 20px rgba(15, 23, 43, 0.26);
+            transform: translateX(4px);
         }
 
         .sidebar ul li a i{
@@ -226,7 +230,7 @@
             gap: 10px;
             text-decoration: none;
             color: #e2e8f0;
-            background: rgba(245, 73, 0, 0.12);
+            background: rgba(15, 23, 43, 0.18);
             padding: 13px 14px;
             border-radius: 10px;
             font-weight: 700;
@@ -234,7 +238,7 @@
         }
 
         .logout-btn:hover{
-            background: #f54900;
+            background: #0f172b;
             color: white;
             transform: translateX(3px);
         }

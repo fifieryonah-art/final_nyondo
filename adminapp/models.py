@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 
 
@@ -42,20 +44,31 @@ class DepositScheme(models.Model):
     quantity_expected = models.PositiveIntegerField()
 
     STATUS_CHOICES = [
+        ("Pending", "Pending"),
         ("Active", "Active"),
         ("Completed", "Completed"),
-          ("Cancelled", "Cancelled"),
+        ("Cancelled", "Cancelled"),
     ]
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     payment_date = models.DateTimeField(auto_now_add=True)
 
-def save(self, *args, **kwargs):
-    # auto-calculate balance every time
-    self.balance = self.total_amount - self.amount_paid
-    super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        if self.product is not None and self.quantity_expected is not None:
+            unit_price = self.product.unit_price or Decimal("0.00")
+            self.total_amount = unit_price * Decimal(self.quantity_expected)
+        self.balance = self.total_amount - self.amount_paid
+        if self.status == "Cancelled":
+            pass
+        elif self.amount_paid <= 0:
+            self.status = "Pending"
+        elif self.balance <= 0:
+            self.status = "Completed"
+        elif self.status != "Cancelled":
+            self.status = "Active"
+        super().save(*args, **kwargs)
 
-def __str__(self):
-    return f"{self.customer.name} - {self.product.name}"
+    def __str__(self):
+        return f"{self.customer.name} - {self.product.name}"
 
 
 

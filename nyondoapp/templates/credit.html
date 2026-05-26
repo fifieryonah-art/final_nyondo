@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Deposit Scheme | Nyondo Hardware
@@ -41,12 +42,12 @@
 
     <div class="header-actions">
 
-        <a href="#"
+        <a href="{% url 'add_deposit' %}"
            class="btn-add">
 
             <i class="fas fa-user-plus"></i>
 
-            Register Customer
+            Add Deposit Scheme
 
         </a>
 
@@ -88,7 +89,7 @@
 
             <h5>Total Deposits</h5>
 
-            <p>UGX {{ total_deposits }}</p>
+            <p>UGX {{ total_deposits|floatformat:0|intcomma }}</p>
 
         </div>
 
@@ -104,9 +105,9 @@
 
         <div class="card-content">
 
-            <h5>Active Accounts</h5>
+            <h5>Pending Accounts</h5>
 
-            <p>{{ active_accounts }}</p>
+            <p>{{ pending_accounts }}</p>
 
         </div>
 
@@ -122,9 +123,9 @@
 
         <div class="card-content">
 
-            <h5>Withdraws Made</h5>
+            <h5>Payments Made</h5>
 
-            <p>{{ total_withdraws }}</p>
+            <p>{{ total_payments }}</p>
 
         </div>
 
@@ -183,12 +184,12 @@
 
         </h3>
 
-        <a href="#"
+        <a href="{% url 'deposit_list' %}"
            class="btn-export">
 
             <i class="fas fa-file-export"></i>
 
-            Export
+            View Deposit List
 
         </a>
 
@@ -204,6 +205,7 @@
                     <th>Customer</th>
                     <th>Phone</th>
                     <th>Total Deposited</th>
+                    <th>Balance</th>
                     <th>Last Deposit</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -237,7 +239,13 @@
 
                     <td>
                         <strong>
-                            UGX {{ customer.total_deposit }}
+                            UGX {{ customer.total_deposit|floatformat:0|intcomma }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        <strong>
+                            UGX {{ customer.balance|floatformat:0|intcomma }}
                         </strong>
                     </td>
 
@@ -249,7 +257,7 @@
 
                             <i class="fas fa-circle"></i>
 
-                            Active
+                            {{ customer.status }}
 
                         </span>
 
@@ -259,21 +267,21 @@
 
                         <div class="actions">
 
-                            <a href="#"
+                            <a href="{% url 'record_deposit' customer.id %}"
                                class="deposit-btn">
 
                                 <i class="fas fa-plus-circle"></i>
 
-                                Deposit
+                                Record Payment
 
                             </a>
 
-                            <a href="#"
+                            <a href="{% url 'view_deposit' customer.id %}"
                                class="withdraw-btn">
 
-                                <i class="fas fa-minus-circle"></i>
+                                <i class="fas fa-eye"></i>
 
-                                Withdraw
+                                View
 
                             </a>
 
@@ -287,7 +295,7 @@
 
                 <tr>
 
-                    <td colspan="6"
+                    <td colspan="7"
                         class="empty-state">
 
                         <i class="fas fa-folder-open"></i>

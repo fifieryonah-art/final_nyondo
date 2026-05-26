@@ -1,116 +1,185 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add Deposit</title>
+{% extends "admin_base.html" %}
 
-    <style>
+{% block title %}
+Add Deposit Scheme | Nyondo Hardware
+{% endblock %}
 
-        body{
-            background:#f4f6f9;
-            font-family: Arial;
-            padding:40px;
-        }
+{% block extra_css %}
+<style>
+    .admin-form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+    }
 
-        .card{
-            max-width:600px;
-            margin:auto;
-            background:white;
-            padding:30px;
-            border-radius:12px;
-        }
+    .admin-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
-        h2{
-            color:#0f172b;
-            margin-bottom:10px;
-        }
+    .admin-form-group label {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172b;
+    }
 
-        .subtitle{
-            color:#6b7280;
-            margin-bottom:20px;
-        }
+    .admin-form-group input,
+    .admin-form-group select,
+    .admin-form-group textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+    }
 
-        label{
-            font-size:14px;
-            color:#374151;
-            display:block;
-            margin-top:12px;
-        }
+    .summary-card {
+        margin-top: 18px;
+        display: grid;
+        gap: 12px;
+        padding: 18px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
 
-        select, input{
-            width:100%;
-            padding:12px;
-            border:1px solid #ddd;
-            border-radius:8px;
-            margin-top:5px;
-        }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+    }
 
-        select:focus, input:focus{
-            border-color:#f54900;
-            outline:none;
-        }
+    .summary-row span {
+        color: #64748b;
+    }
 
-        button{
-            margin-top:20px;
-            width:100%;
-            padding:12px;
-            border:none;
-            background:#f54900;
-            color:white;
-            font-weight:bold;
-            border-radius:8px;
-            cursor:pointer;
-        }
+    .summary-row strong {
+        color: #0f172b;
+        font-size: 1rem;
+    }
 
-        button:hover{
-            background:#d63f00;
-        }
+    .button-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}
 
-        a{
-            display:inline-block;
-            margin-top:15px;
-            color:#0f172b;
-            text-decoration:none;
-        }
+{% block content %}
+<div class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <h1>Add Deposit Scheme</h1>
+            <p>Create a new customer deposit plan and track the balance in real time.</p>
+        </div>
+        <a href="{% url 'deposit_dashboard' %}" class="admin-btn-secondary">Back</a>
+    </div>
 
-    </style>
-</head>
+    <div class="admin-panel">
+        <form method="POST">
+            {% csrf_token %}
 
-<body>
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label>Customer</label>
+                    <select name="customer" required>
+                        {% for c in customers %}
+                            <option value="{{ c.id }}">{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-<div class="card">
+                <div class="admin-form-group">
+                    <label>Product</label>
+                    <select name="product" id="productSelect" required>
+                        {% for p in products %}
+                            <option value="{{ p.id }}" data-unit-price="{{ p.unit_price }}">{{ p.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-    <h2>Add Deposit Scheme</h2>
-    <p class="subtitle">Create a new customer deposit plan</p>
+                <div class="admin-form-group">
+                    <label>Quantity Expected</label>
+                    <input type="number" id="quantityInput" name="quantity_expected" required>
+                </div>
 
-    <form method="POST">
-        {% csrf_token %}
+                <div class="admin-form-group">
+                    <label>Amount Paid</label>
+                    <input type="number" id="amountPaidInput" name="amount_paid" step="0.01" value="0">
+                </div>
 
-        <label>Customer</label>
-        <select name="customer" required>
-            {% for c in customers %}
-                <option value="{{ c.id }}">{{ c.name }}</option>
-            {% endfor %}
-        </select>
+                <div class="admin-form-group">
+                    <label>Payment Method</label>
+                    <select name="payment_method">
+                        <option value="cash">Cash</option>
+                        <option value="mtn">MTN Mobile Money</option>
+                        <option value="airtel">Airtel Money</option>
+                        <option value="bank">Bank Transfer</option>
+                    </select>
+                </div>
+            </div>
 
-        <label>Product</label>
-        <select name="product" required>
-            {% for p in products %}
-                <option value="{{ p.id }}">{{ p.name }}</option>
-            {% endfor %}
-        </select>
+            <div class="summary-card">
+                <div class="summary-row">
+                    <span>Unit Price</span>
+                    <strong id="unitPriceDisplay" class="money-value">UGX 0</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Estimated Total</span>
+                    <strong id="totalDisplay" class="money-value">UGX 0</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Expected Balance</span>
+                    <strong id="balanceDisplay" class="money-value">UGX 0</strong>
+                </div>
+            </div>
 
-        <label>Quantity Expected</label>
-        <input type="number" name="quantity_expected" required>
-
-        <label>Amount Paid</label>
-        <input type="number" name="amount_paid" step="0.01" value="0">
-
-        <button type="submit">Save Deposit</button>
-    </form>
-
-    <a href="{% url 'deposit_dashboard' %}">← Back</a>
-
+            <div class="button-row">
+                <button type="submit" class="admin-btn-primary">Save Deposit</button>
+                <a href="{% url 'deposit_dashboard' %}" class="admin-btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
 
-</body>
-</html>
+<script>
+    const productSelect = document.getElementById('productSelect');
+    const quantityInput = document.getElementById('quantityInput');
+    const amountPaidInput = document.getElementById('amountPaidInput');
+    const unitPriceDisplay = document.getElementById('unitPriceDisplay');
+    const totalDisplay = document.getElementById('totalDisplay');
+    const balanceDisplay = document.getElementById('balanceDisplay');
+
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('en-UG', {
+            style: 'currency',
+            currency: 'UGX',
+            maximumFractionDigits: 0,
+        }).format(value);
+    }
+
+    function updateDepositSummary() {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const unitPrice = parseFloat(productSelect.options[productSelect.selectedIndex]?.dataset.unitPrice || 0);
+        const amountPaid = parseFloat(amountPaidInput.value) || 0;
+
+        const total = quantity * unitPrice;
+        const balance = total - amountPaid;
+
+        unitPriceDisplay.textContent = formatCurrency(unitPrice);
+        totalDisplay.textContent = formatCurrency(total);
+        balanceDisplay.textContent = formatCurrency(balance);
+    }
+
+    productSelect.addEventListener('change', updateDepositSummary);
+    quantityInput.addEventListener('input', updateDepositSummary);
+    amountPaidInput.addEventListener('input', updateDepositSummary);
+
+    updateDepositSummary();
+</script>
+{% endblock %}

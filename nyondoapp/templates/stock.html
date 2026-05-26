@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load static %}
+{% load humanize %}
 
 {% block title %}
 Stock Dashboard | Nyondo Hardware
@@ -11,7 +12,7 @@ Stock Dashboard | Nyondo Hardware
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<link rel="stylesheet" href="{% static 'css/stock.css' %}?v=202605241100">
+<link rel="stylesheet" href="{% static 'css/stock.css' %}?v=202605251100">
 
 {% endblock %}
 
@@ -95,7 +96,7 @@ Stock Dashboard | Nyondo Hardware
                 Total Stock Value
             </h5>
 
-            <p>{{ total_value }}</p>
+            <p>UGX {{ total_value|floatformat:0|intcomma }}</p>
 
         </div>
 
@@ -112,7 +113,12 @@ Stock Dashboard | Nyondo Hardware
 
         <a href="{% url 'stock_list' %}">
             <i class="fas fa-boxes"></i>
-            View Inventory
+            Stock Available
+        </a>
+
+        <a href="{% url 'stock_records' %}">
+            <i class="fas fa-clipboard-list"></i>
+            Stock Records
         </a>
 
         <a href="{% url 'stock_report' %}">
@@ -120,7 +126,7 @@ Stock Dashboard | Nyondo Hardware
             Reports
         </a>
 
-        <a href="#">
+        <a href="{% url 'supplier_dashboard' %}" class="{% if request.resolver_match.url_name == 'supplier_dashboard' or request.resolver_match.url_name == 'add_supplier' or request.resolver_match.url_name == 'edit_supplier' or request.resolver_match.url_name == 'view_supplier' %}active{% endif %}">
             <i class="fas fa-truck"></i>
             Suppliers
         </a>
@@ -129,9 +135,12 @@ Stock Dashboard | Nyondo Hardware
 
     <!-- LOW STOCK TABLE -->
 
-    <h3 class="section-title">
-        Low Stock Alerts
-    </h3>
+    <div class="section-title-row">
+        <h3 class="section-title">
+            Low Stock Alerts
+        </h3>
+        <a href="{% url 'stock_list' %}" class="table-list-tag">View Stock List</a>
+    </div>
 
     <div class="table-container">
 
@@ -141,8 +150,9 @@ Stock Dashboard | Nyondo Hardware
 
                 <tr>
                     <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Reorder Level</th>
+                    <th>Available Qty</th>
+                    <th>Low Stock Level</th>
+                    <th>Stock Value</th>
                 </tr>
 
             </thead>
@@ -154,8 +164,9 @@ Stock Dashboard | Nyondo Hardware
                 <tr>
 
                     <td>{{ product.name }}</td>
-                    <td>{{ product.stock_quantity }}</td>
-                    <td>{{ product.reorder_level }}</td>
+                    <td>{{ product.stock_quantity|intcomma }}</td>
+                    <td>{{ product.reorder_level|intcomma }}</td>
+                    <td>UGX {{ product.stock_value|floatformat:0|intcomma }}</td>
 
                 </tr>
 
@@ -177,9 +188,12 @@ Stock Dashboard | Nyondo Hardware
 
     <!-- RECENT STOCK ENTRIES -->
 
-    <h3 class="section-title">
-        Recent Stock Entries
-    </h3>
+    <div class="section-title-row">
+        <h3 class="section-title">
+            Recent Stock Entries
+        </h3>
+        <a href="{% url 'stock_records' %}" class="table-list-tag">View Stock Records</a>
+    </div>
 
     <div class="table-container">
 
@@ -190,7 +204,7 @@ Stock Dashboard | Nyondo Hardware
                 <tr>
                     <th>Product</th>
                     <th>Quantity Received</th>
-                    <th>Cost Price</th>
+                    <th>Total Cost</th>
                     <th>Date Added</th>
                     <th>Recorded By</th>
                 </tr>
@@ -204,10 +218,10 @@ Stock Dashboard | Nyondo Hardware
                 <tr>
 
                     <td>{{ stock.product.name }}</td>
-                    <td>{{ stock.quantity }}</td>
-                    <td>{{ stock.cost_price }}</td>
-                    <td>{{ stock.date_added }}</td>
-                    <td>{{ stock.recorded_by }}</td>
+                    <td>{{ stock.quantity|intcomma }}</td>
+                    <td>UGX {{ stock.total_cost|floatformat:0|intcomma }}</td>
+                    <td>{{ stock.date_arrival }}</td>
+                    <td>{{ stock.entered_by|default:'System' }}</td>
 
                 </tr>
 

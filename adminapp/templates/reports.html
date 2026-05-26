@@ -1,5 +1,6 @@
 {% extends 'admin_base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
 Reports | Nyondo Hardware
@@ -11,7 +12,7 @@ Reports | Nyondo Hardware
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <link rel="stylesheet"
-href="{% static 'css/reports.css' %}?v=20260524-report-v2">
+href="{% static 'css/reports.css' %}?v=20260525-report-v2">
 
 {% endblock %}
 
@@ -21,117 +22,154 @@ href="{% static 'css/reports.css' %}?v=20260524-report-v2">
 
     <div class="reports-header">
         <div>
+            <p class="reports-eyebrow">Administrative reporting</p>
             <h1>Business Reports</h1>
-            <p>Complete business performance overview across sales, stock, payments and customers.</p>
+            <p>Track sales performance, collection health, stock movement, and customer activity from one clean view.</p>
+        </div>
+        <div class="reports-header-badges">
+            <a class="badge-chip {% if period == 'today' %}active{% endif %}" href="{% url 'reports' %}?period=today"><i class="fas fa-calendar-day"></i> Today</a>
+            <a class="badge-chip {% if period == 'week' %}active{% endif %}" href="{% url 'reports' %}?period=week"><i class="fas fa-calendar-week"></i> Week</a>
+            <a class="badge-chip {% if period == 'month' %}active{% endif %}" href="{% url 'reports' %}?period=month"><i class="fas fa-calendar"></i> Month</a>
+            <a class="badge-chip {% if period == 'all' %}active{% endif %}" href="{% url 'reports' %}?period=all"><i class="fas fa-chart-line"></i> All</a>
         </div>
     </div>
 
     <div class="cards-grid">
         <div class="report-card">
-            <i class="fas fa-wallet"></i>
-            <h3>Total Sales</h3>
-            <h2>UGX {{ total_sales }}</h2>
+            <div>
+                <i class="fas fa-wallet"></i>
+                <h3>Total Sales</h3>
+            </div>
+            <h2>UGX {{ total_sales|floatformat:0|intcomma }}</h2>
         </div>
 
         <div class="report-card">
-            <i class="fas fa-money-bill-wave"></i>
-            <h3>Total Paid</h3>
-            <h2>UGX {{ total_paid }}</h2>
+            <div>
+                <i class="fas fa-money-bill-wave"></i>
+                <h3>Collected</h3>
+            </div>
+            <h2>UGX {{ total_paid|floatformat:0|intcomma }}</h2>
         </div>
 
         <div class="report-card">
-            <i class="fas fa-credit-card"></i>
-            <h3>Total Balance</h3>
-            <h2>UGX {{ total_balance }}</h2>
+            <div>
+                <i class="fas fa-credit-card"></i>
+                <h3>Outstanding Balance</h3>
+            </div>
+            <h2>UGX {{ total_balance|floatformat:0|intcomma }}</h2>
         </div>
 
         <div class="report-card">
-            <i class="fas fa-users"></i>
-            <h3>Total Customers</h3>
+            <div>
+                <i class="fas fa-users"></i>
+                <h3>Customers</h3>
+            </div>
             <h2>{{ total_customers }}</h2>
         </div>
 
         <div class="report-card">
-            <i class="fas fa-box"></i>
-            <h3>Total Products</h3>
+            <div>
+                <i class="fas fa-box"></i>
+                <h3>Total Products</h3>
+            </div>
             <h2>{{ total_products }}</h2>
         </div>
 
         <div class="report-card">
-            <i class="fas fa-shopping-cart"></i>
-            <h3>Total Transactions</h3>
+            <div>
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Transactions</h3>
+            </div>
             <h2>{{ total_transactions }}</h2>
         </div>
 
         <div class="report-card">
-            <i class="fas fa-warehouse"></i>
-            <h3>Stock Quantity</h3>
+            <div>
+                <i class="fas fa-warehouse"></i>
+                <h3>Stock Units</h3>
+            </div>
             <h2>{{ total_stock_quantity }}</h2>
         </div>
 
         <div class="report-card">
-            <i class="fas fa-chart-line"></i>
-            <h3>Stock Value</h3>
-            <h2>UGX {{ stock_value }}</h2>
+            <div>
+                <i class="fas fa-chart-line"></i>
+                <h3>Stock Value</h3>
+            </div>
+            <h2>UGX {{ stock_value|floatformat:0|intcomma }}</h2>
         </div>
 
         <div class="report-card">
-            <i class="fas fa-users-cog"></i>
-            <h3>Suppliers</h3>
+            <div>
+                <i class="fas fa-users-cog"></i>
+                <h3>Suppliers</h3>
+            </div>
             <h2>{{ total_suppliers }}</h2>
         </div>
 
         <div class="report-card">
-            <i class="fas fa-hand-holding-usd"></i>
-            <h3>Total Payments</h3>
-            <h2>UGX {{ total_payments }}</h2>
+            <div>
+                <i class="fas fa-hand-holding-usd"></i>
+                <h3>Payments</h3>
+            </div>
+            <h2>UGX {{ total_payments|floatformat:0|intcomma }}</h2>
         </div>
 
         <div class="report-card">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Low Stock Items</h3>
+            <div>
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Low Stock</h3>
+            </div>
             <h2>{{ low_stock.count }}</h2>
         </div>
 
         <div class="report-card">
-            <i class="fas fa-times-circle"></i>
-            <h3>Out Of Stock</h3>
+            <div>
+                <i class="fas fa-times-circle"></i>
+                <h3>Out of Stock</h3>
+            </div>
             <h2>{{ out_of_stock.count }}</h2>
         </div>
     </div>
 
     <div class="analytics-grid">
         <div class="analytics-card">
-            <h3>Business Summary</h3>
-
-            <div class="summary-item">
-                <span>Expected Money</span>
-                <strong>UGX {{ expected_money }}</strong>
+            <div class="section-header">
+                <h3>Business Summary</h3>
+                <p>Key operational indicators for the current reporting period.</p>
             </div>
 
             <div class="summary-item">
-                <span>Collection Rate</span>
+                <span>Expected revenue</span>
+                <strong>UGX {{ expected_money|floatformat:0|intcomma }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Collection rate</span>
                 <strong>{{ collection_rate }}%</strong>
             </div>
 
             <div class="summary-item">
-                <span>Products Sold</span>
+                <span>Products sold</span>
                 <strong>{{ total_quantity_sold }}</strong>
             </div>
 
             <div class="summary-item">
-                <span>Customers With Balance</span>
+                <span>Customers with balance</span>
                 <strong>{{ customers_with_balance }}</strong>
             </div>
 
             <div class="summary-item">
-                <span>Average Sale Value</span>
-                <strong>UGX {{ average_sale_value }}</strong>
+                <span>Average sale value</span>
+                <strong>UGX {{ average_sale_value|floatformat:0|intcomma }}</strong>
             </div>
         </div>
 
         <div class="analytics-card">
-            <h3>Quick Business Insights</h3>
+            <div class="section-header">
+                <h3>Inventory health</h3>
+                <p>Quick signal for replenishment and stock control.</p>
+            </div>
 
             <div class="summary-item">
                 <span>Low stock alerts</span>
@@ -150,7 +188,7 @@ href="{% static 'css/reports.css' %}?v=20260524-report-v2">
 
             <div class="summary-item">
                 <span>Payment activity</span>
-                <strong>{{ total_payments }}</strong>
+                <strong>UGX {{ total_payments|floatformat:0|intcomma }}</strong>
             </div>
         </div>
     </div>
@@ -158,6 +196,7 @@ href="{% static 'css/reports.css' %}?v=20260524-report-v2">
     <div class="table-section">
         <div class="section-header">
             <h3>Recent Sales</h3>
+            <p>Latest transactions and their outstanding balances.</p>
         </div>
 
         <table class="report-table">
@@ -166,7 +205,7 @@ href="{% static 'css/reports.css' %}?v=20260524-report-v2">
                     <th>Receipt</th>
                     <th>Customer</th>
                     <th>Product</th>
-                    <th>Quantity</th>
+                    <th>Qty</th>
                     <th>Total</th>
                     <th>Paid</th>
                     <th>Balance</th>
@@ -179,12 +218,12 @@ href="{% static 'css/reports.css' %}?v=20260524-report-v2">
                 {% for sale in recent_sales %}
                 <tr>
                     <td>{{ sale.receipt_number }}</td>
-                    <td>{{ sale.customer_name.name|default:'Walk-in Customer' }}</td>
-                    <td>{{ sale.name.name|default:'Unavailable' }}</td>
+                    <td>{{ sale.customer_name.name|default:sale.customer_name|default:'Walk-in Customer' }}</td>
+                    <td>{{ sale.name.name|default:sale.name|default:'Unavailable' }}</td>
                     <td>{{ sale.quantity }}</td>
-                    <td>UGX {{ sale.final_amount }}</td>
-                    <td>UGX {{ sale.sub_total }}</td>
-                    <td>UGX {{ sale.balance }}</td>
+                    <td>UGX {{ sale.final_amount|floatformat:0|intcomma }}</td>
+                    <td>UGX {{ sale.sub_total|floatformat:0|intcomma }}</td>
+                    <td>UGX {{ sale.balance|floatformat:0|intcomma }}</td>
                     <td>{{ sale.payment_method|title }}</td>
                     <td>{{ sale.date|date:'Y-m-d H:i' }}</td>
                 </tr>
@@ -200,6 +239,7 @@ href="{% static 'css/reports.css' %}?v=20260524-report-v2">
     <div class="table-section">
         <div class="section-header">
             <h3>Recent Payments</h3>
+            <p>Latest customer payments captured in the system.</p>
         </div>
 
         <table class="report-table">
@@ -215,8 +255,8 @@ href="{% static 'css/reports.css' %}?v=20260524-report-v2">
             <tbody>
                 {% for payment in recent_payments %}
                 <tr>
-                    <td>{{ payment.customer.name|default:'Walk-in Customer' }}</td>
-                    <td>UGX {{ payment.amount_paid }}</td>
+                    <td>{{ payment.customer.name|default:payment.customer|default:'Walk-in Customer' }}</td>
+                    <td>UGX {{ payment.amount_paid|floatformat:0|intcomma }}</td>
                     <td>{{ payment.payment_method|title }}</td>
                     <td>{{ payment.created_at|date:'Y-m-d H:i' }}</td>
                 </tr>
@@ -232,6 +272,7 @@ href="{% static 'css/reports.css' %}?v=20260524-report-v2">
     <div class="table-section">
         <div class="section-header">
             <h3>Top Selling Products</h3>
+            <p>Most demanded products based on the latest sales activity.</p>
         </div>
 
         <table class="report-table">

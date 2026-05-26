@@ -1,8 +1,10 @@
 import uuid
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import F
+from django.utils import timezone
 from .models import Stock, Product, Sale, Payment, Customer,Employee
 from decimal import Decimal
 from .forms import CustomerForm
@@ -14,89 +16,67 @@ from django.db.models import Sum
 # Create your views here.
 #Authentication pages
 # LOGIN PAGE
+def indexPage(request):
+    return render(request, 'index.html')
 def loginPage(request):
-
     if request.method == "POST":
-
         username = request.POST.get("username")
         password = request.POST.get("password")
 
         # authenticate user
-        user = authenticate(
-            request,
-            username=username,
-            password=password
-        )
-
+        user = authenticate(request,username=username,password=password)
         if user is not None:
-
             # login user
             login(request, user)
 
-            # =========================
             # SUPERUSER AUTHORIZATION
-            # =========================
             if user.is_superuser:
                 return redirect("admin_dash")
 
-            # =========================
             # EMPLOYEE AUTHORIZATION
-            # =========================
             try:
                 employee = Employee.objects.get(user=user)
-
                 # ADMIN
                 if employee.role == "admin":
                     return redirect("admin_dash")
-
                 # MANAGER
                 elif employee.role == "manager":
                     return redirect("stock")
-
                 # SALES ATTENDANT
                 elif employee.role == "attendant":
                     return redirect("sales_dash")
 
                 else:
-                    messages.error(
-                        request,
-                        "Unauthorized role"
-                    )
+                    messages.error(request,"Unauthorized role")
                     return redirect("login")
 
             except Employee.DoesNotExist:
-
-                messages.error(
-                    request,
-                    "Employee profile not found"
-                )
-
+                messages.error(request,"Employee profile not found")
                 return redirect("login")
 
         else:
-            messages.error(
-                request,
-                "Invalid username or password"
-            )
-
+            messages.error(request,"Invalid username or password")
     return render(request, "login.html")
 
 
 # LOGOUT
 def logout_user(request):
-
     logout(request)
-
     return redirect("login")
 
+#stock views
 
 def stockPage(request):
     products = Product.objects.all()
+    recent_stock = Stock.objects.select_related("product", "supplier", "entered_by").order_by("-date_arrival", "-time_arrival")[:10]
     total_products = products.count()
     low_stock_items = products.filter(stock_quantity__lt=F('reorder_level'))
+    for product in low_stock_items:
+        product.stock_value = product.stock_quantity * product.unit_price
     low_stock_count = low_stock_items.count()
     out_of_stock_count = products.filter(stock_quantity=0).count()
     total_value = 0
+    # Auto calculate the total value of products in the business
     for product in products:
         total_value += (product.stock_quantity * product.cost_price)
 
@@ -106,13 +86,26 @@ def stockPage(request):
         "out_of_stock": out_of_stock_count,
         "total_value": total_value,
         "low_stock_items": low_stock_items,
+        "recent_stock": recent_stock,
         "products": products,
     }
     return render(request, 'stock.html', context)
 
 def stock_list(request):
-    stocks = Stock.objects.select_related("product", "supplier").order_by('id')
-    return render(request,"stock_list.html", {"stocks": stocks})
+    products = Product.objects.all().order_by("name")
+    for product in products:
+        product.stock_value = product.stock_quantity * product.unit_price
+    low_stock_items = products.filter(stock_quantity__lt=F("reorder_level"))
+    stock_value = sum(product.stock_quantity * product.unit_price for product in products)
+    return render(request, "stock_list.html", {
+        "products": products,
+        "low_stock_items": low_stock_items,
+        "stock_value": stock_value,
+    })
+
+def stock_records(request):
+    stocks = Stock.objects.select_related("product", "supplier", "entered_by").order_by("-date_arrival", "-time_arrival")
+    return render(request, "stock_records.html", {"stocks": stocks})
 
 def add_stock(request):
      products = Product.objects.all()
@@ -121,21 +114,26 @@ def add_stock(request):
      if request.method == "POST":
         product_id = request.POST.get("product")
         supplier_id = request.POST.get("supplier")
-        cost_price = int(request.POST.get("cost_price"))
-        quantity = int(request.POST.get("quantity"))
+        quantity = int(request.POST.get("quantity") or 0)
+        cost_price = Decimal(request.POST.get("cost_price") or 0)
+        unit_price = Decimal(request.POST.get("unit_price") or 0)
         comments = request.POST.get("comments")
-        is_on_credit = "is_on_credit" in request.POST 
+        is_on_credit = "is_on_credit" in request.POST
         is_paid = "is_paid" in request.POST
+
+        if not product_id or not supplier_id:
+            messages.error(request, "Please select both product and supplier.")
+            return render(request, "add_stock.html", {"products": products, "suppliers": suppliers})
 
         # auto calculate total cost
         total_cost = cost_price * quantity
 
-        #checkboxes
-        cost_price = float(request.POST.get("cost_price"))
-        unit_price = float(request.POST.get("unit_price"))
+        if quantity <= 0:
+            messages.error(request, "Quantity must be greater than zero.")
+            return render(request, "add_stock.html", {"products": products, "suppliers": suppliers})
 
-        product = Product.objects.get(id=product_id)
-        supplier = Supplier.objects.get(id=supplier_id)
+        product = get_object_or_404(Product, id=product_id)
+        supplier = get_object_or_404(Supplier, id=supplier_id)
 
         # update product prices and stock quantity
         product.cost_price = cost_price
@@ -151,11 +149,11 @@ def add_stock(request):
             total_cost=total_cost,
             is_on_credit=is_on_credit,
             is_paid=is_paid,
-            entered_by=request.user
+            entered_by=request.user if request.user.is_authenticated else None,
         )
 
         messages.success(request, "Stock added successfully!")
-        return redirect("stock_list")
+        return redirect("stock")
      
      context = {
         "products": products,
@@ -169,7 +167,6 @@ def stock_delete(request, pk):
     product = stock.product
 
     if request.method == "POST":
-
         # reduce inventory
         product.stock_quantity -= stock.quantity
         product.save()
@@ -181,7 +178,6 @@ def stock_delete(request, pk):
     context = {
         'stock': stock
     }
-
     return render(request,'stock_delete.html', context)
 
 def stock_update(request, pk):
@@ -233,7 +229,6 @@ def stock_update(request, pk):
 def stock_report(request):
 
     stocks = Stock.objects.all()
-
     total_stock = stocks.count()
     total_value = stocks.aggregate(total=Sum('total_cost'))['total'] or 0
     paid_stock = stocks.filter(is_paid=True).count()
@@ -249,10 +244,32 @@ def stock_report(request):
 
     return render(request, "stock_report.html", context)
 
+
+def stock_supplier_dashboard(request):
+    suppliers = Supplier.objects.all().order_by('id')
+    total_suppliers = suppliers.count()
+    pending_credit = suppliers.filter(status__iexact='pending').count()
+    total_credit = suppliers.aggregate(total=Sum('outstanding_credit'))['total'] or 0
+
+    context = {
+        'suppliers': suppliers,
+        'total_suppliers': total_suppliers,
+        'pending_credit': pending_credit,
+        'total_credit': total_credit,
+    }
+
+    return render(request, 'stock_supplier_dashboard.html', context)
+
+# SALES VIEWS
+
 def employee_dash(request):
-     sales = Sale.objects.all()
+     today = timezone.localdate()
+     sales = Sale.objects.filter(date__date=today)
      total_sales = sales.count()
      product = Product.objects.all()
+     low_stock_items = product.filter(stock_quantity__lt=F('reorder_level'))
+     for item in low_stock_items:
+        item.stock_value = item.stock_quantity * item.unit_price
      total_revenue = sum(p.amount_paid for p in Payment.objects.all())
      recent_sales = sales.order_by('-date')[:10]
 
@@ -260,18 +277,23 @@ def employee_dash(request):
         "total_sales": total_sales,
         "total_revenue": total_revenue,
         "recent_sales": recent_sales,
-        "products": product
+        "products": product,
+        "low_stock_items": low_stock_items,
+        "low_stock_count": low_stock_items.count(),
      }
      return render(request, 'employee_dash.html', context)
 
 
 def creditPage(request):
-    deposit_schemes = DepositScheme.objects.select_related('customer', 'product').order_by('-payment_date')
+    deposit_schemes = DepositScheme.objects.select_related(
+        'customer', 'product').order_by('-payment_date')
 
     total_scheme_customers = deposit_schemes.values('customer').distinct().count()
     total_deposits = deposit_schemes.aggregate(total=Sum('total_amount'))['total'] or 0
-    active_accounts = deposit_schemes.filter(status='Active').count()
-    total_withdraws = DepositPayment.objects.count()
+    active_accounts = 0
+    pending_accounts = 0
+    completed_accounts = 0
+    total_payments = DepositPayment.objects.count()
 
     scheme_customers = []
     for scheme in deposit_schemes:
@@ -280,31 +302,46 @@ def creditPage(request):
             continue
 
         last_payment = scheme.payments.order_by('-payment_date').first()
-        total_paid = scheme.payments.aggregate(total=Sum('amount_paid'))['total'] or 0
+        payments_total = scheme.payments.aggregate(total=Sum('amount_paid'))['total'] or Decimal('0.00')
+        total_paid = max(payments_total, scheme.amount_paid or Decimal('0.00'))
+        balance = (scheme.total_amount or Decimal('0.00')) - total_paid
+
+        if total_paid <= 0:
+            status = 'Pending'
+            pending_accounts += 1
+        elif balance <= 0:
+            status = 'Completed'
+            completed_accounts += 1
+        else:
+            status = 'Active'
+            active_accounts += 1
 
         scheme_customers.append({
+            'id': scheme.id,
             'name': customer.name,
             'phone': customer.phone,
             'total_deposit': total_paid,
+            'balance': max(balance, Decimal('0.00')),
             'last_deposit': last_payment.payment_date if last_payment else scheme.payment_date,
-            'status': 'Completed' if total_paid >= (scheme.total_amount or 0) else 'Active',
+            'status': status,
         })
 
     context = {
         'total_scheme_customers': total_scheme_customers,
         'total_deposits': total_deposits,
         'active_accounts': active_accounts,
-        'total_withdraws': total_withdraws,
+        'pending_accounts': pending_accounts,
+        'completed_accounts': completed_accounts,
+        'total_payments': total_payments,
         'scheme_customers': scheme_customers,
     }
 
     return render(request, 'credit.html', context)
 
 
-def indexPage(request):
-    return render(request, 'index.html')
 
 
+#product page
 def add_product(request):
 
     if request.method == 'POST':
@@ -379,6 +416,7 @@ def delete_product(request, pk):
         'product': product
     })
 
+# payment views
 def payments_dashboard(request):
     payments = Payment.objects.all()
     total_payments = payments.count()
@@ -398,28 +436,28 @@ def payments_dashboard(request):
 
 
 def sales_dash(request):
+    today = timezone.localdate()
     products = Product.objects.all()
-    sales = Sale.objects.all().order_by('-date')
+    sales = Sale.objects.filter(date__date=today).order_by('-date')
 
     total_products = products.count()
     total_sales = sales.count()
 
     total_revenue = 0
-    for sale in sales:
-        total_revenue += sale.final_amount
-
-    total_items_sold = sales.aggregate(
-        Sum('quantity'))['quantity__sum'] or 0
+    for sale in sales:total_revenue += sale.final_amount
+    total_items_sold = sales.aggregate(Sum('quantity'))['quantity__sum'] or 0
 
     transport_total = sales.aggregate(
         Sum('transport')
     )['transport__sum'] or 0
 
-    low_stock = Product.objects.filter(stock_quantity__lt=10)
+    low_stock = Product.objects.filter(stock_quantity__lt=F('reorder_level'))
+    for product in low_stock:
+        product.stock_value = product.stock_quantity * product.unit_price
 
     low_stock_count = low_stock.count()
 
-    top_selling_items = Sale.objects.all().order_by('-quantity')[:5]
+    top_selling_items = sales.order_by('-quantity')[:5]
 
     supplier_credit = 0
     deposits = DepositScheme.objects.count()
@@ -438,9 +476,11 @@ def sales_dash(request):
     return render(request, "sales_dash.html", context)
 
 def sales_list(request):
-    sales = Sale.objects.all().order_by('-date')
+    today = timezone.localdate()
+    sales = Sale.objects.filter(date__date=today).order_by('-date')
     context = {
-        'sales': sales
+        'sales': sales,
+        'list_date': today,
     }
     return render(request, 'sales_list.html', context)
 
@@ -449,73 +489,103 @@ def add_sales(request):
     customers = Customer.objects.all()
 
     if request.method == 'POST':
-        #get form data
-        receipt_number = f"SALE-{uuid.uuid4().hex[:6].upper()}"
-        product_id = request.POST.get('product')
         customer_id = request.POST.get('customer_name')
-        quantity = int(request.POST.get('quantity'))
-        distance = int(request.POST.get('distance'))
+        distance = Decimal(request.POST.get('distance') or 0)
         payment_method = request.POST.get('payment_method')
-        comments = request.POST.get('comments')
+        comments = request.POST.get('comments', '')
+        product_ids = request.POST.getlist('product')
+        quantities = request.POST.getlist('quantity')
 
-        #fetch related objects
-        product = Product.objects.get(id=product_id)
-        customer = Customer.objects.get(id=customer_id)
+        if not customer_id:
+            messages.error(request, 'Please select a customer.')
+            return render(request, 'add_sales.html', {
+                'products': products,
+                'customers': customers,
+                'payment_methods': Sale.PAYMENT_METHODS,
+            })
 
-        #subtotal
-        sub_total = quantity * product.unit_price
+        if not product_ids or len(product_ids) != len(quantities):
+            messages.error(request, 'Please add at least one valid product and quantity.')
+            return render(request, 'add_sales.html', {
+                'products': products,
+                'customers': customers,
+                'payment_methods': Sale.PAYMENT_METHODS,
+            })
 
-        #Transport 
-        if distance <= 10 and sub_total >= 500000:
-            transport_fee = 0
-        else:
-            transport_fee = 30000
-        final_amount = sub_total + transport_fee
+        customer = get_object_or_404(Customer, id=customer_id)
+        created_sale_ids = []
 
-        sale = Sale(
-            name=product,
-            quantity=quantity,
-            distance=distance,
-            unit_price=product.unit_price,
-            transport=transport_fee,
-            sub_total=sub_total,
-            final_amount=final_amount,
-            customer_name=customer,
-            payment_method=payment_method,
-            comments=comments,
-            recorded_by=request.user,
-            receipt_number=receipt_number,
-         )
-        sale.save()
-        context = {
-            'sale': sale,
-            'distance': distance,
-            'total': final_amount
-        }
-        return redirect('add_payment')
+        for product_id, quantity_raw in zip(product_ids, quantities):
+            quantity = int(quantity_raw or 0)
+            if quantity <= 0:
+                messages.error(request, 'Each selected product must have a quantity greater than zero.')
+                return render(request, 'add_sales.html', {
+                    'products': products,
+                    'customers': customers,
+                    'payment_methods': Sale.PAYMENT_METHODS,
+                })
+
+            product = get_object_or_404(Product, id=product_id)
+            if product.stock_quantity < quantity:
+                messages.error(request, f"Not enough stock for {product.name}.")
+                return render(request, 'add_sales.html', {
+                    'products': products,
+                    'customers': customers,
+                    'payment_methods': Sale.PAYMENT_METHODS,
+                })
+
+            sub_total = Decimal(quantity) * product.unit_price
+            transport_fee = Decimal('0.00')
+            if not (distance <= Decimal('10') and sub_total >= Decimal('500000')):
+                transport_fee = Decimal('30000.00')
+
+            final_amount = sub_total + transport_fee
+            sale = Sale.objects.create(
+                name=product,
+                quantity=quantity,
+                distance=distance,
+                unit_price=product.unit_price,
+                transport=transport_fee,
+                sub_total=sub_total,
+                final_amount=final_amount,
+                customer_name=customer,
+                payment_method=payment_method,
+                comments=comments,
+                recorded_by=request.user if request.user.is_authenticated else None,
+                receipt_number=f"SALE-{uuid.uuid4().hex[:8].upper()}",
+            )
+            product.stock_quantity -= quantity
+            product.save(update_fields=['stock_quantity'])
+            created_sale_ids.append(str(sale.id))
+
+        request.session['pending_sale_ids'] = created_sale_ids
+        messages.success(request, 'Sale recorded successfully.')
+        return redirect(reverse('add_payment'))
+
     context={
         'products': products,
         'customers': customers,
         'payment_methods': Sale.PAYMENT_METHODS,
     }
-    
+
     return render(request, 'add_sales.html', context)
+
 
 def add_customer(request, pk=None):
     form = CustomerForm()
-    if request.method =='POST':
+
+    if request.method == 'POST':
         form = CustomerForm(request.POST)
 
         if form.is_valid():
             form.save()
             return redirect('customer_list')
-        else:
-            form = CustomerForm()
 
     context = {
-            'form': form,
-          }
+        'form': form,
+    }
     return render(request, 'add_customer.html', context)
+
 
 def customer_list(request):
     customers = Customer.objects.all()
@@ -531,7 +601,7 @@ def customer_edit(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
 
     if request.method == "POST":
-        form = CustomerForm(request.POST, instanc=customer)
+        form = CustomerForm(request.POST, instance=customer)
         if form.is_valid():
             form.save()
             return redirect('customer_list')
@@ -539,6 +609,7 @@ def customer_edit(request, pk):
         form = CustomerForm(instance=customer)
 
     return render(request, 'add_customer.html', {'form': form})
+
 
 def delete_customer(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
@@ -548,97 +619,103 @@ def delete_customer(request, pk):
     return render(request, 'delete_customer.html', {'customer': customer})
 
 def add_payment(request):
+    sale_ids = request.POST.getlist('sales')
 
-    customers = Customer.objects.all()
+    if not sale_ids:
+        sale_ids = request.GET.get('sales', '').split(',')
 
-    sales = Sale.objects.all()
+    if not sale_ids:
+        sale_ids = request.session.get('pending_sale_ids', [])
 
-    receipt_number = f"RCPT-{uuid.uuid4().hex[:6].upper()}"
+    sale_ids = [sale_id for sale_id in sale_ids if sale_id]
 
-    if request.method == "POST":
+    sales = Sale.objects.select_related('name', 'customer_name').filter(id__in=sale_ids).order_by('id')
 
-        customer_id = request.POST.get('customer')
+    if not sales:
+        sales = Sale.objects.select_related('name', 'customer_name').order_by('-id')[:20]
 
-        sale_id = request.POST.get('sale')
+    payment_items = []
+    subtotal_total = Decimal('0.00')
+    transport_total = Decimal('0.00')
+    total = Decimal('0.00')
 
-        total = float(request.POST.get('total'))
+    for sale in sales:
+        line_sub_total = sale.sub_total or Decimal('0.00')
+        line_transport = sale.transport or Decimal('0.00')
+        line_total = sale.final_amount or Decimal('0.00')
 
-        amount_paid = float(request.POST.get('amount_paid'))
+        payment_items.append({
+            'sale': sale,
+            'product_name': sale.name.name if sale.name else 'Unknown Product',
+            'unit_price': sale.unit_price or Decimal('0.00'),
+            'quantity': sale.quantity,
+            'sub_total': line_sub_total,
+            'transport': line_transport,
+            'line_total': line_total,
+            'comments': sale.comments,
+        })
 
+        subtotal_total += line_sub_total
+        transport_total += line_transport
+        total += line_total
+
+    customer = sales.first().customer_name if sales else None
+    receipt_number = f"RCPT-{uuid.uuid4().hex[:8].upper()}"
+
+    if request.method == 'POST':
+        amount_paid = Decimal(request.POST.get('amount_paid') or 0)
         payment_method = request.POST.get('payment_method')
-
-        receipt_number = request.POST.get('receipt_number')
-
-        # related objects
-        customer = Customer.objects.get(id=customer_id)
-
-        sale = Sale.objects.get(id=sale_id)
-
-        # balance calculation
         balance = total - amount_paid
 
-        # create payment
         payment = Payment.objects.create(
-
-            order_id=sale,
-
+            order_id=sales.first(),
             customer=customer,
-
             total=total,
-
             amount_paid=amount_paid,
-
             balance=balance,
-
             payment_method=payment_method,
-
             receipt_number=receipt_number,
-
-            entered_by=request.user
+            entered_by=request.user if request.user.is_authenticated else None,
         )
 
-        context = {
+        request.session.pop('pending_sale_ids', None)
 
+        return render(request, 'receipt.html', {
             'payment': payment,
-
+            'sales': sales,
+            'payment_items': payment_items,
+            'customer': customer,
             'balance': balance,
-
             'amount_paid': amount_paid,
-
+            'subtotal_total': subtotal_total,
+            'transport_total': transport_total,
             'total': total,
-        }
-
-
-        return render(request, 'receipt.html', context)
+        })
 
     context = {
-
-        'customers': customers,
-
         'sales': sales,
-
+        'payment_items': payment_items,
+        'customer': customer,
         'payment_methods': Payment.PAYMENT_METHODS,
-
         'receipt_number': receipt_number,
+        'subtotal_total': subtotal_total,
+        'transport_total': transport_total,
+        'total': total,
+        'amount_paid': total,
+        'balance': Decimal('0.00'),
     }
 
     return render(request, 'add_payment.html', context)
 
 
 def payment_list(request):
-
     payments = Payment.objects.all().order_by('-created_at')
-
     total_payments = payments.count()
-
     total_paid = 0
-
     total_balance = 0
 
     for payment in payments:
-
         total_paid += payment.amount_paid
-
         total_balance += payment.balance
 
     show_sidebar = not (
@@ -652,11 +729,8 @@ def payment_list(request):
     context = {
 
         'payments': payments,
-
         'total_payments': total_payments,
-
         'total_paid': total_paid,
-
         'total_balance': total_balance,
         'show_sidebar': show_sidebar,
     }
@@ -664,17 +738,11 @@ def payment_list(request):
     return render(request, 'payment_list.html', context)
 
 def customer_detail(request, pk):
-
     customer = Customer.objects.get(id=pk)
-
     sales = Sale.objects.filter(customer_name=customer)
-
     payments = Payment.objects.filter(customer=customer)
-
     total_sales = sum(sale.final_amount for sale in sales)
-
     total_paid = sum(payment.amount_paid for payment in payments)
-
     balance = total_sales - total_paid
 
     context = {

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Supplier Dashboard | Nyondo Hardware{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/stock.css' %}?v=20260525">
+<style>
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .badge-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-partial {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .badge-paid {
+        background: #dcfce7;
+        color: #166534;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+    {% include 'stocksidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <h2><i class="fas fa-truck"></i> Supplier Dashboard</h2>
+            <p>Review supplier activity and outstanding credit without leaving the stock panel.</p>
+        </div>
+    </div>
+
+    <div class="cards">
+        <div class="card">
+            <h5>Total Suppliers</h5>
+            <p>{{ total_suppliers }}</p>
+        </div>
+
+        <div class="card">
+            <h5>Pending Credit</h5>
+            <p>{{ pending_credit }}</p>
+        </div>
+
+        <div class="card">
+            <h5>Total Outstanding</h5>
+            <p>UGX {{ total_credit|floatformat:0|intcomma }}</p>
+        </div>
+    </div>
+
+    <div class="section-title-row">
+        <div class="section-title">Supplier List</div>
+        <a href="{% url 'stock_supplier_dashboard' %}" class="table-list-tag">View Supplier List</a>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Category</th>
+                    <th>Outstanding Credit</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for supplier in suppliers %}
+                <tr>
+                    <td>{{ supplier.id }}</td>
+                    <td>{{ supplier.name }}</td>
+                    <td>{{ supplier.address }}</td>
+                    <td>{{ supplier.contact }}</td>
+                    <td>{{ supplier.email }}</td>
+                    <td>{{ supplier.category }}</td>
+                    <td>UGX {{ supplier.outstanding_credit|floatformat:0|intcomma }}</td>
+                    <td>
+                        {% if supplier.status == 'Pending' %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% elif supplier.status == 'Partial' %}
+                            <span class="badge badge-partial">Partial</span>
+                        {% else %}
+                            <span class="badge badge-paid">Paid</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align:center; padding:24px; color:#64748b;">
+                        No suppliers found yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

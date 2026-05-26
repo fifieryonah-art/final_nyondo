@@ -1,204 +1,166 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Deposit</title>
+{% extends "admin_base.html" %}
+{% load humanize %}
 
-    <style>
+{% block title %}
+Edit Deposit | Nyondo Hardware
+{% endblock %}
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
+{% block extra_css %}
+<style>
+    .admin-form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+    }
 
-        body{
-            font-family: Arial, Helvetica, sans-serif;
-            background:#f4f6f9;
-        }
+    .admin-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
-        .container{
-            min-height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            padding:30px;
-        }
+    .admin-form-group label {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172b;
+    }
 
-        .card{
-            width:450px;
-            background:white;
-            padding:30px;
-            border-radius:14px;
-            box-shadow:0 4px 15px rgba(0,0,0,0.08);
-            border-top:4px solid #f54900;
-        }
+    .admin-form-group input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+    }
 
-        .title{
-            margin-bottom:25px;
-        }
+    .summary-card {
+        margin-top: 18px;
+        display: grid;
+        gap: 12px;
+        padding: 18px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
 
-        .title h2{
-            color:#0f172b;
-            margin-bottom:8px;
-            font-size:28px;
-        }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+    }
 
-        .title p{
-            color:#6b7280;
-            font-size:14px;
-        }
+    .summary-row span {
+        color: #64748b;
+    }
 
-        .info-box{
-            background:#fff7ed;
-            border:1px solid #fed7aa;
-            padding:14px;
-            border-radius:10px;
-            margin-bottom:20px;
-        }
+    .summary-row strong {
+        color: #0f172b;
+        font-size: 1rem;
+    }
 
-        .info-box p{
-            margin-bottom:6px;
-            color:#374151;
-            font-size:14px;
-        }
+    .button-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+    }
 
-        .form-group{
-            margin-bottom:20px;
-        }
+    .info-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 18px;
+        display: grid;
+        gap: 8px;
+    }
 
-        label{
-            display:block;
-            margin-bottom:8px;
-            color:#111827;
-            font-weight:600;
-            font-size:14px;
-        }
+    .info-box p {
+        color: #334155;
+    }
 
-        input{
-            width:100%;
-            padding:13px;
-            border:1px solid #d1d5db;
-            border-radius:8px;
-            outline:none;
-            font-size:14px;
-            transition:0.3s ease;
-        }
+    .info-box strong {
+        color: #0f172b;
+    }
+</style>
+{% endblock %}
 
-        input:focus{
-            border-color:#f54900;
-            box-shadow:0 0 0 3px rgba(245,73,0,0.1);
-        }
-
-        .buttons{
-            display:flex;
-            gap:12px;
-            margin-top:25px;
-        }
-
-        button{
-            flex:1;
-            border:none;
-            padding:13px;
-            border-radius:8px;
-            cursor:pointer;
-            font-size:14px;
-            font-weight:600;
-            transition:0.3s ease;
-        }
-
-        .save-btn{
-            background:#f54900;
-            color:white;
-        }
-
-        .save-btn:hover{
-            background:#d63f00;
-        }
-
-        .cancel-btn{
-            background:#e5e7eb;
-            color:#111827;
-            text-decoration:none;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            border-radius:8px;
-            font-size:14px;
-            font-weight:600;
-        }
-
-        .cancel-btn:hover{
-            background:#d1d5db;
-        }
-
-    </style>
-
-</head>
-<body>
-
-<div class="container">
-
-    <div class="card">
-
-        <div class="title">
-            <h2>Edit Deposit</h2>
-            <p>Update customer deposit information</p>
+{% block content %}
+<div class="admin-shell">
+    <div class="admin-page-header">
+        <div>
+            <h1>Edit Deposit</h1>
+            <p>Update the quantity expected and review the new balance before saving.</p>
         </div>
-
-        <!-- Deposit Info -->
-
-        <div class="info-box">
-
-            <p>
-                <strong>Customer:</strong>
-                {{ deposit.customer.name }}
-            </p>
-
-            <p>
-                <strong>Product:</strong>
-                {{ deposit.product.name }}
-            </p>
-
-        </div>
-
-        <!-- Form -->
-
-        <form method="POST">
-
-            {% csrf_token %}
-
-            <div class="form-group">
-
-                <label>Quantity Expected</label>
-
-                <input 
-                    type="number"
-                    name="quantity_expected"
-                    value="{{ deposit.quantity_expected }}"
-                    required
-                >
-
-            </div>
-
-            <div class="buttons">
-
-                <button type="submit" class="save-btn">
-                    Save Changes
-                </button>
-
-                <a href="{% url 'deposit_list' %}" class="cancel-btn">
-                    Cancel
-                </a>
-
-            </div>
-
-        </form>
-
+        <a href="{% url 'deposit_list' %}" class="admin-btn-secondary">Back</a>
     </div>
 
+    <div class="admin-panel">
+        <div class="info-box">
+            <p><strong>Customer:</strong> {{ deposit.customer.name }}</p>
+            <p><strong>Product:</strong> {{ deposit.product.name }}</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label>Quantity Expected</label>
+                    <input type="number" id="quantityInput" name="quantity_expected" value="{{ deposit.quantity_expected }}" required>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-row">
+                    <span>Unit Price</span>
+                    <strong id="unitPriceDisplay" class="money-value">UGX {{ deposit.product.unit_price|default:0|floatformat:0|intcomma }}</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Estimated Total</span>
+                    <strong id="totalDisplay" class="money-value">UGX {{ deposit.total_amount|default:0|floatformat:0|intcomma }}</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Current Balance</span>
+                    <strong id="balanceDisplay" class="money-value">UGX {{ deposit.balance|default:0|floatformat:0|intcomma }}</strong>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button type="submit" class="admin-btn-primary">Save Changes</button>
+                <a href="{% url 'deposit_list' %}" class="admin-btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
 
-</body>
-</html>
+<script>
+    const quantityInput = document.getElementById('quantityInput');
+    const totalDisplay = document.getElementById('totalDisplay');
+    const balanceDisplay = document.getElementById('balanceDisplay');
+    const unitPrice = parseFloat('{{ deposit.product.unit_price|default:0 }}') || 0;
+    const currentPaid = parseFloat('{{ deposit.total_paid|default:0 }}') || 0;
+
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('en-UG', {
+            style: 'currency',
+            currency: 'UGX',
+            maximumFractionDigits: 0,
+        }).format(value);
+    }
+
+    function updateSummary() {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const total = quantity * unitPrice;
+        const balance = total - currentPaid;
+
+        totalDisplay.textContent = formatCurrency(total);
+        balanceDisplay.textContent = formatCurrency(balance);
+    }
+
+    quantityInput.addEventListener('input', updateSummary);
+    updateSummary();
+</script>
+{% endblock %}

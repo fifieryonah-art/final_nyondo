@@ -1,162 +1,68 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% load static %}
+{% load humanize %}
 
 {% block title %}
 Sales List | Nyondo Hardware
 {% endblock %}
 
 {% block extra_css %}
-
-
 <link rel="stylesheet" href="{% static 'css/sales_list.css' %}">
-
 {% endblock %}
-
 
 {% block sidebar %}
-    {% include 'salessidebar.html' %}
+    {% include "salessidebar.html" %}
 {% endblock %}
 
-<!-- CONTENT -->
-
 {% block content %}
-
 <div class="list-body">
-
-    <!-- HEADER -->
-
     <div class="list-header">
-
         <div>
-
             <h2>
                 <i class="fas fa-receipt"></i>
                 Sales List
             </h2>
-
-            <p>Manage all sales transactions</p>
-
+            <p>Review today's sales records for {{ list_date }}.</p>
         </div>
-
     </div>
 
-    <!-- ACTION BUTTON -->
-
-    <div class="add-btn">
-
+    <div class="list-actions">
         <a href="{% url 'add_sales' %}">
-
             <i class="fas fa-plus"></i>
-
             Add Sale
-
         </a>
-
     </div>
-
-    <!-- TABLE -->
 
     <table class="sales-table">
-
         <thead>
-
             <tr>
-
                 <th>Receipt No</th>
                 <th>Date</th>
                 <th>Customer</th>
                 <th>Product</th>
-                <th>Quantity</th>
-                <th>Amount</th>
-                <th>Payment Method</th>
-                <th>Status</th>
-                <th>Actions</th>
-
+                <th>Qty</th>
+                <th>Total</th>
+                <th>Payment</th>
             </tr>
-
         </thead>
-
         <tbody>
-
             {% for sale in sales %}
-
             <tr>
-
                 <td>{{ sale.receipt_number }}</td>
-
-                <td>{{ sale.date }}</td>
-
-                <td>{{ sale.customer }}</td>
-
-                <td>{{ sale.name }}</td>
-
+                <td>{{ sale.date|date:'Y-m-d H:i' }}</td>
+                <td>{{ sale.customer_name.name|default:'Walk-in Customer' }}</td>
+                <td>{{ sale.name.name }}</td>
                 <td>{{ sale.quantity }}</td>
-
-                <td>UGX {{ sale.amount }}</td>
-
-                <td>{{ sale.method }}</td>
-
-                <td>
-
-                    {% if sale.status == "Paid" %}
-
-                        <span class="status-paid">
-                            Paid
-                        </span>
-
-                    {% else %}
-
-                        <span class="status-pending">
-                            Pending
-                        </span>
-
-                    {% endif %}
-
-                </td>
-
-                <td>
-
-                    <div class="actions">
-
-                        <a href="#"
-                           class="action-btn edit-btn">
-
-                            <i class="fas fa-pen"></i>
-                            Edit
-
-                        </a>
-
-                        <a href="#"
-                           class="action-btn delete-btn">
-
-                            <i class="fas fa-trash"></i>
-                            Delete
-
-                        </a>
-
-                    </div>
-
-                </td>
-
+                <td>UGX {{ sale.final_amount|floatformat:0|intcomma }}</td>
+                <td>{{ sale.payment_method|title }}</td>
             </tr>
-
             {% empty %}
-
             <tr>
-
-                <td colspan="9">
-                    No sales found
-                </td>
-
+                <td colspan="7">No sales found</td>
             </tr>
-
             {% endfor %}
-
         </tbody>
-
     </table>
-
 </div>
-
 {% endblock %}

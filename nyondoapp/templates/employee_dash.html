@@ -1,5 +1,6 @@
 {% extends 'admin_base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
 Sales Dashboard | Nyondo Hardware
@@ -140,10 +141,38 @@ body{
     overflow-x: auto;
 }
 
+.table-title{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
 .table-title h4{
     font-size: 18px;
     color: #0f172a;
-    margin-bottom: 10px;
+    margin: 0;
+}
+
+.table-view-btn,
+.table-list-tag{
+    color: #0f172a;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 2px;
+    transition: 0.2s ease;
+}
+
+.table-view-btn:hover,
+.table-list-tag:hover{
+    color: #2563eb;
+    border-color: #2563eb;
 }
 
 /* TABLE STYLE */
@@ -268,7 +297,7 @@ tbody tr:hover{
                 <i class="fas fa-money-bill-wave"></i>
             </div>
             <h3>Revenue</h3>
-            <h1>UGX {{ total_revenue|floatformat:0 }}</h1>
+            <h1>UGX {{ total_revenue|floatformat:0|intcomma }}</h1>
         </div>
 
         <div class="card">
@@ -284,7 +313,7 @@ tbody tr:hover{
                 <i class="fas fa-triangle-exclamation"></i>
             </div>
             <h3>Low Stock</h3>
-            <h1>{{ low_stock }}</h1>
+            <h1>{{ low_stock_count }}</h1>
         </div>
 
         <div class="card">
@@ -323,7 +352,12 @@ tbody tr:hover{
 
     <!-- RECENT SALES -->
     <div class="table-card">
-        <div class="table-title"><h4>Recent Sales</h4></div>
+        <div class="table-title">
+            <h4>Recent Sales</h4>
+            <a href="{% url 'sales_list' %}" class="table-list-tag">
+                View Sales List
+            </a>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -342,7 +376,7 @@ tbody tr:hover{
                     <td>{{ sale.customer_name }}</td>
                     <td>{{ sale.name }}</td>
                     <td>{{ sale.quantity }}</td>
-                    <td>UGX {{ sale.final_amount|floatformat:0 }}</td>
+                    <td>UGX {{ sale.final_amount|floatformat:0|intcomma }}</td>
                     <td>{{ sale.date }}</td>
                 </tr>
                 {% endfor %}
@@ -352,7 +386,12 @@ tbody tr:hover{
 
     <!-- INVENTORY -->
     <div class="table-card">
-        <div class="table-title"><h4>Product Inventory</h4></div>
+        <div class="table-title">
+            <h4>Product Inventory</h4>
+            <a href="{% url 'product_list' %}" class="table-list-tag">
+                View Product List
+            </a>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -368,7 +407,7 @@ tbody tr:hover{
                     <td>{{ product.name }}</td>
                     <td>{{ product.description }}</td>
                     <td>{{ product.stock_quantity }}</td>
-                    <td>UGX {{ product.unit_price|floatformat:0 }}</td>
+                    <td>UGX {{ product.unit_price|floatformat:0|intcomma }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -377,7 +416,12 @@ tbody tr:hover{
 
     <!-- LOW STOCK -->
     <div class="table-card">
-        <div class="table-title"><h4>Low Stock Alerts</h4></div>
+        <div class="table-title">
+            <h4>Low Stock Alerts</h4>
+            <a href="{% url 'product_list' %}" class="table-list-tag">
+                View Product List
+            </a>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -387,11 +431,15 @@ tbody tr:hover{
                 </tr>
             </thead>
             <tbody>
-                {% for stock in low_stock %}
+                {% for stock in low_stock_items %}
                 <tr>
                     <td>{{ stock.name }}</td>
                     <td>{{ stock.stock_quantity }}</td>
                     <td><span class="status-low">Low</span></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No low stock items found</td>
                 </tr>
                 {% endfor %}
             </tbody>

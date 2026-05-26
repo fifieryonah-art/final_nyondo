@@ -1,6 +1,6 @@
 
 .sale-wrapper{
-    padding:30px;
+    padding:40px 20px;
     background:#f4f6f9;
     min-height:100vh;
 }
@@ -10,7 +10,7 @@
     border-radius:16px;
     padding:35px;
     box-shadow:0 4px 12px rgba(15, 23, 43, 0.08);
-    max-width: 980px;
+    max-width: 680px;
     margin: 0 auto;
     border-top: 5px solid #0f172b;
 }
@@ -29,6 +29,7 @@
 
 .card-header p{
     color:#64748b;
+    font-size:14px;
 }
 
 .form-row{
@@ -49,18 +50,19 @@
 
 .form-group label{
     margin-bottom:8px;
-    font-weight:600;
+    font-weight:700;
     color:#0f172b;
+    font-size:15px;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea{
     width:100%;
-    padding:13px 14px;
+    padding:14px;
     border:1px solid #cbd5e1;
     border-radius:10px;
-    font-size:14px;
+    font-size:15px;
     outline:none;
     background:#ffffff;
 }
@@ -118,7 +120,7 @@
 .btn-cancel{
     flex:1;
     min-width: 220px;
-    padding:16px;
+    padding:14px;
     border-radius:10px;
     font-size:15px;
     font-weight:700;

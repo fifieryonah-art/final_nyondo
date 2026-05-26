@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
  {% load static %}
+ {% load humanize %}
  {% block title %} Payment List |Nyondo Hardware {% endblock %} 
 {% block extra_css %}
 
@@ -62,13 +63,13 @@
     </div>
 
     <div class="card">
-      <h3>UGX {{ total_paid }}</h3>
+      <h3>UGX {{ total_paid|floatformat:0|intcomma }}</h3>
 
       <p>Total Paid</p>
     </div>
 
     <div class="card">
-      <h3>UGX {{ total_balance }}</h3>
+      <h3>UGX {{ total_balance|floatformat:0|intcomma }}</h3>
 
       <p>Total Balance</p>
     </div>
@@ -100,11 +101,11 @@
 
           <td>{{ payment.customer }}</td>
 
-          <td>UGX {{ payment.total }}</td>
+          <td>UGX {{ payment.total|floatformat:0|intcomma }}</td>
 
-          <td>UGX {{ payment.amount_paid }}</td>
+          <td>UGX {{ payment.amount_paid|floatformat:0|intcomma }}</td>
 
-          <td>UGX {{ payment.balance }}</td>
+          <td>UGX {{ payment.balance|floatformat:0|intcomma }}</td>
 
           <td>{{ payment.payment_method }}</td>
 

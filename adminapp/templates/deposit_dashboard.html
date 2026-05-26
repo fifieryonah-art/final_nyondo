@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load humanize %}
 
 {% block content %}
 
@@ -10,7 +11,7 @@
         </div>
 
         <div class="admin-actions">
-            <a href="{% url 'deposit_list' %}" class="admin-btn-secondary">Deposit List</a>
+            <a href="{% url 'deposit_list' %}" class="admin-list-tag">View Deposit List</a>
             <a href="{% url 'add_deposit' %}" class="admin-btn-primary">+ Add Deposit</a>
         </div>
     </div>
@@ -19,6 +20,11 @@
         <div class="admin-stat-card">
             <h4>Total Deposits</h4>
             <strong>{{ total_deposits }}</strong>
+        </div>
+
+        <div class="admin-stat-card">
+            <h4>Pending Deposits</h4>
+            <strong>{{ pending_schemes }}</strong>
         </div>
 
         <div class="admin-stat-card">
@@ -33,11 +39,20 @@
 
         <div class="admin-stat-card">
             <h4>Total Paid</h4>
-            <strong>UGX {{ total_paid|floatformat:0 }}</strong>
+            <strong>UGX {{ total_paid|floatformat:0|intcomma }}</strong>
+        </div>
+
+        <div class="admin-stat-card">
+            <h4>Total Balance</h4>
+            <strong>UGX {{ total_balance|floatformat:0|intcomma }}</strong>
         </div>
     </div>
 
     <div class="admin-panel">
+        <div class="admin-panel-header">
+            <h3>Recent Deposits</h3>
+            <a href="{% url 'deposit_list' %}" class="admin-list-tag">View Deposit List</a>
+        </div>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -45,6 +60,7 @@
                     <th>Customer</th>
                     <th>Product</th>
                     <th>Quantity</th>
+                    <th>Total Amount</th>
                     <th>Amount Paid</th>
                     <th>Balance</th>
                     <th>Status</th>
@@ -58,11 +74,14 @@
                     <td>{{ deposit.customer.name }}</td>
                     <td>{{ deposit.product.name }}</td>
                     <td>{{ deposit.quantity_expected }}</td>
-                    <td>UGX {{ deposit.amount_paid|floatformat:0 }}</td>
-                    <td>UGX {{ deposit.balance|default:"0"|floatformat:0 }}</td>
+                    <td>UGX {{ deposit.total_amount|floatformat:0|intcomma }}</td>
+                    <td>UGX {{ deposit.total_paid|floatformat:0|intcomma }}</td>
+                    <td>UGX {{ deposit.remaining_balance|default:"0"|floatformat:0|intcomma }}</td>
                     <td>
-                        {% if deposit.amount_paid >= deposit.total_amount %}
+                        {% if deposit.live_status == "Completed" %}
                             <span class="admin-badge admin-badge--completed">Completed</span>
+                        {% elif deposit.live_status == "Pending" %}
+                            <span class="admin-badge admin-badge--pending">Pending</span>
                         {% else %}
                             <span class="admin-badge admin-badge--active">Active</span>
                         {% endif %}

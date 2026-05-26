@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -29,12 +30,11 @@
 
         <h1>
             <i class="fa-solid fa-boxes-stacked"></i>
-            Stock List
+            Stock Available
         </h1>
 
         <p>
-            View all stock items, supplier details, quantity, cost, and payment status.
-            Manage inventory efficiently.
+            View current stock availability, low-stock quantities, and stock value.
         </p>
 
     </div>
@@ -52,6 +52,11 @@
             Add Stock
         </a>
 
+        <a href="{% url 'stock_records' %}" class="btn back">
+            <i class="fa-solid fa-list"></i>
+            Stock Records
+        </a>
+
     </div>
 
     <!-- TABLE -->
@@ -62,68 +67,49 @@
             <thead>
 
                 <tr>
-                    <th>ID</th>
                     <th>Product</th>
-                    <th>Supplier</th>
-                    <th>Quantity</th>
-                    <th>Total Cost</th>
-                    <th>Date</th>
+                    <th>Available Quantity</th>
+                    <th>Low Stock Level</th>
+                    <th>Unit Price</th>
+                    <th>Stock Value</th>
                     <th>Status</th>
-                    <th>Actions</th>
                 </tr>
 
             </thead>
 
             <tbody>
 
-                {% for stock in stocks %}
+                {% for product in products %}
 
                 <tr>
 
-                    <td>{{ stock.id }}</td>
-                    <td>{{ stock.product.name }}</td>
-                    <td>{{ stock.supplier.name }}</td>
-                    <td>{{ stock.quantity }}</td>
-                    <td>{{ stock.total_cost }}</td>
-                    <td>{{ stock.date_arrival }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.stock_quantity|intcomma }}</td>
+                    <td>{{ product.reorder_level|intcomma }}</td>
+                    <td>UGX {{ product.unit_price|floatformat:0|intcomma }}</td>
+                    <td>UGX {{ product.stock_value|floatformat:0|intcomma }}</td>
 
                     <td>
 
-                        {% if stock.is_paid %}
+                        {% if product.stock_quantity == 0 %}
 
-                            <span class="status-paid">
-                                Paid
+                            <span class="status-credit">
+                                Out of Stock
+                            </span>
+
+                        {% elif product.stock_quantity < product.reorder_level %}
+
+                            <span class="status-credit">
+                                Low Stock
                             </span>
 
                         {% else %}
 
-                            <span class="status-credit">
-                                Credit
+                            <span class="status-paid">
+                                Available
                             </span>
 
                         {% endif %}
-
-                    </td>
-
-                    <td class="actions">
-
-                        <a href="{% url 'stock_update' stock.id %}"
-                           class="edit">
-
-                            <i class="fa-solid fa-pen"></i>
-
-                            Edit
-
-                        </a>
-
-                        <a href="{% url 'stock_delete' stock.id %}"
-                           class="delete">
-
-                            <i class="fa-solid fa-trash"></i>
-
-                            Delete
-
-                        </a>
 
                     </td>
 
@@ -132,8 +118,8 @@
                 {% empty %}
 
                 <tr>
-                    <td colspan="8">
-                        No stock records found
+                    <td colspan="6">
+                        No stock items found
                     </td>
                 </tr>
 

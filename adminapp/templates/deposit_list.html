@@ -1,11 +1,12 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Deposit List</title>
-<link rel="stylesheet" href="{% static 'css/admin_shared.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_shared.css' %}?v=202605251200">
 </head>
 
 <body>
@@ -31,7 +32,9 @@
                     <th>Customer</th>
                     <th>Product</th>
                     <th>Quantity</th>
+                    <th>Total Amount</th>
                     <th>Total Paid</th>
+                    <th>Balance</th>
                     <th>Last Payment Date</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -44,7 +47,9 @@
                     <td>{{ row.deposit.customer }}</td>
                     <td>{{ row.deposit.product }}</td>
                     <td>{{ row.deposit.quantity_expected }}</td>
-                    <td>UGX {{ row.total_paid|floatformat:0 }}</td>
+                    <td>UGX {{ row.deposit.total_amount|floatformat:0|intcomma }}</td>
+                    <td>UGX {{ row.total_paid|floatformat:0|intcomma }}</td>
+                    <td>UGX {{ row.balance|floatformat:0|intcomma }}</td>
                     <td>
                         {% if row.last_payment %}
                             {{ row.last_payment|date:"Y-m-d H:i" }}
@@ -55,6 +60,8 @@
                     <td>
                         {% if row.status == "Completed" %}
                             <span class="admin-badge admin-badge--completed">Completed</span>
+                        {% elif row.status == "Pending" %}
+                            <span class="admin-badge admin-badge--pending">Pending</span>
                         {% else %}
                             <span class="admin-badge admin-badge--active">Active</span>
                         {% endif %}
