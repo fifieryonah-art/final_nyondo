@@ -1,190 +1,263 @@
 {% extends 'base.html' %}
 {% load humanize %}
 
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}Admin Dashboard | Nyondo Hardware{% endblock %}
 
 {% block content %}
 
 <style>
 
+/* =========================
+   ADMIN DASHBOARD (STOCK STYLE)
+========================= */
 
 .admin-shell{
-    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
 }
 
 /* HEADER */
-.admin-page-header{
-    margin-bottom: 20px;
-}
-
-.admin-page-header h1{
-    font-size: 24px;
-    color: #0f172a;
+.admin-page-header h2{
+    color: #0F172B;
+    margin-bottom: 6px;
+    font-size: 28px;
 }
 
 .admin-page-header p{
     color: #64748b;
     font-size: 14px;
-    margin-top: 5px;
 }
 
-/* STATS GRID */
-.admin-stat-grid{
+/* =========================
+   CARDS (MATCH STOCK)
+========================= */
+
+.cards{
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
     margin-top: 20px;
 }
 
-.admin-stat-card{
-    background: #ffffff;
-    padding: 18px;
-    border-radius: 14px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-    border: 1px solid #eef2f7;
-    transition: 0.2s ease;
+.card{
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    border-left: 4px solid #0F172B;
+    transition: 0.3s ease;
 }
 
-.admin-stat-card:hover{
-    transform: translateY(-2px);
+.card:hover{
+    transform: translateY(-4px);
 }
 
-.admin-stat-card h4{
-    font-size: 13px;
+.card h5{
     color: #64748b;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    font-size: 12px;
 }
 
-.admin-stat-card strong{
-    font-size: 18px;
-    color: #0f172a;
+.card p{
+    font-size: 22px;
+    font-weight: bold;
+    color: #0F172B;
 }
 
-/* PANELS */
-.admin-panel{
-    margin-top: 25px;
-    background: #ffffff;
-    padding: 18px;
-    border-radius: 14px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-    border: 1px solid #eef2f7;
+/* =========================
+   QUICK ACTIONS
+========================= */
+
+.quick-actions{
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-/* PANEL HEADER */
-.admin-panel-header{
+.quick-actions a{
+    background: white;
+    padding: 11px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #0F172B;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    transition: 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.quick-actions a:hover{
+    background: #0F172B;
+    color: white;
+}
+
+/* =========================
+   TITLES
+========================= */
+
+.section-title-row{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 6px;
 }
 
-.admin-panel-header h3{
-    font-size: 16px;
-    color: #0f172a;
+.section-title{
+    color: #0F172B;
+    font-size: 20px;
 }
 
-/* LINK */
-.admin-link{
-    font-size: 13px;
-    color: #f54900;
+.table-list-tag{
+    color: #0F172B;
     text-decoration: none;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 800;
+    border-bottom: 2px solid #0F172B;
+    padding-bottom: 2px;
 }
 
-.admin-link:hover{
-    text-decoration: underline;
+.table-list-tag:hover{
+    color: #2563eb;
+    border-color: #2563eb;
 }
 
-/* TABLE */
-.admin-table{
+/* =========================
+   TABLES (EXACT STOCK STYLE)
+========================= */
+
+.table-container{
+    width: 100%;
+    overflow-x: auto;
+}
+
+table{
     width: 100%;
     border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    min-width: 700px;
 }
 
-.admin-table th{
+th{
+    background: #e2e8f0;
+    color: #0F172B;
+    padding: 14px;
     text-align: left;
     font-size: 13px;
-    color: #64748b;
-    padding: 10px;
-    border-bottom: 1px solid #eef2f7;
 }
 
-.admin-table td{
-    padding: 10px;
-    font-size: 14px;
-    border-bottom: 1px solid #f1f5f9;
-    color: #0f172a;
+td{
+    padding: 14px;
+    border-bottom: 1px solid #eee;
+    color: #334155;
+    font-size: 13px;
 }
 
-/* LOW STOCK NOTE */
-.admin-note p{
-    padding: 8px 0;
-    font-size: 14px;
+tr:nth-child(even){
+    background: #f8fafc;
 }
 
-.danger{
-    color: #dc2626;
-    font-weight: 600;
+tr:hover{
+    background: #eaf2ff;
 }
 
-.ok{
-    color: #16a34a;
-    font-weight: 600;
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px){
+    .cards{
+        grid-template-columns: 1fr;
+    }
+
+    .quick-actions{
+        flex-direction: column;
+    }
 }
+
 </style>
 
 <div class="admin-shell">
 
     <!-- HEADER -->
     <div class="admin-page-header">
-        <h1>Admin Dashboard</h1>
-        <p>Overview of business performance and activity.</p>
+        <h2>Admin Dashboard</h2>
+        <p>Overview of business performance and system activity</p>
     </div>
 
-    <!-- STATS -->
-    <div class="admin-stat-grid">
+    <!-- CARDS -->
+    <div class="cards">
 
-        <div class="admin-stat-card">
-            <h4>Sales Today</h4>
-            <strong>UGX {{ sales_total|floatformat:0|intcomma }}</strong>
+        <div class="card">
+            <h5>Total Revenue</h5>
+            <p>UGX {{ total_revenue|floatformat:0|intcomma }}</p>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Total Revenue</h4>
-            <strong>UGX {{ total_revenue|floatformat:0|intcomma }}</strong>
+        <div class="card">
+            <h5>Sales Today</h5>
+            <p>UGX {{ sales_total|floatformat:0|intcomma }}</p>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Outstanding Credit</h4>
-            <strong>UGX {{ total_credit|floatformat:0|intcomma }}</strong>
+        <div class="card">
+            <h5>Outstanding Credit</h5>
+            <p>UGX {{ total_credit|floatformat:0|intcomma }}</p>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Customers</h4>
-            <strong>{{ customer_count }}</strong>
+        <div class="card">
+            <h5>Customers</h5>
+            <p>{{ customer_count }}</p>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Stock Items</h4>
-            <strong>{{ stock_count }}</strong>
+        <div class="card">
+            <h5>Stock Items</h5>
+            <p>{{ stock_count }}</p>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Low Stock</h4>
-            <strong>{{ low_stock_count }}</strong>
+        <div class="card">
+            <h5>Low Stock</h5>
+            <p>{{ low_stock_count }}</p>
         </div>
+
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions">
+
+        <a href="{% url 'sales_list' %}">
+            Sales
+        </a>
+
+        <a href="{% url 'product_list' %}">
+            Products
+        </a>
+
+        <a href="{% url 'stock' %}">
+            Stock
+        </a>
+
+        <a href="{% url 'supplier_dashboard' %}">
+            Suppliers
+        </a>
 
     </div>
 
     <!-- RECENT SALES -->
-    <div class="admin-panel">
+    <div class="section-title-row">
+        <h3 class="section-title">Recent Sales</h3>
+        <a href="{% url 'sales_list' %}" class="table-list-tag">View All</a>
+    </div>
 
-        <div class="admin-panel-header">
-            <h3>Recent Sales</h3>
-            <a href="{% url 'sales_list' %}" class="admin-link">View All</a>
-        </div>
-
-        <table class="admin-table">
+    <div class="table-container">
+        <table>
             <thead>
                 <tr>
                     <th>Receipt</th>
@@ -209,57 +282,40 @@
                 {% endfor %}
             </tbody>
         </table>
-
     </div>
 
-    <!-- TOP PRODUCTS -->
-    <div class="admin-panel">
+    <!-- LOW STOCK -->
+    <div class="section-title-row">
+        <h3 class="section-title">Low Stock Alerts</h3>
+        <a href="{% url 'low_stock_items' %}" class="table-list-tag">View List</a>
+    </div>
 
-        <div class="admin-panel-header">
-            <h3>Top Products</h3>
-            <a href="{% url 'product_list' %}" class="admin-link">View Products</a>
-        </div>
-
-        <table class="admin-table">
+    <div class="table-container">
+        <table>
             <thead>
                 <tr>
                     <th>Product</th>
-                    <th>Qty Sold</th>
+                    <th>Qty</th>
+                    <th>Reorder Level</th>
+                    <th>Value</th>
                 </tr>
             </thead>
 
             <tbody>
-                {% for item in top_products %}
+                {% for product in low_stock_products %}
                 <tr>
-                    <td>{{ item.name__name }}</td>
-                    <td>{{ item.total_qty }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.stock_quantity }}</td>
+                    <td>{{ product.reorder_level }}</td>
+                    <td>UGX {{ product.stock_value|floatformat:0|intcomma }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="2">No data yet</td>
+                    <td colspan="4">All stock levels are healthy</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-    </div>
-
-    <!-- LOW STOCK -->
-    <div class="admin-panel admin-note">
-
-        <div class="admin-panel-header">
-            <h3>Low Stock Alerts</h3>
-        </div>
-
-        {% for product in low_stock_products %}
-            <p>
-                <strong>{{ product.name }}</strong>
-                <span class="danger">({{ product.stock_quantity }} left)</span>
-            </p>
-        {% empty %}
-            <p class="ok">All stock levels are healthy.</p>
-        {% endfor %}
-
     </div>
 
 </div>

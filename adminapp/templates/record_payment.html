@@ -7,98 +7,210 @@ Record Supplier Payment | Nyondo Hardware
 
 {% block extra_css %}
 <style>
-    .admin-form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 16px;
-    }
 
-    .admin-form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
+/* PAGE WRAPPER */
+.page-shell{
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
 
-    .admin-form-group label {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #0f172b;
-    }
+/* HEADER */
+.page-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
 
-    .admin-form-group input,
-    .admin-form-group textarea {
-        width: 100%;
-        padding: 12px 14px;
-        border: 1px solid #cbd5e1;
-        border-radius: 10px;
-        font-size: 0.95rem;
-        box-sizing: border-box;
-    }
+.page-header h1{
+    font-size: 26px;
+    color: #0F172B;
+}
 
-    .summary-card {
-        margin: 18px 0;
-        padding: 18px;
-        border-radius: 14px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        display: grid;
-        gap: 10px;
-    }
+.page-header p{
+    font-size: 14px;
+    color: #64748b;
+    margin-top: 4px;
+}
 
-    .summary-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 16px;
-    }
+/* PANEL */
+.admin-panel{
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid #eef2f7;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
 
-    .summary-row span {
-        color: #64748b;
-    }
+/* SUMMARY CARD */
+.summary-card{
+    display: grid;
+    gap: 10px;
+    padding: 18px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 18px;
+}
 
-    .summary-row strong {
-        color: #0f172b;
-        font-size: 1rem;
-    }
+.summary-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
 
-    .button-row {
-        display: flex;
-        gap: 12px;
-        margin-top: 18px;
-        flex-wrap: wrap;
-    }
+.summary-row span{
+    color: #64748b;
+    font-size: 14px;
+}
+
+.summary-row strong{
+    color: #0F172B;
+    font-size: 15px;
+}
+
+/* FORM GRID */
+.admin-form-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+/* FORM GROUP */
+.admin-form-group{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-form-group label{
+    font-size: 14px;
+    font-weight: 700;
+    color: #0F172B;
+}
+
+/* INPUTS */
+input, select{
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+/* ✅ FIXED TEXTAREA (COMMENT BOX) */
+textarea{
+    width: 100% !important;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+
+    height: 90px !important;
+    min-height: 90px !important;
+    max-height: 140px !important;
+
+    resize: vertical;
+    outline: none;
+}
+
+/* FOCUS STATES */
+input:focus,
+select:focus,
+textarea:focus{
+    border-color: #0F172B;
+    box-shadow: 0 0 0 2px rgba(15, 23, 43, 0.1);
+}
+
+/* BUTTON ROW */
+.button-row{
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}
+
+/* PRIMARY BUTTON */
+.admin-btn-primary{
+    background: #0F172B;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-btn-primary:hover{
+    background: #1e293b;
+}
+
+/* SECONDARY BUTTON */
+.admin-btn-secondary{
+    background: #e2e8f0;
+    color: #0F172B;
+    padding: 12px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.admin-btn-secondary:hover{
+    background: #cbd5e1;
+}
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="admin-shell">
-    <div class="admin-page-header">
+
+<div class="page-shell">
+
+    <!-- HEADER -->
+    <div class="page-header">
         <div>
             <h1>Record Supplier Payment</h1>
-            <p>Add a payment against the supplier balance and update the record instantly.</p>
+            <p>Update supplier balance and track payment history</p>
         </div>
-        <a href="{% url 'view_supplier' supplier.id %}" class="admin-btn-secondary">Back</a>
+
+        <a href="{% url 'view_supplier' supplier.id %}" class="admin-btn-secondary">
+            Back
+        </a>
     </div>
 
+    <!-- PANEL -->
     <div class="admin-panel">
+
+        <!-- SUMMARY -->
         <div class="summary-card">
+
             <div class="summary-row">
                 <span>Supplier</span>
                 <strong>{{ supplier.name }}</strong>
             </div>
+
             <div class="summary-row">
                 <span>Outstanding Credit</span>
-                <strong class="money-value">UGX {{ supplier.outstanding_credit|default:0|floatformat:0|intcomma }}</strong>
+                <strong>UGX {{ supplier.outstanding_credit|default:0|floatformat:0|intcomma }}</strong>
             </div>
+
             <div class="summary-row">
-                <span>Total Paid To Date</span>
-                <strong class="money-value">UGX {{ supplier.amount_paid|default:0|floatformat:0|intcomma }}</strong>
+                <span>Total Paid</span>
+                <strong>UGX {{ supplier.amount_paid|default:0|floatformat:0|intcomma }}</strong>
             </div>
+
         </div>
 
+        <!-- FORM -->
         <form method="POST">
             {% csrf_token %}
 
             <div class="admin-form-grid">
+
                 <div class="admin-form-group">
                     <label>Amount Paid</label>
                     {{ form.amount_paid }}
@@ -108,13 +220,18 @@ Record Supplier Payment | Nyondo Hardware
                     <label>Comment</label>
                     {{ form.comment }}
                 </div>
+
             </div>
 
             <div class="button-row">
                 <button type="submit" class="admin-btn-primary">Save Payment</button>
                 <a href="{% url 'view_supplier' supplier.id %}" class="admin-btn-secondary">Cancel</a>
             </div>
+
         </form>
+
     </div>
+
 </div>
+
 {% endblock %}

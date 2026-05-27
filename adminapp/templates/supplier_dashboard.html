@@ -2,91 +2,329 @@
 {% load humanize %}
 
 {% block title %}
-Supplier Management
+Supplier Management | Nyondo Hardware
 {% endblock %}
 
 {% block content %}
-<div class="admin-shell">
-    <div class="admin-page-header">
+
+<style>
+
+/* =========================
+   PAGE LAYOUT (same as stock)
+========================= */
+
+.page-shell{
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.page-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.page-header h2{
+    color: #0F172B;
+    margin-bottom: 6px;
+    font-size: 28px;
+}
+
+.page-header p{
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* ADD BUTTON */
+.add-btn{
+    background: #0F172B;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.add-btn:hover{
+    background: #1e293b;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.cards{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.card{
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+
+    /* SAME STYLE AS STOCK (important) */
+    border-left: 4px solid #0F172B;
+
+    margin-top: 10px; /* 👈 your requested top spacing */
+    transition: 0.3s ease;
+}
+
+.card:hover{
+    transform: translateY(-4px);
+}
+
+.card h5{
+    color: #64748b;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+.card p{
+    font-size: 22px;
+    font-weight: bold;
+    color: #0F172B;
+}
+
+/* =========================
+   TABLE SECTION
+========================= */
+
+.section-title-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.section-title{
+    color: #0F172B;
+    font-size: 20px;
+}
+
+.table-list-tag{
+    color: #0F172B;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+    border-bottom: 2px solid #0F172B;
+    padding-bottom: 2px;
+}
+
+.table-list-tag:hover{
+    color: #2563eb;
+    border-color: #2563eb;
+}
+
+.table-container{
+    width: 100%;
+    overflow-x: auto;
+}
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    min-width: 800px;
+}
+
+th{
+    background: #e2e8f0;
+    color: #0F172B;
+    padding: 14px;
+    text-align: left;
+    font-size: 13px;
+}
+
+td{
+    padding: 14px;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+    color: #334155;
+}
+
+tr:nth-child(even){
+    background: #f8fafc;
+}
+
+tr:hover{
+    background: #eaf2ff;
+}
+
+/* =========================
+   BADGES
+========================= */
+
+.badge{
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badge-pending{
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.badge-partial{
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.badge-paid{
+    background: #ecfdf5;
+    color: #047857;
+}
+
+/* =========================
+   ACTION LINKS
+========================= */
+
+.actions a{
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 10px;
+    color: #0F172B;
+}
+
+.actions a:hover{
+    color: #2563eb;
+}
+
+/* =========================
+   BACKGROUND TOUCH (your request)
+========================= */
+
+body{
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+}
+
+</style>
+
+
+<div class="page-shell">
+
+    <!-- HEADER -->
+    <div class="page-header">
+
         <div>
-            <h1>Supplier Management</h1>
-            <p>Track supplier accounts, credit status, and payment progress in one place.</p>
+            <h2>Supplier Management</h2>
+            <p>Track supplier accounts, credit status, and payments</p>
         </div>
-        <a href="{% url 'add_supplier' %}" class="admin-btn-primary">Add New Supplier</a>
+
+        <a href="{% url 'add_supplier' %}" class="add-btn">
+            <i class="fas fa-plus"></i>
+            Add Supplier
+        </a>
+
     </div>
 
-    <div class="admin-stat-grid">
-        <div class="admin-stat-card">
-            <h4>Active Suppliers</h4>
-            <strong>{{ total_suppliers }}</strong>
+    <!-- CARDS -->
+    <div class="cards">
+
+        <div class="card">
+            <h5>Active Suppliers</h5>
+            <p>{{ total_suppliers }}</p>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Pending Credit Orders</h4>
-            <strong>{{ pending_credit }}</strong>
+        <div class="card">
+            <h5>Pending Credit</h5>
+            <p>{{ pending_credit }}</p>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Total Outstanding Credit</h4>
-            <strong>UGX {{ total_credit|floatformat:0|intcomma }}</strong>
+        <div class="card">
+            <h5>Total Credit</h5>
+            <p>UGX {{ total_credit|floatformat:0|intcomma }}</p>
         </div>
+
     </div>
 
-    <div class="admin-panel">
-        <div class="admin-panel-header">
-            <h3>Supplier List</h3>
-            <a href="{% url 'supplier_dashboard' %}" class="admin-list-tag">View Supplier List</a>
-        </div>
-        <table class="admin-table">
+    <!-- TABLE TITLE -->
+    <div class="section-title-row">
+        <h3 class="section-title">Supplier List</h3>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-container">
+
+        <table>
+
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Supplier Name</th>
-                    <th>Address</th>
+                    <th>Name</th>
                     <th>Contact</th>
                     <th>Email</th>
                     <th>Category</th>
-                    <th>Outstanding Credit</th>
+                    <th>Credit</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
+
             <tbody>
+
                 {% for supplier in suppliers %}
                 <tr>
+
                     <td>{{ supplier.id }}</td>
                     <td>{{ supplier.name }}</td>
-                    <td>{{ supplier.address }}</td>
                     <td>{{ supplier.contact }}</td>
                     <td>{{ supplier.email }}</td>
                     <td>{{ supplier.category }}</td>
                     <td>UGX {{ supplier.outstanding_credit|floatformat:0|intcomma }}</td>
+
                     <td>
                         {% if supplier.status == 'Pending' %}
-                            <span class="admin-badge admin-badge--pending">Pending</span>
+                            <span class="badge badge-pending">Pending</span>
                         {% elif supplier.status == 'Partial' %}
-                            <span class="admin-badge admin-badge--partial">Partial</span>
+                            <span class="badge badge-partial">Partial</span>
                         {% else %}
-                            <span class="admin-badge admin-badge--completed">Paid</span>
+                            <span class="badge badge-paid">Paid</span>
                         {% endif %}
                     </td>
-                    <td>
-                        <div class="admin-actions">
-                            <a href="{% url 'view_supplier' supplier.id %}">View</a>
-                            <a href="{% url 'edit_supplier' supplier.id %}">Edit</a>
-                            <a href="{% url 'record_payment' supplier.id %}">Payment</a>
-                        </div>
+
+                    <td class="actions">
+                        <a href="{% url 'view_supplier' supplier.id %}">View</a>
+                        <a href="{% url 'edit_supplier' supplier.id %}">Edit</a>
+                        <a href="{% url 'record_payment' supplier.id %}">Pay</a>
                     </td>
+
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="9" style="text-align:center; padding:28px; color:#64748b;">
-                        No suppliers found yet.
-                    </td>
+                    <td colspan="8">No suppliers found</td>
                 </tr>
                 {% endfor %}
+
             </tbody>
+
         </table>
+
     </div>
+
 </div>
+
 {% endblock %}

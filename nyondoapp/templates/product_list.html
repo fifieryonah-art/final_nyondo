@@ -1,156 +1,104 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block title %}
-    Product List | Nyondo Hardware
+Product List | Nyondo Hardware
 {% endblock %}
 
 {% block extra_css %}
-
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
 <link rel="stylesheet" href="{% static 'css/product_list.css' %}">
-
 {% endblock %}
-
 
 {% block content %}
 
-<!-- HEADER -->
+<div class="page-shell">
 
-<div class="top-section">
+    <!-- HEADER -->
+    <div class="page-header">
 
-    <div>
+        <div>
+            <h2>
+                <i class="fas fa-boxes-stacked"></i>
+                Products
+            </h2>
+            <p>Manage all hardware products</p>
+        </div>
 
-        <h2>
-            <i class="fas fa-boxes-stacked"></i>
-            Products
-        </h2>
-
-        <p>Manage all hardware products</p>
+        <a href="{% url 'add_product' %}" class="btn-add">
+            <i class="fas fa-plus"></i>
+            Add Product
+        </a>
 
     </div>
 
-    <a href="{% url 'add_product' %}"
-       class="btn-add">
+    <!-- TABLE -->
+    <div class="table-container">
 
-        <i class="fas fa-plus"></i>
+        <table>
 
-        Add Product
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Qty</th>
+                    <th>Cost</th>
+                    <th>Selling</th>
+                    <th>Profit</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
 
-    </a>
+            <tbody>
 
-</div>
+                {% for product in products %}
+                <tr>
 
-<!-- TABLE -->
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.type }}</td>
+                    <td>{{ product.stock_quantity }}</td>
+                    <td>{{ product.cost_price }}</td>
+                    <td>{{ product.unit_price }}</td>
+                    <td>{{ product.profit_margin }}</td>
 
-<div class="table-container">
+                    <td>
+                        {% if product.stock_quantity == 0 %}
+                            <span class="status-out">Out of Stock</span>
+                        {% elif product.stock_quantity < product.reorder_level %}
+                            <span class="status-warning">Low Stock</span>
+                        {% else %}
+                            <span class="status-good">Available</span>
+                        {% endif %}
+                    </td>
 
-    <table>
+                    <td class="action">
 
-        <thead>
+                        <a href="{% url 'update_product' product.pk %}" class="btn-edit">
+                            <i class="fas fa-pen"></i>
+                            Edit
+                        </a>
 
-            <tr>
+                        <a href="{% url 'delete_product' product.id %}" class="btn-delete">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </a>
 
-                <th>ID</th>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Quantity</th>
-                <th>Cost Price</th>
-                <th>Selling Price</th>
-                <th>Profit</th>
-                <th>Status</th>
-                <th>Actions</th>
+                    </td>
 
-            </tr>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9">No products found</td>
+                </tr>
+                {% endfor %}
 
-        </thead>
+            </tbody>
 
-        <tbody>
+        </table>
 
-            {% for product in products %}
-
-            <tr>
-
-                <td>{{ product.id }}</td>
-
-                <td>{{ product.name }}</td>
-
-                <td>{{ product.type }}</td>
-
-                <td>{{ product.stock_quantity }}</td>
-
-                <td>{{ product.cost_price }}</td>
-
-                <td>{{ product.unit_price }}</td>
-
-                <td>{{ product.profit_margin }}</td>
-
-                <td>
-
-                    {% if product.stock_quantity == 0 %}
-
-                        <span class="status-out">
-                            Out of Stock
-                        </span>
-
-                    {% elif product.stock_quantity < product.reorder_level %}
-
-                        <span class="status-warning">
-                            Low Stock
-                        </span>
-
-                    {% else %}
-
-                        <span class="status-good">
-                            Available
-                        </span>
-
-                    {% endif %}
-
-                </td>
-
-                <td class="action">
-
-                    <a href="{% url 'delete_product' product.id %}"
-                       class="btn-delete">
-
-                        <i class="fas fa-trash"></i>
-
-                        Delete
-
-                    </a>
-
-                    <a href="{% url 'update_product' product.pk %}"
-                       class="btn-edit">
-
-                        <i class="fas fa-pen"></i>
-
-                        Edit
-
-                    </a>
-
-                </td>
-
-            </tr>
-
-            {% empty %}
-
-            <tr>
-
-                <td colspan="9">
-                    No products found
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
+    </div>
 
 </div>
 
