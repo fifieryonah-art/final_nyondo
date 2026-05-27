@@ -1,0 +1,465 @@
+<!-- low_stock_items.html -->
+
+<!DOCTYPE html>
+
+{% load humanize %}
+{% load static %}
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Low Stock Alerts | Nyondo Hardware
+    </title>
+
+    <!-- FONT AWESOME -->
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Segoe UI', sans-serif;
+        }
+
+        body{
+
+            background:#f1f5f9;
+            min-height:100vh;
+            padding:40px 20px;
+        }
+
+        .page-wrapper{
+
+            max-width:1200px;
+            margin:auto;
+        }
+
+        /* HEADER */
+
+        .page-header{
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+
+            margin-bottom:30px;
+            gap:20px;
+        }
+
+        .header-left{
+
+            display:flex;
+            align-items:center;
+            gap:16px;
+        }
+
+        .header-icon{
+
+            width:60px;
+            height:60px;
+
+            border-radius:18px;
+
+            background:#0f172a;
+            color:white;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            font-size:24px;
+        }
+
+        .header-text h1{
+
+            font-size:28px;
+            color:#0f172a;
+            margin-bottom:5px;
+        }
+
+        .header-text p{
+
+            color:#64748b;
+            font-size:15px;
+        }
+
+        /* BUTTON */
+
+        .back-btn{
+
+            text-decoration:none;
+
+            background:#0f172a;
+            color:white;
+
+            padding:12px 18px;
+
+            border-radius:12px;
+
+            font-weight:600;
+
+            transition:0.3s ease;
+        }
+
+        .back-btn:hover{
+
+            transform:translateY(-2px);
+        }
+
+        /* CARD */
+
+        .table-card{
+
+            background:white;
+
+            border-radius:24px;
+
+            padding:25px;
+
+            box-shadow:
+            0 10px 30px rgba(0,0,0,0.06);
+        }
+
+        /* TITLE */
+
+        .table-top{
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+
+            margin-bottom:20px;
+            gap:15px;
+        }
+
+        .table-title{
+
+            font-size:22px;
+            color:#0f172a;
+            font-weight:700;
+        }
+
+        .alert-badge{
+
+            background:#fee2e2;
+            color:#991b1b;
+
+            padding:10px 16px;
+
+            border-radius:999px;
+
+            font-weight:700;
+            font-size:14px;
+        }
+
+        /* TABLE */
+
+        .table-container{
+
+            overflow-x:auto;
+        }
+
+        table{
+
+            width:100%;
+            border-collapse:collapse;
+            min-width:700px;
+        }
+
+        thead{
+
+            background:#0f172a;
+        }
+
+        thead th{
+
+            color:white;
+
+            text-align:left;
+
+            padding:16px;
+
+            font-size:14px;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
+        }
+
+        tbody tr{
+
+            border-bottom:1px solid #e2e8f0;
+
+            transition:0.2s ease;
+        }
+
+        tbody tr:hover{
+
+            background:#f8fafc;
+        }
+
+        tbody td{
+
+            padding:18px 16px;
+
+            color:#334155;
+            font-size:15px;
+        }
+
+        /* LOW STOCK TAG */
+
+        .stock-danger{
+
+            background:#fee2e2;
+            color:#b91c1c;
+
+            padding:8px 14px;
+
+            border-radius:999px;
+
+            font-size:13px;
+            font-weight:700;
+
+            display:inline-block;
+        }
+
+        /* EMPTY */
+
+        .empty-state{
+
+            text-align:center;
+            padding:50px 20px;
+        }
+
+        .empty-state i{
+
+            font-size:60px;
+            color:#94a3b8;
+
+            margin-bottom:15px;
+        }
+
+        .empty-state h3{
+
+            color:#0f172a;
+            margin-bottom:10px;
+        }
+
+        .empty-state p{
+
+            color:#64748b;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width:768px){
+
+            .page-header{
+
+                flex-direction:column;
+                align-items:flex-start;
+            }
+
+            .table-card{
+
+                padding:18px;
+            }
+
+            .table-title{
+
+                font-size:18px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <!-- PAGE HEADER -->
+
+    <div class="page-header">
+
+        <div class="header-left">
+
+            <div class="header-icon">
+                <i class="fas fa-triangle-exclamation"></i>
+            </div>
+
+            <div class="header-text">
+
+                <h1>
+                    Low Stock Alerts
+                </h1>
+
+                <p>
+                    Products that need restocking soon
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- BACK BUTTON -->
+
+        <a href="{% url 'stock' %}"
+           class="back-btn">
+
+            <i class="fas fa-arrow-left"></i>
+
+            Back To Stock
+
+        </a>
+
+    </div>
+
+    <!-- TABLE CARD -->
+
+    <div class="table-card">
+
+        <div class="table-top">
+
+            <h2 class="table-title">
+                Low Stock Product List
+            </h2>
+
+            <div class="alert-badge">
+
+                {{ low_stock_items|length }}
+                Alert{{ low_stock_items|length|pluralize }}
+
+            </div>
+
+        </div>
+
+        <!-- TABLE -->
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Product</th>
+
+                        <th>Available Qty</th>
+
+                        <th>Reorder Level</th>
+
+                        <th>Stock Value</th>
+
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for product in low_stock_items %}
+
+                    <tr>
+
+                        <!-- PRODUCT -->
+
+                        <td>
+
+                            {{ product.name }}
+
+                        </td>
+
+                        <!-- AVAILABLE -->
+
+                        <td>
+
+                            {{ product.stock_quantity|intcomma }}
+
+                        </td>
+
+                        <!-- REORDER -->
+
+                        <td>
+
+                            {{ product.reorder_level|intcomma }}
+
+                        </td>
+
+                        <!-- VALUE -->
+
+                        <td>
+
+                            UGX
+                            {{ product.stock_value|floatformat:0|intcomma }}
+
+                        </td>
+
+                        <!-- STATUS -->
+
+                        <td>
+
+                            <span class="stock-danger">
+
+                                Low Stock
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="5">
+
+                            <div class="empty-state">
+
+                                <i class="fas fa-circle-check"></i>
+
+                                <h3>
+                                    All Products Well Stocked
+                                </h3>
+
+                                <p>
+                                    No low stock items found
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

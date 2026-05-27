@@ -1,17 +1,149 @@
-{% extends 'admin_base.html' %}
+{% extends 'base.html' %}
 {% load humanize %}
+
+{% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
 
+<style>
+
+
+.admin-shell{
+    padding: 25px;
+}
+
+/* HEADER */
+.admin-page-header{
+    margin-bottom: 20px;
+}
+
+.admin-page-header h1{
+    font-size: 24px;
+    color: #0f172a;
+}
+
+.admin-page-header p{
+    color: #64748b;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* STATS GRID */
+.admin-stat-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.admin-stat-card{
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    border: 1px solid #eef2f7;
+    transition: 0.2s ease;
+}
+
+.admin-stat-card:hover{
+    transform: translateY(-2px);
+}
+
+.admin-stat-card h4{
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.admin-stat-card strong{
+    font-size: 18px;
+    color: #0f172a;
+}
+
+/* PANELS */
+.admin-panel{
+    margin-top: 25px;
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    border: 1px solid #eef2f7;
+}
+
+/* PANEL HEADER */
+.admin-panel-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.admin-panel-header h3{
+    font-size: 16px;
+    color: #0f172a;
+}
+
+/* LINK */
+.admin-link{
+    font-size: 13px;
+    color: #f54900;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.admin-link:hover{
+    text-decoration: underline;
+}
+
+/* TABLE */
+.admin-table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th{
+    text-align: left;
+    font-size: 13px;
+    color: #64748b;
+    padding: 10px;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.admin-table td{
+    padding: 10px;
+    font-size: 14px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #0f172a;
+}
+
+/* LOW STOCK NOTE */
+.admin-note p{
+    padding: 8px 0;
+    font-size: 14px;
+}
+
+.danger{
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.ok{
+    color: #16a34a;
+    font-weight: 600;
+}
+</style>
+
 <div class="admin-shell">
+
+    <!-- HEADER -->
     <div class="admin-page-header">
-        <div>
-            <h1>Admin Dashboard</h1>
-            <p>Review the latest business activity in one consistent view.</p>
-        </div>
+        <h1>Admin Dashboard</h1>
+        <p>Overview of business performance and activity.</p>
     </div>
 
+    <!-- STATS -->
     <div class="admin-stat-grid">
+
         <div class="admin-stat-card">
             <h4>Sales Today</h4>
             <strong>UGX {{ sales_total|floatformat:0|intcomma }}</strong>
@@ -38,16 +170,20 @@
         </div>
 
         <div class="admin-stat-card">
-            <h4>Low Stock Items</h4>
+            <h4>Low Stock</h4>
             <strong>{{ low_stock_count }}</strong>
         </div>
+
     </div>
 
+    <!-- RECENT SALES -->
     <div class="admin-panel">
+
         <div class="admin-panel-header">
             <h3>Recent Sales</h3>
-            <a href="{% url 'sales_list' %}" class="admin-list-tag">View Sales List</a>
+            <a href="{% url 'sales_list' %}" class="admin-link">View All</a>
         </div>
+
         <table class="admin-table">
             <thead>
                 <tr>
@@ -57,12 +193,13 @@
                     <th>Date</th>
                 </tr>
             </thead>
+
             <tbody>
                 {% for sale in recent_sales %}
                 <tr>
                     <td>{{ sale.receipt_number }}</td>
                     <td>{{ sale.customer_name }}</td>
-                    <td>{{ sale.final_amount }}</td>
+                    <td>UGX {{ sale.final_amount|floatformat:0|intcomma }}</td>
                     <td>{{ sale.date }}</td>
                 </tr>
                 {% empty %}
@@ -72,20 +209,25 @@
                 {% endfor %}
             </tbody>
         </table>
+
     </div>
 
+    <!-- TOP PRODUCTS -->
     <div class="admin-panel">
+
         <div class="admin-panel-header">
-            <h3>Top Selling Products</h3>
-            <a href="{% url 'product_list' %}" class="admin-list-tag">View Product List</a>
+            <h3>Top Products</h3>
+            <a href="{% url 'product_list' %}" class="admin-link">View Products</a>
         </div>
+
         <table class="admin-table">
             <thead>
                 <tr>
                     <th>Product</th>
-                    <th>Quantity Sold</th>
+                    <th>Qty Sold</th>
                 </tr>
             </thead>
+
             <tbody>
                 {% for item in top_products %}
                 <tr>
@@ -99,19 +241,27 @@
                 {% endfor %}
             </tbody>
         </table>
+
     </div>
 
+    <!-- LOW STOCK -->
     <div class="admin-panel admin-note">
+
         <div class="admin-panel-header">
             <h3>Low Stock Alerts</h3>
-            <a href="{% url 'product_list' %}" class="admin-list-tag">View Product List</a>
         </div>
+
         {% for product in low_stock_products %}
-            <p><strong>{{ product.name }}</strong> ({{ product.stock_quantity }} left)</p>
+            <p>
+                <strong>{{ product.name }}</strong>
+                <span class="danger">({{ product.stock_quantity }} left)</span>
+            </p>
         {% empty %}
-            <p>All stock levels are fully stocked.</p>
+            <p class="ok">All stock levels are healthy.</p>
         {% endfor %}
+
     </div>
+
 </div>
 
 {% endblock %}

@@ -10,8 +10,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from nyondoapp.models import Employee
 from .forms import EmployeeCreationForm
+from nyondoapp.utils import role_required
+from nyondoapp.utils import (admin_required,manager_required,attendant_required,)
 
 
+@role_required(["attendant", "admin"])
 def _deposit_summary(deposit):
     payments_total = deposit.payments.aggregate(total=Sum("amount_paid"))["total"] or Decimal("0.00")
     saved_paid = deposit.amount_paid or Decimal("0.00")
@@ -33,7 +36,7 @@ def _deposit_summary(deposit):
         "status": status,
     }
 
-
+@role_required(["attendant", "admin"])
 def _attach_deposit_summary(deposit):
     summary = _deposit_summary(deposit)
     deposit.total_paid = summary["total_paid"]
@@ -43,6 +46,7 @@ def _attach_deposit_summary(deposit):
 
 
 # Create your views here.
+@role_required(["admin"])
 def admin_dash(request):
     today = date.today()
     sales_today = Sale.objects.filter(date__date=today)
@@ -80,9 +84,7 @@ def admin_dash(request):
 
     return render(request, "admin_dash.html", context)
 
-
-
-
+@role_required("admin")
 def create_employee(request):
 
     if request.method == "POST":
@@ -100,7 +102,7 @@ def create_employee(request):
 
 
 # employee list page
-
+@role_required(["admin"])
 def employee_list(request):
     employees = Employee.objects.all().order_by("-id")
 
@@ -108,7 +110,7 @@ def employee_list(request):
         "employees": employees
     })
 
-
+@role_required(["admin"])
 def edit_employee(request, pk):
 
     employee = get_object_or_404(Employee, pk=pk)
@@ -140,6 +142,7 @@ def edit_employee(request, pk):
         "employee": employee
     })
 
+@role_required(["admin"])
 def toggle_employee_status(request, pk):
 
     employee = get_object_or_404(Employee, pk=pk)
@@ -152,7 +155,7 @@ def toggle_employee_status(request, pk):
 
     return redirect('employee_list')
 
-
+@role_required(["admin"])
 def add_supplier(request):
 
     if request.method == "POST":
@@ -172,7 +175,7 @@ def add_supplier(request):
     return render(request, "add_supplier.html", context)
 
 
-
+@role_required(["manager", "admin"])
 def supplier_dashboard(request):
     suppliers = Supplier.objects.all()
     total_suppliers = suppliers.count()
@@ -189,7 +192,7 @@ def supplier_dashboard(request):
 
     return render(request, "supplier_dashboard.html", context)
 
-
+@role_required(["admin"])
 def edit_supplier(request, pk):
     supplier = get_object_or_404(Supplier, pk=pk)
     if request.method == "POST":
@@ -206,6 +209,7 @@ def edit_supplier(request, pk):
 
     return render( request,'edit_supplier.html',context)
 
+@role_required(["manager", "admin"])
 def view_supplier(request, pk):
 
     supplier = get_object_or_404(Supplier,pk=pk)
@@ -216,6 +220,7 @@ def view_supplier(request, pk):
 
     return render(request,'view_supplier.html', context)
 
+@role_required(["admin"])
 def delete_supplier(request, pk):
 
     supplier = get_object_or_404(Supplier,pk=pk)
@@ -232,6 +237,7 @@ def delete_supplier(request, pk):
 
     return render(request,'delete_supplier.html',context)
 
+@role_required(["attendant", "admin"])
 def record_payment(request, pk):
 
     supplier = get_object_or_404(Supplier, pk=pk)
@@ -275,7 +281,7 @@ def record_payment(request, pk):
         'supplier': supplier
     })
 
-
+@role_required(["attendant", "admin"])
 def deposit_dashboard(request):
 
     deposits = DepositScheme.objects.select_related("customer", "product").all()
@@ -315,7 +321,10 @@ def deposit_dashboard(request):
         "total_balance": total_balance_all,
     }
 
+ 
     return render(request, "deposit_dashboard.html", context)
+
+@role_required(["attendant", "admin"])
 def deposit_list(request):
 
     deposits = DepositScheme.objects.select_related("customer", "product").all()
@@ -343,7 +352,7 @@ def deposit_list(request):
         "deposit_rows": deposit_rows
     })
 
-
+@role_required(["attendant", "admin"])
 def add_deposit(request):
 
     customers = Customer.objects.all()
@@ -396,6 +405,7 @@ def add_deposit(request):
         "products": products
     })
 
+@role_required(["attendant", "admin"])
 def record_deposit(request, pk):
     scheme = get_object_or_404(DepositScheme, id=pk)
     _attach_deposit_summary(scheme)
@@ -435,6 +445,7 @@ def record_deposit(request, pk):
         "scheme": scheme
     })
 
+@role_required(["admin"])
 def edit_deposit(request, pk):
     deposit = get_object_or_404(DepositScheme, id=pk)
     _attach_deposit_summary(deposit)
@@ -452,6 +463,7 @@ def edit_deposit(request, pk):
 
     return render(request, "edit_deposit.html", {"deposit": deposit})
 
+@role_required(["admin"])
 def delete_deposit(request, pk):
     deposit = get_object_or_404(DepositScheme, id=pk)
 
@@ -461,6 +473,7 @@ def delete_deposit(request, pk):
 
     return render(request, "delete_deposit.html", {"deposit": deposit})
 
+@role_required(["attendant", "admin"])
 def view_deposit(request, pk):
 
     deposit = get_object_or_404(DepositScheme, id=pk)
@@ -484,7 +497,7 @@ def view_deposit(request, pk):
     return render(request, "view_deposit.html", context)
 
 
-
+@role_required(["admin"])
 def reports(request):
 
     period = request.GET.get('period', 'all')

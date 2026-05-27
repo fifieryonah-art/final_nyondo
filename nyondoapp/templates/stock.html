@@ -16,9 +16,9 @@ Stock Dashboard | Nyondo Hardware
 
 {% endblock %}
 
-{% block sidebar %}
+<!-- {% block sidebar %}
     {% include 'stocksidebar.html' %}
-{% endblock %}
+{% endblock %} -->
 
 {% block content %}
 
@@ -139,7 +139,7 @@ Stock Dashboard | Nyondo Hardware
         <h3 class="section-title">
             Low Stock Alerts
         </h3>
-        <a href="{% url 'stock_list' %}" class="table-list-tag">View Stock List</a>
+        <a href="{% url 'low_stock_items' %}" class="table-list-tag">View Low Stock List</a>
     </div>
 
     <div class="table-container">

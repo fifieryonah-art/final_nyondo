@@ -34,6 +34,7 @@ urlpatterns = [
     path('stock/delete/<int:pk>/', views.stock_delete, name='stock_delete'),
     path('stock_report/', views.stock_report, name='stock_report'),
     path('stock/suppliers/', views.stock_supplier_dashboard, name='stock_supplier_dashboard'),
+      path('low_stock_items/',views.low_stock_items,name='low_stock_items'),
     #product urls
     path('add_product/', views.add_product, name='add_product'),
     path('product_list/', views.product_list, name='product_list'),
