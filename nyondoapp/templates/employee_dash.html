@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% load static %}
 {% load humanize %}
 
@@ -14,26 +15,14 @@ Sales Dashboard | Nyondo Hardware
 <style>
 
 /* =========================
-   GLOBAL LAYOUT
+   PAGE LAYOUT
 ========================= */
 
-/* :root{
-    --sidebar-width: 260px;
-    --navbar-height: 60px;
-} */
-
-body{
-    background: #f4f6f9;
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-/* MAIN WRAPPER */
 .dashboard-container{
-    padding: 20px;
-    margin-left: var(--sidebar-width);
-    margin-top: var(--navbar-height);
-    width: calc(100% - var(--sidebar-width));
-    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
 }
 
 /* =========================
@@ -44,19 +33,19 @@ body{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 18px;
+    gap: 16px;
     flex-wrap: wrap;
-    gap: 10px;
 }
 
 .dashboard-header h2{
-    font-size: 26px;
-    color: #0f172a;
+    color: #0F172B;
+    margin-bottom: 6px;
+    font-size: 28px;
 }
 
 .dashboard-header p{
-    font-size: 14px;
     color: #64748b;
+    font-size: 14px;
 }
 
 /* =========================
@@ -64,19 +53,31 @@ body{
 ========================= */
 
 .add-btn{
-    background: #0f172a;
+    background: #0F172B;
     color: white;
-    padding: 10px 16px;
-    border-radius: 8px;
+
+    padding: 12px 20px;
+
+    border-radius: 10px;
+
     text-decoration: none;
-    display: flex;
+
+    font-weight: bold;
+
+    transition: 0.3s ease;
+
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: 0.3s;
+
+    white-space: nowrap;
+
+    box-shadow: 0 6px 18px rgba(15,23,43,0.12);
 }
 
 .add-btn:hover{
     background: #1e293b;
+    transform: translateY(-2px);
 }
 
 /* =========================
@@ -85,101 +86,160 @@ body{
 
 .cards{
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
 }
 
 .card{
-    background: #fff;
-    padding: 14px 16px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border-left: 4px solid #0f172a;
-    transition: 0.3s;
+    background: white;
+
+    padding: 18px;
+
+    border-radius: 14px;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+    border-left: 4px solid #0F172B;
+
+    transition: 0.3s ease;
+
+    position: relative;
+    overflow: hidden;
 }
 
 .card:hover{
-    transform: translateY(-3px);
+    transform: translateY(-4px);
+}
+
+.card::before{
+    content: "";
+
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    width: 90px;
+    height: 90px;
+
+    background: rgba(37,99,235,0.05);
+
+    border-radius: 50%;
+
+    transform: translate(30px, -30px);
 }
 
 .card-icon{
-    font-size: 20px;
+    width: 44px;
+    height: 44px;
+
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 14px;
+
+    font-size: 18px;
+}
+
+.sales-icon{
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.revenue-icon{
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.product-icon{
+    background: #ede9fe;
+    color: #7c3aed;
+}
+
+.lowstock-icon{
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.card h3{
+    color: #64748b;
+    font-size: 13px;
     margin-bottom: 8px;
 }
 
-.sales-icon i{ color: #2563eb; }
-.revenue-icon i{ color: #16a34a; }
-.product-icon i{ color: #9333ea; }
-.lowstock-icon i{ color: #dc2626; }
-
-.card h3{
-    font-size: 13px;
-    color: #64748b;
-}
-
 .card h1{
-    font-size: 20px;
-    color: #0f172a;
-}
-
-.card span{
-    font-size: 11px;
-    color: #94a3b8;
+    color: #0F172B;
+    font-size: 24px;
+    font-weight: 800;
 }
 
 /* =========================
-   TABLES
+   TABLE SECTIONS
 ========================= */
 
 .table-card{
-    background: #fff;
-    padding: 16px;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    margin-bottom: 20px;
-    overflow-x: auto;
+    background: white;
+
+    border-radius: 14px;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+    overflow: hidden;
 }
 
 .table-title{
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     gap: 12px;
+
     flex-wrap: wrap;
-    margin-bottom: 10px;
+
+    padding: 18px 20px;
+
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .table-title h4{
+    color: #0F172B;
     font-size: 18px;
-    color: #0f172a;
-    margin: 0;
 }
 
-.table-view-btn,
 .table-list-tag{
-    color: #0f172a;
+    color: #0F172B;
+
     text-decoration: none;
+
     font-size: 13px;
     font-weight: 800;
-    display: inline-flex;
-    align-items: center;
-    border-bottom: 2px solid #0f172a;
+
+    border-bottom: 2px solid #0F172B;
+
     padding-bottom: 2px;
+
     transition: 0.2s ease;
 }
 
-.table-view-btn:hover,
 .table-list-tag:hover{
     color: #2563eb;
     border-color: #2563eb;
 }
 
-/* TABLE STYLE */
+/* =========================
+   TABLES
+========================= */
+
+.table-wrapper{
+    overflow-x: auto;
+}
+
 table{
     width: 100%;
     border-collapse: collapse;
-    min-width: 900px;
+    min-width: 800px;
 }
 
 thead{
@@ -188,15 +248,26 @@ thead{
 
 thead th{
     text-align: left;
-    padding: 10px;
+
+    padding: 14px;
+
+    color: #0F172B;
+
     font-size: 13px;
+
+    white-space: nowrap;
 }
 
 tbody td{
-    padding: 10px;
-    font-size: 13px;
+    padding: 14px;
+
     border-bottom: 1px solid #eef2f7;
+
     color: #334155;
+
+    font-size: 13px;
+
+    white-space: nowrap;
 }
 
 tbody tr:nth-child(even){
@@ -211,53 +282,33 @@ tbody tr:hover{
    STATUS
 ========================= */
 
-.status-good{
-    background: #dcfce7;
-    color: #166534;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-}
-
 .status-low{
     background: #fee2e2;
     color: #991b1b;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-}
 
-.status-pending{
-    background: #e2e8f0;
-    color: #334155;
-    padding: 4px 10px;
+    padding: 5px 12px;
+
     border-radius: 20px;
+
     font-size: 11px;
+    font-weight: 700;
 }
 
 /* =========================
    RESPONSIVE
 ========================= */
 
-@media(max-width: 1200px){
-    .cards{
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media(max-width: 700px){
-    .cards{
-        grid-template-columns: 1fr;
-    }
-
-    .dashboard-container{
-        margin-left: 0;
-    }
+@media (max-width: 768px){
 
     .dashboard-header{
         flex-direction: column;
         align-items: flex-start;
     }
+
+    .cards{
+        grid-template-columns: 1fr;
+    }
+
 }
 
 </style>
@@ -270,180 +321,320 @@ tbody tr:hover{
 <div class="dashboard-container">
 
     <!-- HEADER -->
+
     <div class="dashboard-header">
+
         <div>
-            <h2><i class="fas fa-chart-line"></i> Sales Dashboard</h2>
-            <p>Full overview of sales, inventory, revenue & performance</p>
+
+            <h2>
+                <i class="fas fa-chart-line"></i>
+                Sales Dashboard
+            </h2>
+
+            <p>
+                Full overview of sales, revenue, products and inventory performance
+            </p>
+
         </div>
 
         <a href="{% url 'add_sales' %}" class="add-btn">
-            <i class="fas fa-plus"></i> New Sale
+
+            <i class="fas fa-plus"></i>
+
+            New Sale
+
         </a>
+
     </div>
 
-    <!-- KPI CARDS (MERGED CLEANLY) -->
+    <!-- KPI CARDS -->
+
     <div class="cards">
 
         <div class="card">
+
             <div class="card-icon sales-icon">
                 <i class="fas fa-chart-line"></i>
             </div>
+
             <h3>Total Sales</h3>
+
             <h1>{{ total_sales }}</h1>
+
         </div>
 
         <div class="card">
+
             <div class="card-icon revenue-icon">
                 <i class="fas fa-money-bill-wave"></i>
             </div>
-            <h3>Revenue</h3>
-            <h1>UGX {{ total_revenue|floatformat:0|intcomma }}</h1>
+
+            <h3>Total Revenue</h3>
+
+            <h1>
+                UGX {{ total_revenue|floatformat:0|intcomma }}
+            </h1>
+
         </div>
 
         <div class="card">
+
             <div class="card-icon product-icon">
                 <i class="fas fa-boxes-stacked"></i>
             </div>
+
             <h3>Products</h3>
+
             <h1>{{ products.count }}</h1>
+
         </div>
 
         <div class="card">
+
             <div class="card-icon lowstock-icon">
                 <i class="fas fa-triangle-exclamation"></i>
             </div>
+
             <h3>Low Stock</h3>
+
             <h1>{{ low_stock_count }}</h1>
+
         </div>
 
         <div class="card">
+
             <div class="card-icon sales-icon">
                 <i class="fas fa-cart-shopping"></i>
             </div>
+
             <h3>Items Sold</h3>
+
             <h1>{{ total_items_sold }}</h1>
+
         </div>
 
         <div class="card">
+
             <div class="card-icon revenue-icon">
                 <i class="fas fa-truck"></i>
             </div>
+
             <h3>Transport</h3>
+
             <h1>{{ transport_total }}</h1>
+
         </div>
 
         <div class="card">
+
             <div class="card-icon product-icon">
                 <i class="fas fa-hand-holding-dollar"></i>
             </div>
+
             <h3>Supplier Credit</h3>
+
             <h1>{{ supplier_credit }}</h1>
+
         </div>
 
         <div class="card">
+
             <div class="card-icon lowstock-icon">
                 <i class="fas fa-piggy-bank"></i>
             </div>
+
             <h3>Deposits</h3>
+
             <h1>{{ deposits }}</h1>
+
         </div>
 
     </div>
 
     <!-- RECENT SALES -->
+
     <div class="table-card">
+
         <div class="table-title">
+
             <h4>Recent Sales</h4>
+
             <a href="{% url 'sales_list' %}" class="table-list-tag">
                 View Sales List
             </a>
+
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Receipt</th>
-                    <th>Customer</th>
-                    <th>Product</th>
-                    <th>Qty</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for sale in recent_sales %}
-                <tr>
-                    <td>{{ sale.receipt_number }}</td>
-                    <td>{{ sale.customer_name }}</td>
-                    <td>{{ sale.name }}</td>
-                    <td>{{ sale.quantity }}</td>
-                    <td>UGX {{ sale.final_amount|floatformat:0|intcomma }}</td>
-                    <td>{{ sale.date }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Receipt</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for sale in recent_sales %}
+
+                    <tr>
+
+                        <td>{{ sale.receipt_number }}</td>
+
+                        <td>{{ sale.customer_name }}</td>
+
+                        <td>{{ sale.name }}</td>
+
+                        <td>{{ sale.quantity }}</td>
+
+                        <td>
+                            UGX {{ sale.final_amount|floatformat:0|intcomma }}
+                        </td>
+
+                        <td>{{ sale.date }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
     </div>
 
-    <!-- INVENTORY -->
+    <!-- PRODUCT INVENTORY -->
+
     <div class="table-card">
+
         <div class="table-title">
+
             <h4>Product Inventory</h4>
+
             <a href="{% url 'product_list' %}" class="table-list-tag">
                 View Product List
             </a>
+
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Description</th>
-                    <th>Stock</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product in products %}
-                <tr>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.description }}</td>
-                    <td>{{ product.stock_quantity }}</td>
-                    <td>UGX {{ product.unit_price|floatformat:0|intcomma }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Product</th>
+                        <th>Description</th>
+                        <th>Stock</th>
+                        <th>Price</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for product in products %}
+
+                    <tr>
+
+                        <td>{{ product.name }}</td>
+
+                        <td>{{ product.description }}</td>
+
+                        <td>{{ product.stock_quantity }}</td>
+
+                        <td>
+                            UGX {{ product.unit_price|floatformat:0|intcomma }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
     </div>
 
     <!-- LOW STOCK -->
+
     <div class="table-card">
+
         <div class="table-title">
+
             <h4>Low Stock Alerts</h4>
+
             <a href="{% url 'product_list' %}" class="table-list-tag">
                 View Product List
             </a>
+
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Stock</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stock in low_stock_items %}
-                <tr>
-                    <td>{{ stock.name }}</td>
-                    <td>{{ stock.stock_quantity }}</td>
-                    <td><span class="status-low">Low</span></td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3">No low stock items found</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Product</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for stock in low_stock_items %}
+
+                    <tr>
+
+                        <td>{{ stock.name }}</td>
+
+                        <td>{{ stock.stock_quantity }}</td>
+
+                        <td>
+                            <span class="status-low">
+                                Low Stock
+                            </span>
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="3">
+                            No low stock items found
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
     </div>
 
 </div>

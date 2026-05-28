@@ -1,58 +1,513 @@
 {% extends "base.html" %}
 
-{% block title %}Employee List{% endblock %}
+{% block title %}
+Employee List | Nyondo Hardware
+{% endblock %}
 
 {% block content %}
 
-<div class="admin-shell">
-    <div class="admin-page-header">
+<style>
+
+/* =========================
+   PAGE LAYOUT
+========================= */
+
+.employee-shell{
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.employee-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 24px;
+    border-radius: 18px;
+
+    background: linear-gradient(
+        135deg,
+        #ffffff 0%,
+        #f8fbff 55%,
+        #eef4ff 100%
+    );
+
+    border: 1px solid #dbe7f5;
+
+    box-shadow: 0 8px 24px rgba(15,23,43,0.06);
+}
+
+.employee-header h2{
+    font-size: 28px;
+    color: #0f172b;
+    margin-bottom: 6px;
+}
+
+.employee-header p{
+    color: #64748b;
+    font-size: 14px;
+    max-width: 650px;
+    line-height: 1.6;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.add-employee-btn{
+    background: #0f172b;
+    color: white;
+    text-decoration: none;
+
+    padding: 12px 18px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    transition: 0.3s ease;
+
+    box-shadow: 0 8px 18px rgba(15,23,43,0.18);
+}
+
+.add-employee-btn:hover{
+    background: #1e293b;
+    transform: translateY(-2px);
+}
+
+/* =========================
+   TABLE CARD
+========================= */
+
+.employee-table-card{
+    background: white;
+
+    border-radius: 18px;
+
+    border: 1px solid #e2e8f0;
+
+    box-shadow: 0 8px 24px rgba(15,23,43,0.06);
+
+    overflow: hidden;
+}
+
+/* =========================
+   TABLE TOP
+========================= */
+
+.employee-table-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+
+    padding: 20px 22px;
+
+    border-bottom: 1px solid #edf2f7;
+
+    background: #f8fbff;
+}
+
+.employee-table-top h3{
+    color: #0f172b;
+    font-size: 18px;
+}
+
+.employee-count{
+    background: #dbeafe;
+    color: #1d4ed8;
+
+    padding: 8px 14px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* =========================
+   TABLE WRAPPER
+========================= */
+
+.table-wrapper{
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.employee-table{
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 950px;
+}
+
+.employee-table thead{
+    background: #e2e8f0;
+}
+
+.employee-table th{
+    text-align: left;
+    padding: 15px;
+
+    color: #0f172b;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+.employee-table td{
+    padding: 15px;
+
+    border-bottom: 1px solid #eef2f7;
+
+    color: #334155;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+}
+
+.employee-table tbody tr:nth-child(even){
+    background: #f8fafc;
+}
+
+.employee-table tbody tr:hover{
+    background: #edf4ff;
+}
+
+/* =========================
+   ROLE BADGES
+========================= */
+
+.role-badge{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 12px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.role-admin{
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.role-manager{
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.role-attendant{
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.status-badge{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 12px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.status-active{
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-inactive{
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.employee-actions{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.action-btn{
+    text-decoration: none;
+
+    padding: 8px 12px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    transition: 0.25s ease;
+}
+
+/* EDIT */
+
+.btn-edit{
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+}
+
+.btn-edit:hover{
+    background: #2563eb;
+    color: white;
+}
+
+/* TOGGLE */
+
+.btn-toggle{
+    background: #f8fafc;
+    color: #0f172b;
+    border: 1px solid #cbd5e1;
+}
+
+.btn-toggle:hover{
+    background: #0f172b;
+    color: white;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.empty-row td{
+    text-align: center;
+    padding: 35px 20px;
+    color: #64748b;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width: 768px){
+
+    .employee-header{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .employee-header h2{
+        font-size: 24px;
+    }
+
+}
+
+</style>
+
+<div class="employee-shell">
+
+    <!-- HEADER -->
+
+    <div class="employee-header">
+
         <div>
-            <h2>Employees</h2>
-            <p>Maintain staff access and keep the employee roster aligned with current operations.</p>
+
+            <h2>
+                <i class="fas fa-users"></i>
+                Employees
+            </h2>
+
+            <p>
+                Maintain staff access and keep the employee roster aligned with current operations.
+            </p>
+
         </div>
 
-        <a href="{% url 'create_employee' %}" class="admin-btn-primary">
-            + Add Employee
+        <a href="{% url 'create_employee' %}"
+           class="add-employee-btn">
+
+            <i class="fas fa-plus"></i>
+
+            Add Employee
+
         </a>
+
     </div>
 
-    <div class="admin-panel">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Employee ID</th>
-                    <th>Role</th>
-                    <th>Gender</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for emp in employees %}
-                <tr>
-                    <td>{{ emp.user.username }}</td>
-                    <td>{{ emp.employee_id }}</td>
-                    <td>{{ emp.get_role_display }}</td>
-                    <td>{{ emp.gender }}</td>
-                    <td>
-                        {% if emp.user.is_active %}
-                            <span class="admin-badge admin-badge--active">Active</span>
-                        {% else %}
-                            <span class="admin-badge admin-badge--inactive">Inactive</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <div class="admin-actions">
-                            <a href="{% url 'edit_employee' emp.id %}">Edit</a>
-                            <a href="{% url 'toggle_employee_status' emp.id %}">Toggle Status</a>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- TABLE CARD -->
+
+    <div class="employee-table-card">
+
+        <div class="employee-table-top">
+
+            <h3>
+                Employee Directory
+            </h3>
+
+            <span class="employee-count">
+                {{ employees.count }} Employees
+            </span>
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table class="employee-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Username</th>
+                        <th>Employee ID</th>
+                        <th>Role</th>
+                        <th>Gender</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for emp in employees %}
+
+                    <tr>
+
+                        <td>
+                            <strong>{{ emp.user.username }}</strong>
+                        </td>
+
+                        <td>
+                            {{ emp.employee_id }}
+                        </td>
+
+                        <td>
+
+                            {% if emp.role == 'admin' %}
+
+                                <span class="role-badge role-admin">
+                                    Admin
+                                </span>
+
+                            {% elif emp.role == 'manager' %}
+
+                                <span class="role-badge role-manager">
+                                    Manager
+                                </span>
+
+                            {% else %}
+
+                                <span class="role-badge role-attendant">
+                                    Attendant
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ emp.gender|title }}
+                        </td>
+
+                        <td>
+
+                            {% if emp.user.is_active %}
+
+                                <span class="status-badge status-active">
+                                    Active
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge status-inactive">
+                                    Inactive
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <div class="employee-actions">
+
+                                <a href="{% url 'edit_employee' emp.id %}"
+                                   class="action-btn btn-edit">
+
+                                    <i class="fas fa-pen"></i>
+
+                                    Edit
+
+                                </a>
+
+                                <a href="{% url 'toggle_employee_status' emp.id %}"
+                                   class="action-btn btn-toggle">
+
+                                    <i class="fas fa-power-off"></i>
+
+                                    Toggle Status
+
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr class="empty-row">
+
+                        <td colspan="6">
+                            No employees found yet.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
     </div>
+
 </div>
 
 {% endblock %}
