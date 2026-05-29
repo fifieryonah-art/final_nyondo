@@ -84,6 +84,7 @@ class Sale(models.Model):
         ('card', 'Bank Card'),
     ]
     
+    payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, null=True, blank=True, related_name='sales_items')
     name = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     quantity = models.PositiveIntegerField()
     distance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -130,6 +131,7 @@ class Payment(models.Model):
     ]
     
     order_id = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True)
+    order_id = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True, related_name='payment_records')
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     total = models.DecimalField(max_digits=20, decimal_places=2)
     amount_paid = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
@@ -145,6 +147,3 @@ class Payment(models.Model):
     def __str__(self):
         return self.receipt_number
     
-
-
-

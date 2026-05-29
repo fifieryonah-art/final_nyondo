@@ -5,131 +5,595 @@
 Deposit Details | Nyondo Hardware
 {% endblock %}
 
+{% block content %}
+
+<div class="deposit-details-shell">
+
+<!-- PAGE HEADER -->
+<div class="details-header">
+
+    <div>
+        <h1>Deposit Details</h1>
+        <p>Review customer payments, balance and transaction history.</p>
+    </div>
+
+    <div class="details-header-actions">
+        <a href="{% url 'deposit_dashboard' %}" class="btn-light">
+            Dashboard
+        </a>
+
+        <a href="{% url 'deposit_list' %}" class="btn-dark-outline">
+            Deposit List
+        </a>
+    </div>
+
+</div>
+
+<!-- ALERTS -->
+{% if messages %}
+    <div class="message-wrapper">
+        {% for message in messages %}
+            <div class="alert-box {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- SUMMARY CARDS -->
+<div class="summary-grid">
+
+    <div class="summary-card expected-card">
+        <span>Expected Amount</span>
+        <h3>UGX {{ deposit.total_amount|default:0|floatformat:0|intcomma }}</h3>
+    </div>
+
+    <div class="summary-card paid-card">
+        <span>Total Paid</span>
+        <h3>UGX {{ total_paid|default:0|floatformat:0|intcomma }}</h3>
+    </div>
+
+    <div class="summary-card balance-card">
+        <span>Balance</span>
+        <h3>UGX {{ balance|default:0|floatformat:0|intcomma }}</h3>
+    </div>
+
+    <div class="summary-card status-card">
+        <span>Status</span>
+
+        {% if status == "Completed" %}
+            <div class="badge badge-success">Completed</div>
+
+        {% elif status == "Pending" %}
+            <div class="badge badge-warning">Pending</div>
+
+        {% elif status == "Withdrawn" %}
+            <div class="badge badge-withdrawn">Withdrawn</div>
+
+        {% else %}
+            <div class="badge badge-primary">Active</div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- CUSTOMER INFO -->
+<div class="customer-info-card">
+
+    <div class="info-row">
+        <span>Customer</span>
+        <strong>{{ deposit.customer.name }}</strong>
+    </div>
+
+    <div class="info-row">
+        <span>Product</span>
+        <strong>{{ deposit.product.name }}</strong>
+    </div>
+
+    <div class="info-row">
+        <span>Quantity</span>
+        <strong>{{ deposit.quantity_expected }}</strong>
+    </div>
+
+    <div class="info-row">
+        <span>Date Created</span>
+        <strong>{{ deposit.payment_date|date:'M d, Y' }}</strong>
+    </div>
+
+</div>
+
+<!-- ACTION BUTTONS -->
+<div class="page-actions">
+
+    <a href="{% url 'record_deposit' deposit.id %}" class="action-btn btn-pay">
+        Record Payment
+    </a>
+
+    <a href="{% url 'edit_deposit' deposit.id %}" class="action-btn btn-edit">
+        Edit Deposit
+    </a>
+
+    <a href="{% url 'withdraw_deposit' deposit.id %}" class="action-btn btn-withdraw">
+        Withdraw
+    </a>
+
+</div>
+
+<!-- PAYMENT HISTORY -->
+<div class="payment-history-wrapper">
+
+    <div class="table-header">
+        <h2>Payment History</h2>
+    </div>
+
+    <table class="payment-table">
+
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Comment</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for p in payments %}
+            <tr>
+
+                <td>
+                    {{ p.payment_date }}
+                </td>
+
+                <td class="paid-text">
+                    UGX {{ p.amount_paid|default:0|floatformat:0|intcomma }}
+                </td>
+
+                <td>
+                    {{ p.payment_method }}
+                </td>
+
+                <td>
+                    {{ p.comment|default:'-' }}
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="4">
+                    <div class="empty-state">
+                        <h3>No Transactions Yet</h3>
+                        <p>No payments have been recorded.</p>
+                    </div>
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<!-- WITHDRAWAL HISTORY -->
+<div class="payment-history-wrapper">
+
+    <div class="table-header">
+        <h2>Withdrawal History</h2>
+    </div>
+
+    <table class="payment-table">
+
+        <thead>
+            <tr>
+                <th>Receipt No.</th>
+                <th>Date</th>
+                <th>Qty Withdrawn</th>
+                <th>Comment</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for w in withdrawals %}
+            <tr>
+                <td>{{ w.receipt_number }}</td>
+                <td>{{ w.withdrawal_date|date:"d M Y, H:i" }}</td>
+                <td><strong>{{ w.quantity_withdrawn }}</strong></td>
+                <td>{{ w.comment|default:'-' }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">
+                    <div class="empty-state">
+                        <h3>No Withdrawals Yet</h3>
+                        <p>No withdrawals have been recorded.</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+</div>
+
 {% block extra_css %}
-<style>
-    .summary-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-        margin-bottom: 18px;
+    <style>
+
+   /* PAGE LAYOUT */
+
+.deposit-details-shell{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    width:100%;
+}
+
+   /* HEADER */
+
+
+.details-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:16px;
+}
+
+.details-header h1{
+    font-size:22px;
+    color:#0F172B;
+    font-weight:700;
+    margin-bottom:4px;
+}
+
+.details-header p{
+    font-size:12px;
+    color:#64748b;
+}
+
+.details-header-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+
+   /* BUTTONS */
+
+
+.btn-light,
+.btn-dark-outline{
+    padding:9px 14px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:12px;
+    font-weight:600;
+    transition:0.3s ease;
+}
+
+.btn-light{
+    background:#e2e8f0;
+    color:#0F172B;
+}
+
+.btn-light:hover{
+    background:#cbd5e1;
+}
+
+.btn-dark-outline{
+    border:1px solid #0F172B;
+    color:#0F172B;
+    background:white;
+}
+
+.btn-dark-outline:hover{
+    background:#0F172B;
+    color:white;
+}
+
+   /* ALERTS */
+
+.message-wrapper{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.alert-box{
+    padding:10px 14px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.alert-success{
+    background:#dcfce7;
+    color:#166534;
+    border:1px solid #bbf7d0;
+}
+
+.alert-error{
+    background:#fee2e2;
+    color:#b91c1c;
+    border:1px solid #fecaca;
+}
+
+   /* SUMMARY CARDS */
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:14px;
+}
+
+.summary-card{
+    background:white;
+    border:1px solid #e2e8f0;
+    border-radius:12px;
+    padding:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+
+.summary-card span{
+    display:block;
+    font-size:11px;
+    color:#64748b;
+    margin-bottom:6px;
+}
+
+.summary-card h3{
+    font-size:18px;
+    color:#0F172B;
+    font-weight:700;
+}
+
+.paid-card{
+    border-left:4px solid #059669;
+}
+
+.balance-card{
+    border-left:4px solid #dc2626;
+}
+
+.status-card{
+    border-left:4px solid #2563eb;
+}
+
+   /* BADGES */
+
+.badge{
+    display:inline-flex;
+    padding:5px 10px;
+    border-radius:999px;
+    font-size:10px;
+    font-weight:700;
+}
+
+.badge-success{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.badge-warning{
+    background:#fff7ed;
+    color:#c2410c;
+}
+
+.badge-primary{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.badge-withdrawn {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+
+   /* CUSTOMER INFO CARD */
+
+
+.customer-info-card{
+    background:white;
+    border:1px solid #e2e8f0;
+    border-radius:12px;
+    padding:18px;
+    display:grid;
+    gap:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+
+.info-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding-bottom:10px;
+    border-bottom:1px solid #f1f5f9;
+}
+
+.info-row:last-child{
+    border-bottom:none;
+    padding-bottom:0;
+}
+
+.info-row span{
+    font-size:12px;
+    color:#64748b;
+}
+
+.info-row strong{
+    font-size:12px;
+    color:#0F172B;
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.page-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.action-btn{
+    padding:10px 14px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:12px;
+    font-weight:600;
+    transition:0.3s ease;
+}
+
+.btn-pay{
+    background:#0F172B;
+    color:white;
+}
+
+.btn-pay:hover{
+    background:#1e293b;
+}
+
+.btn-edit{
+    background:#eff6ff;
+    color:#2563eb;
+    border:1px solid #bfdbfe;
+}
+
+.btn-edit:hover{
+    background:#2563eb;
+    color:white;
+}
+
+.btn-withdraw{
+    background:#fee2e2;
+    color:#b91c1c;
+    border:1px solid #fecaca;
+}
+
+.btn-withdraw:hover{
+    background:#b91c1c;
+    color:white;
+}
+
+/* =========================
+   PAYMENT TABLE
+========================= */
+
+.payment-history-wrapper{
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+    border:1px solid #e2e8f0;
+    box-shadow:0 3px 10px rgba(0,0,0,0.04);
+}
+
+.table-header{
+    padding:16px;
+    border-bottom:1px solid #e2e8f0;
+}
+
+.table-header h2{
+    font-size:16px;
+    color:#0F172B;
+}
+
+.payment-table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:700px;
+}
+
+.payment-table thead{
+    background:#0F172B;
+}
+
+.payment-table th{
+    color:white;
+    padding:12px;
+    text-align:left;
+    font-size:11px;
+    font-weight:700;
+}
+
+.payment-table td{
+    padding:12px;
+    border-bottom:1px solid #f1f5f9;
+    font-size:12px;
+    color:#334155;
+}
+
+.payment-table tbody tr:nth-child(even){
+    background:#f8fafc;
+}
+
+.payment-table tbody tr:hover{
+    background:#eef4ff;
+}
+
+.paid-text{
+    color:#059669;
+    font-weight:700;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.empty-state{
+    padding:30px 20px;
+    text-align:center;
+}
+
+.empty-state h3{
+    font-size:16px;
+    color:#0F172B;
+    margin-bottom:6px;
+}
+
+.empty-state p{
+    font-size:12px;
+    color:#64748b;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:768px){
+
+    .details-header{
+        flex-direction:column;
+        align-items:flex-start;
     }
 
-    .summary-card {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 18px;
+    .summary-grid{
+        grid-template-columns:1fr;
     }
 
-    .summary-card h4 {
-        color: #64748b;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        margin-bottom: 6px;
+    .page-actions{
+        width:100%;
     }
 
-    .summary-card strong {
-        color: #0f172b;
-        font-size: 1.3rem;
+    .action-btn{
+        flex:1;
+        text-align:center;
     }
 
-    .status-pill {
-        display: inline-flex;
-        padding: 6px 12px;
-        border-radius: 999px;
-        font-weight: 800;
-        font-size: 0.8rem;
-        background: #dcfce7;
-        color: #166534;
-    }
+}
 
-    .status-pill.is-active {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status-pill.is-pending {
-        background: #e2e8f0;
-        color: #334155;
-    }
-
-    .button-row {
-        display: flex;
-        gap: 12px;
-        margin-top: 18px;
-        flex-wrap: wrap;
-    }
 </style>
 {% endblock %}
-
-{% block content %}
-<div class="admin-shell">
-    <div class="admin-page-header">
-        <div>
-            <h1>Deposit Details</h1>
-            <p>Review the deposit schedule, current balance, and payment history.</p>
-        </div>
-        <a href="{% url 'deposit_dashboard' %}" class="admin-btn-secondary">Back</a>
-    </div>
-
-    <div class="admin-panel">
-        <div class="summary-grid">
-            <div class="summary-card">
-                <h4>Total Expected</h4>
-                <strong class="money-value">UGX {{ deposit.total_amount|default:0|floatformat:0|intcomma }}</strong>
-            </div>
-            <div class="summary-card">
-                <h4>Total Paid</h4>
-                <strong class="money-value">UGX {{ total_paid|default:0|floatformat:0|intcomma }}</strong>
-            </div>
-            <div class="summary-card">
-                <h4>Balance</h4>
-                <strong class="money-value">UGX {{ balance|default:0|floatformat:0|intcomma }}</strong>
-            </div>
-            <div class="summary-card">
-                <h4>Status</h4>
-                {% if status == "Completed" %}
-                    <span class="status-pill">Completed</span>
-                {% elif status == "Pending" %}
-                    <span class="status-pill is-pending">Pending</span>
-                {% else %}
-                    <span class="status-pill is-active">Active</span>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="admin-panel" style="padding:0; overflow:hidden;">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Amount Paid</th>
-                        <th>Method</th>
-                        <th>Comment</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in payments %}
-                    <tr>
-                        <td>{{ p.payment_date }}</td>
-                        <td class="money-value">UGX {{ p.amount_paid|default:0|floatformat:0|intcomma }}</td>
-                        <td>{{ p.payment_method }}</td>
-                        <td>{{ p.comment|default:'-' }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" style="text-align:center; color:#64748b; padding:28px;">No transactions yet</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div class="button-row">
-            <a href="{% url 'record_deposit' deposit.id %}" class="admin-btn-primary">Record Payment</a>
-            <a href="{% url 'edit_deposit' deposit.id %}" class="admin-btn-secondary">Edit Deposit</a>
-        </div>
-    </div>
-</div>
 {% endblock %}

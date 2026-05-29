@@ -1,103 +1,635 @@
 {% extends 'base.html' %}
 {% load humanize %}
 
+{% block title %}
+Deposit Dashboard | Nyondo Hardware
+{% endblock %}
+
 {% block content %}
 
-<div class="admin-shell">
-    <div class="admin-page-header">
+<div class="deposit-shell">
+
+    <!-- HEADER -->
+    <div class="deposit-header">
+
         <div>
             <h2>Deposit Dashboard</h2>
-            <p>Track deposit schemes and payment progress using the same admin layout as the other pages.</p>
+            <p>
+                Manage customer deposits, balances and payments.
+            </p>
         </div>
 
-        <div class="admin-actions">
-            <a href="{% url 'deposit_list' %}" class="admin-list-tag">View Deposit List</a>
-            <a href="{% url 'add_deposit' %}" class="admin-btn-primary">+ Add Deposit</a>
+        <div class="deposit-header-actions">
+
+            <a href="{% url 'deposit_list' %}" class="btn-secondary">
+                View Deposits
+            </a>
+
+            <a href="{% url 'add_deposit' %}" class="btn-primary">
+                + New Deposit
+            </a>
+
         </div>
+
     </div>
 
-    <div class="admin-stat-grid">
-        <div class="admin-stat-card">
-            <h4>Total Deposits</h4>
-            <strong>{{ total_deposits }}</strong>
+    <!-- CARDS -->
+    <div class="deposit-cards">
+
+        <div class="deposit-card">
+            <span class="card-title">
+                Total Deposits
+            </span>
+
+            <h3>
+                {{ total_deposits }}
+            </h3>
+
+            <small>
+                All deposit schemes
+            </small>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Pending Deposits</h4>
-            <strong>{{ pending_schemes }}</strong>
+        <div class="deposit-card">
+            <span class="card-title">
+                Pending
+            </span>
+
+            <h3>
+                {{ pending_schemes }}
+            </h3>
+
+            <small>
+                Awaiting payment
+            </small>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Active Deposits</h4>
-            <strong>{{ active_schemes }}</strong>
+        <div class="deposit-card">
+            <span class="card-title">
+                Active
+            </span>
+
+            <h3>
+                {{ active_schemes }}
+            </h3>
+
+            <small>
+                Running deposits
+            </small>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Completed Deposits</h4>
-            <strong>{{ completed_schemes }}</strong>
+        <div class="deposit-card">
+            <span class="card-title">
+                Completed
+            </span>
+
+            <h3>
+                {{ completed_schemes }}
+            </h3>
+
+            <small>
+                Fully paid
+            </small>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Total Paid</h4>
-            <strong>UGX {{ total_paid|floatformat:0|intcomma }}</strong>
+        <div class="deposit-card">
+            <span class="card-title">
+                Total Collected
+            </span>
+
+            <h3>
+                UGX {{ total_paid|floatformat:0|intcomma }}
+            </h3>
+
+            <small>
+                Money received
+            </small>
         </div>
 
-        <div class="admin-stat-card">
-            <h4>Total Balance</h4>
-            <strong>UGX {{ total_balance|floatformat:0|intcomma }}</strong>
+        <div class="deposit-card">
+            <span class="card-title">
+                Outstanding Balance
+            </span>
+
+            <h3>
+                UGX {{ total_balance|floatformat:0|intcomma }}
+            </h3>
+
+            <small>
+                Remaining balance
+            </small>
         </div>
+
     </div>
 
-    <div class="admin-panel">
-        <div class="admin-panel-header">
-            <h3>Recent Deposits</h3>
-            <a href="{% url 'deposit_list' %}" class="admin-list-tag">View Deposit List</a>
-        </div>
-        <table class="admin-table">
+    <!-- TABLE HEADER -->
+    <div class="table-header">
+
+        <h3>
+            Recent Deposits
+        </h3>
+
+        <a href="{% url 'deposit_list' %}" class="view-all-link">
+            View Full List
+        </a>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrapper">
+
+        <table class="deposit-table">
+
             <thead>
+
                 <tr>
                     <th>ID</th>
                     <th>Customer</th>
                     <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Total Amount</th>
-                    <th>Amount Paid</th>
+                    <th>Total</th>
+                    <th>Paid</th>
                     <th>Balance</th>
+                    <th>Progress</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
+
             </thead>
+
             <tbody>
+
                 {% for deposit in deposits %}
+
                 <tr>
-                    <td>{{ deposit.id }}</td>
-                    <td>{{ deposit.customer.name }}</td>
-                    <td>{{ deposit.product.name }}</td>
-                    <td>{{ deposit.quantity_expected }}</td>
-                    <td>UGX {{ deposit.total_amount|floatformat:0|intcomma }}</td>
-                    <td>UGX {{ deposit.total_paid|floatformat:0|intcomma }}</td>
-                    <td>UGX {{ deposit.remaining_balance|default:"0"|floatformat:0|intcomma }}</td>
+
                     <td>
-                        {% if deposit.live_status == "Completed" %}
-                            <span class="admin-badge admin-badge--completed">Completed</span>
-                        {% elif deposit.live_status == "Pending" %}
-                            <span class="admin-badge admin-badge--pending">Pending</span>
+                        #{{ deposit.id }}
+                    </td>
+
+                    <td>
+                        {{ deposit.customer.name }}
+                    </td>
+
+                    <td>
+                        {{ deposit.product.name }}
+                    </td>
+
+                    <td>
+                        UGX {{ deposit.total_amount|floatformat:0|intcomma }}
+                    </td>
+
+                    <td class="paid-text">
+                        UGX {{ deposit.total_paid|default:0|floatformat:0|intcomma }}
+                    </td>
+
+                    <td class="balance-text">
+                        UGX {{ deposit.remaining_balance|default:0|floatformat:0|intcomma }}
+                    </td>
+
+                    <td>
+
+                        {% if deposit.total_amount > 0 %}
+
+                            {% widthratio deposit.total_paid deposit.total_amount 100 as percentage %}
+
+                            <div class="progress-bar">
+
+                                <div
+                                    class="progress-fill"
+                                    style="width: {{ percentage }}%;"
+                                ></div>
+
+                            </div>
+
+                            <small>
+                                {{ percentage }}%
+                            </small>
+
                         {% else %}
-                            <span class="admin-badge admin-badge--active">Active</span>
+
+                            <small>0%</small>
+
                         {% endif %}
+
                     </td>
+
                     <td>
-                        <div class="admin-actions">
-                            <a href="{% url 'view_deposit' deposit.id %}">View</a>
-                            <a href="{% url 'edit_deposit' deposit.id %}">Edit</a>
-                            <a href="{% url 'record_deposit' deposit.id %}">Record</a>
-                        </div>
+
+                        {% if deposit.live_status == 'Completed' %}
+
+                            <span class="badge badge-success">
+                                Completed
+                            </span>
+
+                        {% elif deposit.live_status == 'Pending' %}
+
+                            <span class="badge badge-warning">
+                                Pending
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-info">
+                                Active
+                            </span>
+
+                        {% endif %}
+
                     </td>
+
+                    <td>
+
+                        <div class="table-actions">
+
+                            <a href="{% url 'view_deposit' deposit.id %}" class="action-view">
+                                View
+                            </a>
+
+                            <a href="{% url 'record_deposit' deposit.id %}" class="action-pay">
+                                Pay
+                            </a>
+
+                            <a href="{% url 'withdraw_deposit' deposit.id %}" class="action-withdraw">
+                                Withdraw
+                            </a>
+
+                        </div>
+
+                    </td>
+
                 </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="9">
+
+                        <div class="empty-state">
+
+                            <h4>
+                                No deposits available
+                            </h4>
+
+                            <p>
+                                Start by creating a new deposit scheme.
+                            </p>
+
+                            <a href="{% url 'add_deposit' %}" class="btn-primary">
+                                Create Deposit
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
                 {% endfor %}
+
             </tbody>
+
         </table>
+
     </div>
+
 </div>
 
+{% block extra_css %}
+    <style>
+
+    :root{
+        --primary:#0F172B;
+        --primary-light:#1e293b;
+        --secondary:#e2e8f0;
+        --background:#f8fafc;
+        --white:#ffffff;
+        --text:#334155;
+        --muted:#64748b;
+        --border:#cbd5e1;
+
+        --success-bg:#ecfdf5;
+        --success-text:#047857;
+
+        --warning-bg:#fff7ed;
+        --warning-text:#c2410c;
+
+        --info-bg:#eff6ff;
+        --info-text:#2563eb;
+
+        --danger-bg:#fee2e2;
+        --danger-text:#b91c1c;
+    }
+
+    /* PAGE */
+
+    .deposit-shell{
+        display:flex;
+        flex-direction:column;
+        gap:18px;
+        padding:18px;
+    }
+
+    /* HEADER */
+
+    .deposit-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        flex-wrap:wrap;
+        gap:14px;
+    }
+
+    .deposit-header h2{
+        font-size:22px;
+        color:var(--primary);
+        font-weight:800;
+        margin-bottom:4px;
+    }
+
+    .deposit-header p{
+        font-size:12px;
+        color:var(--muted);
+    }
+
+    .deposit-header-actions{
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+    }
+
+    /* BUTTONS */
+
+    .btn-primary,
+    .btn-secondary{
+        padding:9px 14px;
+        border-radius:8px;
+        font-size:12px;
+        font-weight:700;
+        text-decoration:none;
+        transition:0.3s ease;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        border:none;
+    }
+
+    .btn-primary{
+        background:#0B1F3A;
+        color:white;
+    }
+
+    .btn-primary:hover{
+        background:#102B52;
+    }
+
+    .btn-secondary{
+        background:var(--secondary);
+        color:var(--primary);
+    }
+
+    .btn-secondary:hover{
+        background:#cbd5e1;
+    }
+
+    /* CARDS */
+
+    .deposit-cards{
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+        gap:14px;
+    }
+
+    .deposit-card{
+        background:var(--white);
+        border:1px solid var(--secondary);
+        border-left:4px solid var(--primary);
+        border-radius:12px;
+        padding:16px;
+        box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .card-title{
+        display:block;
+        color:var(--muted);
+        font-size:11px;
+        margin-bottom:8px;
+        text-transform:uppercase;
+        font-weight:700;
+    }
+
+    .deposit-card h3{
+        font-size:20px;
+        color:var(--primary);
+        margin-bottom:6px;
+        font-weight:800;
+    }
+
+    .deposit-card small{
+        font-size:11px;
+        color:var(--muted);
+    }
+
+    /* TABLE HEADER */
+
+    .table-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        flex-wrap:wrap;
+        gap:10px;
+    }
+
+    .table-header h3{
+        color:var(--primary);
+        font-size:17px;
+        font-weight:800;
+    }
+
+    .view-all-link{
+        color:var(--primary);
+        font-size:12px;
+        font-weight:700;
+        text-decoration:none;
+    }
+
+    .view-all-link:hover{
+        color:var(--info-text);
+    }
+
+    /* TABLE */
+
+    .table-wrapper{
+        width:100%;
+        overflow-x:auto;
+        background:white;
+        border-radius:12px;
+        border:1px solid var(--secondary);
+    }
+
+    .deposit-table{
+        width:100%;
+        border-collapse:collapse;
+        min-width:900px;
+    }
+
+    .deposit-table thead{
+        background:var(--primary);
+    }
+
+    .deposit-table th{
+        padding:12px;
+        color:white;
+        text-align:left;
+        font-size:12px;
+        font-weight:700;
+    }
+
+    .deposit-table td{
+        padding:12px;
+        border-bottom:1px solid #f1f5f9;
+        font-size:12px;
+        color:var(--text);
+    }
+
+    .deposit-table tbody tr:hover{
+        background:#f8fafc;
+    }
+
+    /* MONEY */
+
+    .paid-text{
+        color:var(--success-text);
+        font-weight:700;
+    }
+
+    .balance-text{
+        color:var(--danger-text);
+        font-weight:700;
+    }
+
+    /* PROGRESS BAR */
+
+    .progress-bar{
+        width:100%;
+        height:6px;
+        background:#e2e8f0;
+        border-radius:999px;
+        overflow:hidden;
+        margin-bottom:5px;
+    }
+
+    .progress-fill{
+        height:100%;
+        background:linear-gradient(to right,#2563eb,#10b981);
+        border-radius:999px;
+    }
+
+    /* BADGES */
+
+    .badge{
+        padding:4px 9px;
+        border-radius:999px;
+        font-size:10px;
+        font-weight:800;
+    }
+
+    .badge-success{
+        background:var(--success-bg);
+        color:var(--success-text);
+    }
+
+    .badge-warning{
+        background:var(--warning-bg);
+        color:var(--warning-text);
+    }
+
+    .badge-info{
+        background:var(--info-bg);
+        color:var(--info-text);
+    }
+
+    /* ACTION BUTTONS */
+
+    .table-actions{
+        display:flex;
+        gap:6px;
+        flex-wrap:wrap;
+    }
+
+    .table-actions a{
+        padding:6px 10px;
+        border-radius:6px;
+        font-size:11px;
+        font-weight:700;
+        text-decoration:none;
+        transition:0.3s ease;
+    }
+
+    .action-view{
+        background:var(--info-bg);
+        color:var(--info-text);
+    }
+
+    .action-view:hover{
+        background:var(--info-text);
+        color:white;
+    }
+
+    .action-pay{
+        background:var(--secondary);
+        color:var(--primary);
+    }
+
+    .action-pay:hover{
+        background:var(--primary);
+        color:white;
+    }
+
+    .action-withdraw{
+        background:var(--danger-bg);
+        color:var(--danger-text);
+    }
+
+    .action-withdraw:hover{
+        background:var(--danger-text);
+        color:white;
+    }
+
+    /* EMPTY STATE */
+
+    .empty-state{
+        text-align:center;
+        padding:35px 20px;
+    }
+
+    .empty-state h4{
+        color:var(--primary);
+        margin-bottom:8px;
+        font-size:18px;
+    }
+
+    .empty-state p{
+        color:var(--muted);
+        margin-bottom:14px;
+        font-size:12px;
+    }
+
+    /* RESPONSIVE */
+
+    @media(max-width:768px){
+
+        .deposit-header{
+            flex-direction:column;
+            align-items:flex-start;
+        }
+
+        .deposit-cards{
+            grid-template-columns:1fr;
+        }
+
+    }
+
+</style>
+{% endblock %}
 {% endblock %}

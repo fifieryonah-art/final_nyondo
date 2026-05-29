@@ -1,212 +1,265 @@
-{% extends "base.html" %}
-
 {% load static %}
 {% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt | Nyondo Hardware</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; font-family:Arial,Helvetica,sans-serif; }
+        body{ background:#f1f5f9; padding:30px 15px; color:#1f2937; }
 
-{% block title %}
-    Payment Receipt | Nyondo Hardware
-{% endblock %}
+        .receipt-wrapper{ max-width:750px; margin:auto; }
 
-{% block content %}
+        .receipt{
+            background:#fff;
+            border:1px solid #dcdfe4;
+            border-radius:8px;
+            overflow:hidden;
+            box-shadow:0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        /* HEADER */
+        .receipt-header{
+            background:#0B1F3A;
+            color:white;
+            padding:24px 28px;
+        }
+        .header-top{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:14px;
+            margin-bottom:10px;
+        }
+        .brand{
+            display:flex;
+            align-items:center;
+            gap:14px;
+        }
+        .brand img{
+            width:52px;
+            height:52px;
+            object-fit:contain;
+            background:white;
+            border-radius:8px;
+            padding:4px;
+        }
+        .brand h1{ font-size:22px; margin-bottom:3px; }
+        .brand p{ font-size:12px; opacity:0.85; }
+        .receipt-badge{
+            background:rgba(255,255,255,0.15);
+            border:1px solid rgba(255,255,255,0.25);
+            padding:8px 14px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:700;
+            letter-spacing:1px;
+        }
+
+        /* BODY */
+        .receipt-body{ padding:24px 28px; }
+
+        .info-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+            gap:12px;
+            margin-bottom:20px;
+            background:#f8fafc;
+            border-radius:10px;
+            padding:16px;
+            border:1px solid #e2e8f0;
+        }
+        .info-item span{ display:block; font-size:11px; color:#64748b; margin-bottom:4px; text-transform:uppercase; }
+        .info-item strong{ font-size:13px; color:#0B1F3A; }
+
+        /* TABLE */
+        .items-title{ font-size:14px; font-weight:700; color:#0B1F3A; margin-bottom:10px; }
+        .table-wrap{ overflow-x:auto; margin-bottom:20px; }
+        table{ width:100%; border-collapse:collapse; min-width:560px; }
+        thead{ background:#0B1F3A; }
+        th{ padding:11px 10px; color:white; text-align:left; font-size:12px; }
+        td{ padding:11px 10px; border-bottom:1px solid #f1f5f9; font-size:13px; color:#334155; }
+        tbody tr:nth-child(even){ background:#f8fafc; }
+
+        /* SUMMARY */
+        .summary-box{
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            border-radius:10px;
+            padding:16px;
+            margin-bottom:20px;
+        }
+        .summary-row{
+            display:flex;
+            justify-content:space-between;
+            padding:8px 0;
+            border-bottom:1px solid #e2e8f0;
+            font-size:13px;
+        }
+        .summary-row:last-child{ border-bottom:none; font-weight:700; font-size:15px; color:#0B1F3A; }
+        .summary-row span{ color:#64748b; }
+
+        /* FOOTER */
+        .receipt-footer{
+            text-align:center;
+            border-top:1px dashed #bbb;
+            padding-top:16px;
+            margin-bottom:4px;
+        }
+        .receipt-footer p{ color:#64748b; font-size:12px; margin-bottom:4px; }
+
+        /* ACTIONS */
+        .receipt-actions{
+            display:flex;
+            justify-content:center;
+            gap:14px;
+            margin-top:22px;
+            flex-wrap:wrap;
+        }
+        .btn{
+            padding:12px 22px;
+            border:none;
+            border-radius:8px;
+            font-size:14px;
+            font-weight:700;
+            cursor:pointer;
+            text-decoration:none;
+            transition:0.2s ease;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+        }
+        .btn-print{ background:#0B1F3A; color:white; }
+        .btn-print:hover{ background:#102B52; }
+        .btn-back{ background:#e2e8f0; color:#0B1F3A; }
+        .btn-back:hover{ background:#cbd5e1; }
+
+        @media print{
+            body{ background:white; padding:0; }
+            .receipt{ box-shadow:none; border:none; }
+            .receipt-actions{ display:none; }
+        }
+        @media(max-width:600px){
+            .receipt-body{ padding:16px; }
+            .receipt-header{ padding:18px; }
+        }
+    </style>
+</head>
+<body>
+
 <div class="receipt-wrapper">
-    <div class="receipt-card">
+    <div class="receipt">
+
+        <!-- HEADER -->
         <div class="receipt-header">
-            <div>
-                <h1>Nyondo Hardware</h1>
-                <p>Official payment receipt</p>
-            </div>
-            <div class="receipt-badge">{{ payment.receipt_number }}</div>
-        </div>
-
-        <div class="receipt-info-grid">
-            <div>
-                <span>Customer</span>
-                <strong>{{ customer.name|default:'Walk-in Customer' }}</strong>
-            </div>
-            <div>
-                <span>Date</span>
-                <strong>{{ payment.created_at }}</strong>
-            </div>
-            <div>
-                <span>Payment Method</span>
-                <strong>{{ payment.payment_method|title }}</strong>
-            </div>
-            <div>
-                <span>Recorded By</span>
-                <strong>{{ payment.entered_by|default:'System' }}</strong>
+            <div class="header-top">
+                <div class="brand">
+                    <img src="{% static 'images/nyondologo.png' %}" alt="Nyondo Hardware Logo">
+                    <div>
+                        <h1>Nyondo Hardware</h1>
+                        <p>Official Payment Receipt</p>
+                    </div>
+                </div>
+                <div class="receipt-badge">{{ payment.receipt_number }}</div>
             </div>
         </div>
 
-        <div class="items-table-wrap">
-            <h3>Items Paid</h3>
-            <table class="receipt-table">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Qty</th>
-                        <th>Unit Price</th>
-                        <th>Sub Total</th>
-                        <th>Transport</th>
-                        <th>Line Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in payment_items %}
-                    <tr>
-                        <td>{{ item.product_name }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>UGX {{ item.unit_price|floatformat:0|intcomma }}</td>
-                        <td>UGX {{ item.sub_total|floatformat:0|intcomma }}</td>
-                        <td>UGX {{ item.transport|floatformat:0|intcomma }}</td>
-                        <td>UGX {{ item.line_total|floatformat:0|intcomma }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6">No receipt items found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        <!-- BODY -->
+        <div class="receipt-body">
 
-        <div class="payment-summary">
-            <div class="summary-row">
-                <span>Sub Total</span>
-                <strong>UGX {{ subtotal_total|floatformat:0|intcomma }}</strong>
+            <!-- INFO -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <span>Customer</span>
+                    <strong>{{ customer.name|default:'Walk-in Customer' }}</strong>
+                </div>
+                <div class="info-item">
+                    <span>Date</span>
+                    <strong>{{ payment.created_at|date:"d M Y, H:i" }}</strong>
+                </div>
+                <div class="info-item">
+                    <span>Payment Method</span>
+                    <strong>{{ payment.payment_method|title }}</strong>
+                </div>
+                <div class="info-item">
+                    <span>Recorded By</span>
+                    <strong>{{ payment.entered_by|default:'System' }}</strong>
+                </div>
             </div>
-            <div class="summary-row">
-                <span>Transport</span>
-                <strong>UGX {{ transport_total|floatformat:0|intcomma }}</strong>
-            </div>
-            <div class="summary-row">
-                <span>Total Amount</span>
-                <strong>UGX {{ total|floatformat:0|intcomma }}</strong>
-            </div>
-            <div class="summary-row">
-                <span>Amount Paid</span>
-                <strong>UGX {{ amount_paid|floatformat:0|intcomma }}</strong>
-            </div>
-            <div class="summary-row">
-                <span>Balance</span>
-                <strong>UGX {{ balance|floatformat:0|intcomma }}</strong>
-            </div>
-        </div>
 
-        <div class="button-row">
-            <a href="#" onclick="window.print()" class="btn-print">Print Receipt</a>
-            <a href="{% url 'payment_list' %}" class="btn-back">Back to Payments</a>
+            <!-- ITEMS TABLE -->
+            <div class="items-title">Items Purchased</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Sub Total</th>
+                            <th>Transport</th>
+                            <th>Line Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in payment_items %}
+                        <tr>
+                            <td>{{ item.product_name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>UGX {{ item.unit_price|floatformat:0|intcomma }}</td>
+                            <td>UGX {{ item.sub_total|floatformat:0|intcomma }}</td>
+                            <td>UGX {{ item.transport|floatformat:0|intcomma }}</td>
+                            <td>UGX {{ item.line_total|floatformat:0|intcomma }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" style="text-align:center;padding:20px;color:#64748b;">No items found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- SUMMARY -->
+            <div class="summary-box">
+                <div class="summary-row"><span>Sub Total</span><strong>UGX {{ subtotal_total|floatformat:0|intcomma }}</strong></div>
+                <div class="summary-row"><span>Transport</span><strong>UGX {{ transport_total|floatformat:0|intcomma }}</strong></div>
+                <div class="summary-row"><span>Total Amount</span><strong>UGX {{ total|floatformat:0|intcomma }}</strong></div>
+                <div class="summary-row"><span>Amount Paid</span><strong>UGX {{ amount_paid|floatformat:0|intcomma }}</strong></div>
+                <div class="summary-row"><span>Balance</span><strong>UGX {{ balance|floatformat:0|intcomma }}</strong></div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="receipt-footer">
+                <p>Thank you for choosing Nyondo Hardware</p>
+                <p>This is an official receipt. Please keep it for your records.</p>
+            </div>
+
         </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="receipt-actions">
+        <button onclick="window.print()" class="btn btn-print">
+            <i class="fas fa-print"></i> Print Receipt
+        </button>
+        <a href="{% url 'add_sales' %}" class="btn btn-back">
+            <i class="fas fa-plus"></i> New Sale
+        </a>
+        <a href="{% url 'payment_list' %}" class="btn btn-back">
+            <i class="fas fa-list"></i> Payments
+        </a>
     </div>
 </div>
 
-<style>
-    .receipt-wrapper {
-        min-height: 100vh;
-        padding: 24px;
-        background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
-    }
+<script>
+    // Auto-print on page load
+    window.addEventListener('load', function() {
+        setTimeout(function() { window.print(); }, 500);
+    });
+</script>
 
-    .receipt-card {
-        max-width: 900px;
-        margin: 0 auto;
-        background: #fff;
-        border-radius: 24px;
-        padding: 28px;
-        box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
-    }
-
-    .receipt-header {
-        display: flex;
-        justify-content: space-between;
-        gap: 16px;
-        align-items: center;
-        margin-bottom: 18px;
-        flex-wrap: wrap;
-    }
-
-    .receipt-badge {
-        background: #0f172a;
-        color: #fff;
-        padding: 10px 14px;
-        border-radius: 999px;
-        font-weight: 800;
-    }
-
-    .receipt-info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 12px;
-        padding: 16px;
-        border-radius: 16px;
-        background: #f8fafc;
-        margin-bottom: 18px;
-    }
-
-    .receipt-info-grid span {
-        display: block;
-        color: #475569;
-        margin-bottom: 4px;
-    }
-
-    .receipt-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 12px;
-    }
-
-    .receipt-table th,
-    .receipt-table td {
-        border-bottom: 1px solid #e2e8f0;
-        padding: 12px 8px;
-        text-align: left;
-    }
-
-    .payment-summary {
-        margin-top: 20px;
-        padding: 16px;
-        background: #f8fafc;
-        border-radius: 16px;
-        display: grid;
-        gap: 10px;
-    }
-
-    .summary-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 16px;
-    }
-
-    .button-row {
-        margin-top: 20px;
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-    }
-
-    .btn-print,
-    .btn-back {
-        text-decoration: none;
-        font-weight: 800;
-        border-radius: 999px;
-        padding: 12px 18px;
-    }
-
-    .btn-print {
-        background: #0f172a;
-        color: #fff;
-    }
-
-    .btn-back {
-        background: #e2e8f0;
-        color: #0f172a;
-    }
-
-    @media print {
-        .btn-print,
-        .btn-back {
-            display: none;
-        }
-    }
-</style>
-{% endblock %}
+</body>
+</html>

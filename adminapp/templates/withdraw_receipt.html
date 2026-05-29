@@ -1,0 +1,258 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdrawal Receipt | Nyondo Hardware</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; font-family:Arial,Helvetica,sans-serif; }
+        body{ background:#f1f5f9; padding:30px 15px; color:#1f2937; }
+
+        .receipt-wrapper{ max-width:700px; margin:auto; }
+        .receipt{
+            background:#fff;
+            border:1px solid #dcdfe4;
+            border-radius:8px;
+            overflow:hidden;
+            box-shadow:0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .receipt-header{
+            background:#0B1F3A;
+            color:white;
+            padding:24px 28px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:14px;
+        }
+        .brand{ display:flex; align-items:center; gap:14px; }
+        .brand img{
+            width:52px; height:52px; object-fit:contain;
+            background:white; border-radius:8px; padding:4px;
+        }
+        .brand h1{ font-size:22px; margin-bottom:3px; }
+        .brand p{ font-size:12px; opacity:0.85; }
+        .receipt-date{ text-align:right; }
+        .receipt-date small{ font-size:11px; opacity:0.75; display:block; margin-bottom:4px; }
+        .receipt-date strong{ font-size:15px; }
+
+        .receipt-body{ padding:24px 28px; }
+
+        .info-section{ margin-bottom:20px; }
+        .info-row{
+            display:flex;
+            justify-content:space-between;
+            padding:10px 0;
+            border-bottom:1px solid #f1f5f9;
+            font-size:13px;
+        }
+        .info-row:last-child{ border-bottom:none; }
+        .info-label{ color:#64748b; font-weight:600; }
+        .info-value{ color:#0B1F3A; font-weight:600; text-align:right; }
+
+        .items-title{ font-size:14px; font-weight:700; color:#0B1F3A; margin-bottom:10px; }
+        .table-wrap{ overflow-x:auto; margin-bottom:20px; }
+        table{ width:100%; border-collapse:collapse; min-width:400px; }
+        thead{ background:#0B1F3A; }
+        th{ padding:11px 10px; color:white; text-align:left; font-size:12px; }
+        td{ padding:11px 10px; border-bottom:1px solid #f1f5f9; font-size:13px; color:#334155; }
+        tbody tr:nth-child(even){ background:#f8fafc; }
+
+        .totals{
+            margin-left:auto;
+            width:300px;
+            border:1px solid #e2e8f0;
+            border-radius:8px;
+            overflow:hidden;
+            margin-bottom:20px;
+        }
+        .total-row{
+            display:flex;
+            justify-content:space-between;
+            padding:12px 14px;
+            border-bottom:1px solid #e2e8f0;
+            font-size:13px;
+        }
+        .total-row:last-child{
+            background:#0B1F3A;
+            color:white;
+            font-weight:700;
+            border-bottom:none;
+        }
+        .total-row:last-child span{ color:white; }
+
+        .status-badge{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            background:#dcfce7;
+            color:#166534;
+            padding:6px 14px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:700;
+            margin-bottom:20px;
+        }
+
+        .receipt-footer{
+            text-align:center;
+            border-top:1px dashed #bbb;
+            padding-top:16px;
+            margin-bottom:4px;
+        }
+        .receipt-footer p{ color:#64748b; font-size:12px; margin-bottom:4px; }
+
+        .receipt-actions{
+            display:flex;
+            justify-content:center;
+            gap:14px;
+            margin-top:22px;
+            flex-wrap:wrap;
+        }
+        .btn{
+            padding:12px 22px;
+            border:none;
+            border-radius:8px;
+            font-size:14px;
+            font-weight:700;
+            cursor:pointer;
+            text-decoration:none;
+            transition:0.2s ease;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+        }
+        .btn-print{ background:#0B1F3A; color:white; }
+        .btn-print:hover{ background:#102B52; }
+        .btn-back{ background:#e2e8f0; color:#0B1F3A; }
+        .btn-back:hover{ background:#cbd5e1; }
+
+        @media print{
+            body{ background:white; padding:0; }
+            .receipt{ box-shadow:none; border:none; }
+            .receipt-actions{ display:none; }
+        }
+        @media(max-width:600px){
+            .totals{ width:100%; }
+            .receipt-header{ flex-direction:column; align-items:flex-start; }
+            .receipt-date{ text-align:left; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="receipt-wrapper">
+    <div class="receipt">
+
+        <div class="receipt-header">
+            <div class="brand">
+                <img src="{% static 'images/nyondologo.png' %}" alt="Nyondo Hardware Logo">
+                <div>
+                    <h1>Nyondo Hardware</h1>
+                    <p>Withdrawal Receipt</p>
+                </div>
+            </div>
+            <div class="receipt-date">
+                <small>Receipt Date</small>
+                <strong>{{ withdrawal.withdrawal_date|date:"d M Y" }}</strong>
+            </div>
+        </div>
+
+        <div class="receipt-body">
+
+            <div class="status-badge">
+                <i class="fas fa-check-circle"></i>
+                Withdrawal Completed Successfully
+            </div>
+
+            <div class="info-section">
+                <div class="info-row">
+                    <span class="info-label">Receipt No.</span>
+                    <span class="info-value">{{ withdrawal.receipt_number }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Customer</span>
+                    <span class="info-value">{{ withdrawal.scheme.customer.name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Product</span>
+                    <span class="info-value">{{ withdrawal.scheme.product.name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Quantity Withdrawn</span>
+                    <span class="info-value">{{ withdrawal.quantity_withdrawn }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Amount Paid</span>
+                    <span class="info-value">UGX {{ withdrawal.scheme.amount_paid|floatformat:0|intcomma }}</span>
+                </div>
+                {% if withdrawal.comment %}
+                <div class="info-row">
+                    <span class="info-label">Comment</span>
+                    <span class="info-value">{{ withdrawal.comment }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="items-title">Product Details</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ withdrawal.scheme.product.name }}</td>
+                            <td>{{ withdrawal.quantity_withdrawn }}</td>
+                            <td>UGX {{ withdrawal.scheme.product.unit_price|floatformat:0|intcomma }}</td>
+                            <td>UGX {{ withdrawal.scheme.total_amount|floatformat:0|intcomma }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="totals">
+                <div class="total-row"><span>Total Deposit</span><span>UGX {{ withdrawal.scheme.total_amount|floatformat:0|intcomma }}</span></div>
+                <div class="total-row"><span>Amount Paid</span><span>UGX {{ withdrawal.scheme.amount_paid|floatformat:0|intcomma }}</span></div>
+                <div class="total-row"><span>Balance</span><span>UGX {{ withdrawal.scheme.balance|floatformat:0|intcomma }}</span></div>
+            </div>
+
+            <div class="receipt-footer">
+                <p>Thank you for choosing Nyondo Hardware</p>
+                <p>Goods withdrawn successfully — Please keep this receipt for your records.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="receipt-actions">
+        <button onclick="window.print()" class="btn btn-print">
+            <i class="fas fa-print"></i> Print Receipt
+        </button>
+        <a href="{% url 'view_deposit' withdrawal.scheme.id %}" class="btn btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Deposit
+        </a>
+        <a href="{% url 'deposit_dashboard' %}" class="btn btn-back">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', function() {
+        setTimeout(function() { window.print(); }, 500);
+    });
+</script>
+
+</body>
+</html>

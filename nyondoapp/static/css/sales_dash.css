@@ -30,12 +30,13 @@
 }
 
 .add-btn {
-    background: #0f172a;
+    background: #0B1F3A;
     color: #fff;
     text-decoration: none;
-    padding: 12px 18px;
-    border-radius: 10px;
+    padding: 10px 18px;
+    border-radius: 8px;
     font-weight: 700;
+    font-size: 13px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -44,7 +45,8 @@
 }
 
 .add-btn:hover {
-    background: #1e293b;
+    background: #102B52;
+    transform: translateY(-1px);
 }
 
 .cards {
@@ -55,11 +57,12 @@
 
 .card {
     background: #ffffff;
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 18px;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
-    border-left: 4px solid #0f172a;
-    transition: transform 0.2s ease, background 0.2s ease;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.07);
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #0B1F3A;
+    transition: transform 0.2s ease;
 }
 
 .card:hover {
@@ -138,14 +141,15 @@ table {
 }
 
 thead {
-    background: #e2e8f0;
+    background: #0B1F3A;
 }
 
 thead th {
     padding: 12px 14px;
     text-align: left;
-    color: #0f172a;
-    font-size: 13px;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 tbody td {

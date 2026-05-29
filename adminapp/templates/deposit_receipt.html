@@ -1,0 +1,202 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit Receipt | Nyondo Hardware</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; font-family:Arial,Helvetica,sans-serif; }
+        body{ background:#f1f5f9; padding:30px 15px; color:#1f2937; }
+
+        .receipt-wrapper{ max-width:700px; margin:auto; }
+        .receipt{
+            background:#fff;
+            border:1px solid #dcdfe4;
+            border-radius:8px;
+            overflow:hidden;
+            box-shadow:0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .receipt-header{
+            background:#0B1F3A;
+            color:white;
+            padding:24px 28px;
+        }
+        .brand{ display:flex; align-items:center; gap:14px; }
+        .brand img{
+            width:52px; height:52px; object-fit:contain;
+            background:white; border-radius:8px; padding:4px;
+        }
+        .brand h1{ font-size:22px; margin-bottom:3px; }
+        .brand p{ font-size:12px; opacity:0.85; }
+
+        .receipt-body{ padding:24px 28px; }
+
+        .info-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+            gap:12px;
+            margin-bottom:20px;
+        }
+        .info-card{
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            border-radius:10px;
+            padding:16px;
+        }
+        .info-card h3{ font-size:13px; color:#0B1F3A; margin-bottom:12px; font-weight:700; }
+        .info-row{
+            display:flex;
+            justify-content:space-between;
+            padding:8px 0;
+            border-bottom:1px solid #e2e8f0;
+            font-size:13px;
+        }
+        .info-row:last-child{ border-bottom:none; }
+        .info-row span{ color:#64748b; }
+        .info-row strong{ color:#0B1F3A; }
+
+        .summary-box{
+            background:#0B1F3A;
+            border-radius:10px;
+            padding:18px;
+            margin-bottom:20px;
+        }
+        .summary-row{
+            display:flex;
+            justify-content:space-between;
+            padding:9px 0;
+            border-bottom:1px solid rgba(255,255,255,0.1);
+            font-size:13px;
+        }
+        .summary-row:last-child{ border-bottom:none; }
+        .summary-row span{ color:#cbd5e1; }
+        .summary-row strong{ color:#fff; }
+        .paid-text{ color:#10b981 !important; font-weight:700; }
+        .balance-text{ color:#f87171 !important; font-weight:700; }
+
+        .comment-card{
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            border-radius:10px;
+            padding:16px;
+            margin-bottom:20px;
+        }
+        .comment-card h3{ font-size:13px; color:#0B1F3A; margin-bottom:8px; }
+        .comment-card p{ font-size:13px; color:#475569; line-height:1.6; }
+
+        .receipt-footer{
+            text-align:center;
+            border-top:1px dashed #bbb;
+            padding-top:16px;
+            margin-bottom:4px;
+        }
+        .receipt-footer p{ color:#64748b; font-size:12px; margin-bottom:4px; }
+
+        .receipt-actions{
+            display:flex;
+            justify-content:center;
+            gap:14px;
+            margin-top:22px;
+            flex-wrap:wrap;
+        }
+        .btn{
+            padding:12px 22px;
+            border:none;
+            border-radius:8px;
+            font-size:14px;
+            font-weight:700;
+            cursor:pointer;
+            text-decoration:none;
+            transition:0.2s ease;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+        }
+        .btn-print{ background:#0B1F3A; color:white; }
+        .btn-print:hover{ background:#102B52; }
+        .btn-back{ background:#e2e8f0; color:#0B1F3A; }
+        .btn-back:hover{ background:#cbd5e1; }
+
+        @media print{
+            body{ background:white; padding:0; }
+            .receipt{ box-shadow:none; border:none; }
+            .receipt-actions{ display:none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="receipt-wrapper">
+    <div class="receipt">
+
+        <div class="receipt-header">
+            <div class="brand">
+                <img src="{% static 'images/nyondologo.png' %}" alt="Nyondo Hardware Logo">
+                <div>
+                    <h1>Nyondo Hardware</h1>
+                    <p>Deposit Payment Receipt</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="receipt-body">
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Customer Information</h3>
+                    <div class="info-row"><span>Customer</span><strong>{{ payment.scheme.customer.name }}</strong></div>
+                    <div class="info-row"><span>Product</span><strong>{{ payment.scheme.product.name }}</strong></div>
+                    <div class="info-row"><span>Quantity</span><strong>{{ payment.scheme.quantity_expected }}</strong></div>
+                </div>
+                <div class="info-card">
+                    <h3>Payment Information</h3>
+                    <div class="info-row"><span>Amount Paid</span><strong class="paid-text">UGX {{ payment.amount_paid|floatformat:0|intcomma }}</strong></div>
+                    <div class="info-row"><span>Method</span><strong>{{ payment.payment_method|title }}</strong></div>
+                    <div class="info-row"><span>Date</span><strong>{{ payment.payment_date|date:"d M Y, H:i" }}</strong></div>
+                    <div class="info-row"><span>Receipt No.</span><strong>{{ payment.receipt_number }}</strong></div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <div class="summary-row"><span>Total Deposit Amount</span><strong>UGX {{ payment.scheme.total_amount|floatformat:0|intcomma }}</strong></div>
+                <div class="summary-row"><span>Total Paid</span><strong class="paid-text">UGX {{ summary.total_paid|floatformat:0|intcomma }}</strong></div>
+                <div class="summary-row"><span>Remaining Balance</span><strong class="balance-text">UGX {{ summary.display_balance|floatformat:0|intcomma }}</strong></div>
+            </div>
+
+            {% if payment.comment %}
+            <div class="comment-card">
+                <h3>Comment</h3>
+                <p>{{ payment.comment }}</p>
+            </div>
+            {% endif %}
+
+            <div class="receipt-footer">
+                <p>Thank you for choosing Nyondo Hardware</p>
+                <p>This is an official deposit receipt. Please keep it for your records.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="receipt-actions">
+        <button onclick="window.print()" class="btn btn-print">
+            <i class="fas fa-print"></i> Print Receipt
+        </button>
+        <a href="{% url 'deposit_dashboard' %}" class="btn btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Deposits
+        </a>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', function() {
+        setTimeout(function() { window.print(); }, 500);
+    });
+</script>
+
+</body>
+</html>

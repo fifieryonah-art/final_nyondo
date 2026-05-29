@@ -25,8 +25,12 @@ def loginPage(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
 
+        if not username or not password:
+            messages.error(request, "Please provide both username and password.")
+            return render(request, "login.html")
+
         # authenticate user
-        user = authenticate(request,username=username,password=password)
+        user = authenticate(request, username=username, password=password)
         if user is not None:
             # login user
             login(request, user)
@@ -49,15 +53,16 @@ def loginPage(request):
                     return redirect("sales_dash")
 
                 else:
-                    messages.error(request,"Unauthorized role")
+                    messages.error(request, "Unauthorized role")
                     return redirect("login")
 
             except Employee.DoesNotExist:
-                messages.error(request,"Employee profile not found")
+                messages.error(request, "Employee profile not found")
                 return redirect("login")
 
         else:
-            messages.error(request,"Invalid username or password")
+            messages.error(request, "Invalid username or password")
+            
     return render(request, "login.html")
 
 
@@ -563,61 +568,6 @@ def employee_dash(request):
     return render(request, 'employee_dash.html', context)
 
 @role_required(["attendant", "admin"])
-def creditPage(request):
-    deposit_schemes = DepositScheme.objects.select_related(
-        'customer', 'product').order_by('-payment_date')
-
-    total_scheme_customers = deposit_schemes.values('customer').distinct().count()
-    total_deposits = deposit_schemes.aggregate(total=Sum('total_amount'))['total'] or 0
-    active_accounts = 0
-    pending_accounts = 0
-    completed_accounts = 0
-    total_payments = DepositPayment.objects.count()
-
-    scheme_customers = []
-    for scheme in deposit_schemes:
-        customer = scheme.customer
-        if not customer:
-            continue
-
-        last_payment = scheme.payments.order_by('-payment_date').first()
-        payments_total = scheme.payments.aggregate(total=Sum('amount_paid'))['total'] or Decimal('0.00')
-        total_paid = max(payments_total, scheme.amount_paid or Decimal('0.00'))
-        balance = (scheme.total_amount or Decimal('0.00')) - total_paid
-
-        if total_paid <= 0:
-            status = 'Pending'
-            pending_accounts += 1
-        elif balance <= 0:
-            status = 'Completed'
-            completed_accounts += 1
-        else:
-            status = 'Active'
-            active_accounts += 1
-
-        scheme_customers.append({
-            'id': scheme.id,
-            'name': customer.name,
-            'phone': customer.phone,
-            'total_deposit': total_paid,
-            'balance': max(balance, Decimal('0.00')),
-            'last_deposit': last_payment.payment_date if last_payment else scheme.payment_date,
-            'status': status,
-        })
-
-    context = {
-        'total_scheme_customers': total_scheme_customers,
-        'total_deposits': total_deposits,
-        'active_accounts': active_accounts,
-        'pending_accounts': pending_accounts,
-        'completed_accounts': completed_accounts,
-        'total_payments': total_payments,
-        'scheme_customers': scheme_customers,
-    }
-
-    return render(request, 'credit.html', context)
-
-@role_required(["attendant", "admin"])
 def sales_dash(request):
     today = timezone.localdate()
     products = Product.objects.all()
@@ -710,25 +660,35 @@ def add_sales(request):
             messages.error(request, 'Please add at least one valid product.')
             return redirect('add_sales')
 
-        created_sale_ids = []
-
         # --------------------------------------------------
-        # LOOP PRODUCTS
+        # PRE-VALIDATE STOCK: Block sale if stock is low or insufficient
         # --------------------------------------------------
+        sales_data = []
         for product_id, quantity_raw in zip(product_ids, quantities):
-
             quantity = int(quantity_raw or 0)
-
             if quantity <= 0:
                 messages.error(request, 'Quantity must be greater than zero.')
                 return redirect('add_sales')
-
+            
             product = get_object_or_404(Product, id=product_id)
-
-            # STOCK CHECK
+            
             if product.stock_quantity < quantity:
-                messages.error(request, f"Not enough stock for {product.name}.")
+                messages.error(request, f"Sale Failed: {product.name} is low on stock. Available quantity is only {product.stock_quantity}.")
                 return redirect('add_sales')
+            
+            sales_data.append({
+                'product': product,
+                'quantity': quantity
+            })
+
+        created_sale_ids = []
+
+        # --------------------------------------------------
+        # CREATE SALES RECORDS
+        # --------------------------------------------------
+        for item in sales_data:
+            product = item['product']
+            quantity = item['quantity']
 
             sub_total = Decimal(quantity) * product.unit_price
 
@@ -770,8 +730,7 @@ def add_sales(request):
         # OPTIONAL: for payment flow
         request.session['pending_sale_ids'] = created_sale_ids
 
-        messages.success(request, 'Sale recorded successfully.')
-        return redirect('sales_list')
+        return redirect('add_payment')
 
     return render(request, 'add_sales.html', {
         'products': products,
@@ -784,11 +743,24 @@ def add_customer(request, pk=None):
     form = CustomerForm()
 
     if request.method == 'POST':
+        # Extract data to handle conditional validation
+        on_scheme = request.POST.get('on_scheme') == 'on'
+        nin = request.POST.get('nin')
+        
         form = CustomerForm(request.POST)
-
-        if form.is_valid():
-            form.save()
+        
+        # If not on scheme, we don't care about NIN/Phone validation errors from the form
+        if not on_scheme:
+            customer = form.save(commit=False)
+            customer.on_scheme = False
+            customer.save()
+            messages.success(request, f"Customer {customer.name} added successfully.")
             return redirect('customer_list')
+        else:
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Deposit customer registered with NIN successfully.")
+                return redirect('customer_list')
 
     context = {
         'form': form,
@@ -843,7 +815,8 @@ def add_payment(request):
     sales = Sale.objects.select_related('name', 'customer_name').filter(id__in=sale_ids).order_by('id')
 
     if not sales:
-        sales = Sale.objects.select_related('name', 'customer_name').order_by('-id')[:20]
+        messages.info(request, "No pending sales found to process.")
+        return redirect('sales_dash')
 
     payment_items = []
     subtotal_total = Decimal('0.00')
@@ -891,17 +864,10 @@ def add_payment(request):
 
         request.session.pop('pending_sale_ids', None)
 
-        return render(request, 'receipt.html', {
-            'payment': payment,
-            'sales': sales,
-            'payment_items': payment_items,
-            'customer': customer,
-            'balance': balance,
-            'amount_paid': amount_paid,
-            'subtotal_total': subtotal_total,
-            'transport_total': transport_total,
-            'total': total,
-        })
+        # Link sales items to the payment for the receipt
+        sales.update(payment=payment)
+
+        return redirect('payment_receipt', pk=payment.id)
 
     context = {
         'sales': sales,
@@ -917,6 +883,41 @@ def add_payment(request):
     }
 
     return render(request, 'add_payment.html', context)
+
+@role_required(["attendant", "admin"])
+def payment_receipt(request, pk):
+    payment = get_object_or_404(Payment, id=pk)
+    sales = Sale.objects.filter(payment=payment)
+
+    payment_items = []
+    subtotal_total = Decimal('0.00')
+    transport_total = Decimal('0.00')
+
+    for sale in sales:
+        sub = sale.sub_total or Decimal('0.00')
+        transport = sale.transport or Decimal('0.00')
+        payment_items.append({
+            'product_name': sale.name.name if sale.name else 'Unknown Product',
+            'unit_price': sale.unit_price or Decimal('0.00'),
+            'quantity': sale.quantity,
+            'sub_total': sub,
+            'transport': transport,
+            'line_total': sale.final_amount or Decimal('0.00'),
+        })
+        subtotal_total += sub
+        transport_total += transport
+
+    context = {
+        'payment': payment,
+        'payment_items': payment_items,
+        'customer': payment.customer,
+        'total': payment.total,
+        'subtotal_total': subtotal_total,
+        'transport_total': transport_total,
+        'amount_paid': payment.amount_paid,
+        'balance': payment.balance,
+    }
+    return render(request, 'receipt.html', context)
 
 @role_required(["attendant", "admin"])
 def payment_list(request):

@@ -127,10 +127,19 @@
 <body>
 
 <div class="login-wrapper">
-
     <div class="login-card">
+        <!-- DJANGO MESSAGES -->
+        {% if messages %}
+            <div class="form-messages" style="margin-bottom: 15px; text-align: left;">
+                {% for message in messages %}
+                    <p class="{{ message.tags }}" style="color: #f87171; font-size: 13px; background: rgba(220, 38, 38, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(220, 38, 38, 0.2);">
+                        <i class="fas fa-exclamation-circle"></i> {{ message }}
+                    </p>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-        <form method="POST" class="login-form">
+        <form method="POST" class="login-form" novalidate>
 
             {% csrf_token %}
 
@@ -152,9 +161,7 @@
 
                 <input type="text"
                        name="username"
-                       placeholder="Enter username"
-                       required>
-
+                       placeholder="Enter username">
             </div>
 
             <!-- PASSWORD -->
@@ -168,9 +175,7 @@
 
                 <input type="password"
                        name="password"
-                       placeholder="Enter password"
-                       required>
-
+                       placeholder="Enter password">
             </div>
 
             <!-- BUTTON -->

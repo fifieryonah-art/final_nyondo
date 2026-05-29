@@ -1,185 +1,140 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
-{% block title %}
-    Customer | Nyondo Hardware
-{% endblock %}
-
-{% block extra_css %}
-
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-<link rel="stylesheet"
-      href="{% static 'css/customer_list.css' %}">
-
-{% endblock %}
-
-{% block sidebar %}
-    {% include 'salessidebar.html' %}
-{% endblock %}
+{% block title %}Customers | Nyondo Hardware{% endblock %}
 
 {% block content %}
 
-<!-- PAGE HEADER -->
+<div class="cust-shell">
 
-<div class="page-header">
-
-    <div>
-
-        <h2>
-            <i class="fas fa-users"></i>
-            Customers
-        </h2>
-
-        <p>Manage all registered customers</p>
-
+    <div class="page-header">
+        <div>
+            <h2><i class="fas fa-users"></i> Customers</h2>
+            <p>Manage all registered customers</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'add_customer' %}" class="sys-btn sys-btn-primary">
+                <i class="fas fa-user-plus"></i> Add Customer
+            </a>
+        </div>
     </div>
 
-    <div class="header-actions">
-
-        <a href="{% url 'add_customer' %}"
-           class="btn-add">
-
-            <i class="fas fa-user-plus"></i>
-
-            Add Customer
-
-        </a>
-
+    <!-- STATS -->
+    <div class="stat-cards">
+        <div class="stat-card">
+            <span>Total Customers</span>
+            <h3>{{ total_customers }}</h3>
+        </div>
+        <div class="stat-card">
+            <span>On Scheme</span>
+            <h3>{{ on_scheme }}</h3>
+        </div>
+        <div class="stat-card">
+            <span>Normal</span>
+            <h3>{{ normal_customers }}</h3>
+        </div>
     </div>
 
-</div>
-
-<!-- TABLE -->
-
-<div class="table-container">
-
-    <table>
-
-        <thead>
-
-            <tr>
-
-                <th>Customer Name</th>
-                <th>Phone Number</th>
-                <th>NIN</th>
-                <th>Status</th>
-                <th>Actions</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            {% for customer in customers %}
-
-            <tr>
-
-                <td>
-
-                    <div class="customer-info">
-
-                        <div class="avatar">
-                            {{ customer.name|slice:":1" }}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Phone Number</th>
+                    <th>NIN</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                <tr>
+                    <td>
+                        <div class="customer-info">
+                            <div class="avatar">{{ customer.name|slice:":1" }}</div>
+                            <span>{{ customer.name }}</span>
                         </div>
-
-                        <span>{{ customer.name }}</span>
-
-                    </div>
-
-                </td>
-
-                <td>{{ customer.phone }}</td>
-
-                <td>{{ customer.nin }}</td>
-
-                <td>
-
-                    {% if customer.on_scheme %}
-
-                        <span class="badge scheme">
-
-                            <i class="fas fa-piggy-bank"></i>
-
-                            On Scheme
-
-                        </span>
-
-                    {% else %}
-
-                        <span class="badge normal">
-
-                            <i class="fas fa-user"></i>
-
-                            Normal
-
-                        </span>
-
-                    {% endif %}
-
-                </td>
-
-                <td>
-
-                    <div class="actions">
-
-                        <a href="{% url 'customer_detail' customer.id %}"
-                           class="btn-view">
-
-                            <i class="fas fa-eye"></i>
-
-                            View
-
-                        </a>
-
-                        <a href="{% url 'customer_edit' customer.id %}"
-                           class="btn-edit">
-
-                            <i class="fas fa-pen"></i>
-
-                            Edit
-
-                        </a>
-
-                        <a href="{% url 'delete_customer' customer.id %}"
-                           class="btn-delete">
-
-                            <i class="fas fa-trash"></i>
-
-                            Delete
-
-                        </a>
-
-                    </div>
-
-                </td>
-
-            </tr>
-
-            {% empty %}
-
-            <tr>
-
-                <td colspan="5"
-                    class="empty-state">
-
-                    <i class="fas fa-folder-open"></i>
-
-                    No customers found
-
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
+                    </td>
+                    <td>{{ customer.phone|default:'-' }}</td>
+                    <td>{{ customer.nin|default:'-' }}</td>
+                    <td>
+                        {% if customer.on_scheme %}
+                            <span class="badge scheme"><i class="fas fa-piggy-bank"></i> On Scheme</span>
+                        {% else %}
+                            <span class="badge normal"><i class="fas fa-user"></i> Normal</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <a href="{% url 'customer_detail' customer.id %}" class="sys-btn sys-btn-sm sys-btn-view">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="{% url 'customer_edit' customer.id %}" class="sys-btn sys-btn-sm sys-btn-edit">
+                                <i class="fas fa-pen"></i> Edit
+                            </a>
+                            <a href="{% url 'delete_customer' customer.id %}" class="sys-btn sys-btn-sm sys-btn-delete">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align:center;padding:30px;color:#64748b;">
+                        <i class="fas fa-folder-open" style="font-size:24px;margin-bottom:8px;display:block;"></i>
+                        No customers found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 </div>
 
+<style>
+.cust-shell{ display:flex; flex-direction:column; gap:18px; }
+.page-header{
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:14px;
+}
+.page-header h2{ font-size:22px; color:#0B1F3A; margin-bottom:4px; }
+.page-header p{ font-size:13px; color:#64748b; }
+.stat-cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:14px;
+}
+.stat-card{
+    background:#fff;
+    border:1px solid #e2e8f0;
+    border-left:4px solid #0B1F3A;
+    border-radius:12px;
+    padding:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+.stat-card span{ display:block; font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:6px; }
+.stat-card h3{ font-size:22px; font-weight:800; color:#0B1F3A; }
+.table-container{ overflow-x:auto; background:#fff; border-radius:12px; border:1px solid #e2e8f0; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+table{ width:100%; border-collapse:collapse; min-width:700px; }
+thead{ background:#0B1F3A; }
+th{ padding:13px 14px; color:white; text-align:left; font-size:12px; font-weight:700; }
+td{ padding:13px 14px; border-bottom:1px solid #f1f5f9; font-size:13px; color:#334155; }
+tbody tr:hover{ background:#f8fafc; }
+.customer-info{ display:flex; align-items:center; gap:10px; }
+.avatar{
+    width:34px; height:34px; border-radius:50%;
+    background:#0B1F3A; color:white;
+    display:grid; place-items:center;
+    font-weight:700; font-size:14px; flex-shrink:0;
+}
+.badge{
+    padding:4px 10px; border-radius:999px;
+    font-size:11px; font-weight:700;
+    display:inline-flex; align-items:center; gap:5px;
+}
+.badge.scheme{ background:#dbeafe; color:#1d4ed8; }
+.badge.normal{ background:#f1f5f9; color:#475569; }
+.actions{ display:flex; gap:6px; flex-wrap:wrap; }
+</style>
 {% endblock %}

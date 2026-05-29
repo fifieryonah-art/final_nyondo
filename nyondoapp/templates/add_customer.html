@@ -1,78 +1,76 @@
-<!DOCTYPE html>
-
+```html
+{% extends "base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
 
-<html lang="en">
+{% block title %}
+    Add Customer | Nyondo Hardware
+{% endblock %}
 
-<head>
 
-    <meta charset="UTF-8">
+{% block content %}
+<div class="customer-page">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <div class="customer-card">
 
-    <title>Add Customer | Nyondo Hardware</title>
+        <!-- Header -->
+        <div class="customer-header">
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <link rel="stylesheet"
-          href="{% static 'css/add_customer.css' %}?v=20260525">
-
-</head>
-
-<body>
-
-<div class="page-wrapper">
-
-    <div class="form-card">
-
-        <!-- HEADER -->
-
-        <div class="form-header">
-
-            <div class="icon-box">
+            <div class="header-icon">
                 <i class="fas fa-user-plus"></i>
             </div>
 
             <div>
-                <h2>Add Customer</h2>
-                <p>Create a new customer profile</p>
+                <h2>Add New Customer</h2>
+                <p>Create and manage customer profiles easily.</p>
             </div>
 
         </div>
 
-        <!-- FORM -->
 
+        <!-- Messages -->
+        {% if messages %}
+            <div class="message-wrapper">
+
+                {% for message in messages %}
+
+                    <div class="alert-box
+                        {% if message.tags == 'error' %}
+                            alert-error
+                        {% else %}
+                            alert-success
+                        {% endif %}
+                    ">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+        {% endif %}
+
+
+        <!-- Form -->
         <form method="POST" novalidate>
 
             {% csrf_token %}
 
-            <div class="form-body">
-
+            <div class="customer-form-body">
                 {{ form|crispy }}
-
             </div>
 
-            <!-- BUTTONS -->
 
-            <div class="button-group">
+            <!-- Buttons -->
+            <div class="customer-buttons">
 
-                <button type="submit" class="btn-save">
-
+                <button type="submit" class="sys-btn sys-btn-primary">
                     <i class="fas fa-save"></i>
-
                     Save Customer
-
                 </button>
 
-                <a href="{% url 'customer_list' %}" class="btn-cancel">
-
-                    <i class="fas fa-times"></i>
-
-                    Cancel
-
+                <a href="{% url 'customer_list' %}" class="sys-btn sys-btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back
                 </a>
 
             </div>
@@ -83,5 +81,256 @@
 
 </div>
 
-</body>
-</html>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+.customer-page{
+    min-height:100vh;
+    padding:40px 20px;
+    background:linear-gradient(to bottom right, #f8fafc, #eef2ff);
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+}
+
+.customer-card{
+    width:100%;
+    max-width:820px;
+    background:#ffffff;
+    border-radius:24px;
+    padding:34px;
+    border:1px solid #e2e8f0;
+    box-shadow:0 15px 40px rgba(15, 23, 42, 0.08);
+}
+
+.customer-header{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin-bottom:30px;
+    padding-bottom:22px;
+    border-bottom:1px solid #e2e8f0;
+}
+
+.header-icon{
+    width:65px;
+    height:65px;
+    border-radius:18px;
+    background:linear-gradient(135deg, #0B1F3A, #1d4ed8);
+    color:#ffffff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.4rem;
+    box-shadow:0 10px 25px rgba(29, 78, 216, 0.25);
+}
+
+.customer-header h2{
+    margin:0;
+    font-size:1.7rem;
+    font-weight:800;
+    color:#0f172a;
+}
+
+.customer-header p{
+    margin-top:5px;
+    color:#64748b;
+    font-size:14px;
+}
+
+.message-wrapper{
+    margin-bottom:20px;
+}
+
+.alert-box{
+    padding:13px 16px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:10px;
+}
+
+.alert-error{
+    background:#fef2f2;
+    color:#b91c1c;
+    border:1px solid #fecaca;
+}
+
+.alert-success{
+    background:#ecfdf5;
+    color:#166534;
+    border:1px solid #bbf7d0;
+}
+
+.customer-form-body{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    margin-bottom:26px;
+}
+
+.customer-form-body .mb-3,
+.customer-form-body .form-group,
+.customer-form-body .crispy-field{
+    margin-bottom:0 !important;
+}
+
+.customer-form-body label{
+    display:block;
+    margin-bottom:7px;
+    font-size:14px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.customer-form-body input,
+.customer-form-body select,
+.customer-form-body textarea{
+    width:100%;
+    height:44px;
+    border:1px solid #cbd5e1 !important;
+    border-radius:14px !important;
+    padding:10px 12px !important;
+    background:#f8fafc;
+    font-size:14px;
+    transition:all 0.2s ease;
+}
+
+.customer-form-body textarea{
+    height:44px !important;
+    min-height:44px !important;
+    max-height:44px !important;
+    resize:none;
+    padding-top:11px !important;
+}
+
+#id_nin{
+    max-width:320px;
+}
+
+#id_comment,
+#id_comments{
+    max-width:420px;
+}
+
+#id_nin{
+    max-width:320px;
+}
+
+#id_comment,
+#id_comments{
+    max-width:420px;
+}
+
+.customer-form-body textarea{
+    min-height:65px !important;
+    max-height:90px;
+    resize:vertical;
+}
+
+.customer-form-body input:focus,
+.customer-form-body select:focus,
+.customer-form-body textarea:focus{
+    background:#ffffff;
+    border-color:#2563eb !important;
+    box-shadow:0 0 0 4px rgba(37, 99, 235, 0.12) !important;
+    outline:none;
+}
+
+.customer-buttons{
+    display:flex;
+    justify-content:flex-end;
+    gap:14px;
+    margin-top:10px;
+}
+
+.sys-btn{
+    border:none;
+    padding:13px 22px;
+    border-radius:14px;
+    font-size:14px;
+    font-weight:700;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    transition:0.25s ease;
+    cursor:pointer;
+}
+
+.sys-btn-primary{
+    background:linear-gradient(135deg, #0B1F3A, #1d4ed8);
+    color:#ffffff;
+}
+
+.sys-btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(29, 78, 216, 0.2);
+}
+
+.sys-btn-secondary{
+    background:#f1f5f9;
+    color:#0f172a;
+    border:1px solid #cbd5e1;
+}
+
+.sys-btn-secondary:hover{
+    background:#e2e8f0;
+}
+
+/* Scheme Checkbox Alignment */
+.customer-form-body .form-check,
+.customer-form-body .checkbox,
+.customer-form-body input[type="checkbox"]{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.customer-form-body input[type="checkbox"]{
+    width:18px !important;
+    height:18px !important;
+    accent-color:#1d4ed8;
+    cursor:pointer;
+}
+
+.customer-form-body .form-check label,
+.customer-form-body .checkbox label{
+    margin:0;
+    font-size:14px;
+    font-weight:600;
+    color:#0f172a;
+}
+
+@media (max-width:768px){
+
+    .customer-card{
+        padding:24px;
+    }
+
+    .customer-header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .customer-form-body{
+        grid-template-columns:1fr;
+    }
+
+    .customer-buttons{
+        flex-direction:column;
+    }
+
+    .sys-btn{
+        width:100%;
+    }
+}
+
+</style>
+{% endblock %}
+```

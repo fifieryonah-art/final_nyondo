@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}
+    Withdraw Deposit | Nyondo Hardware
+{% endblock %}
+
+
+{% block extra_css %}
+<style>
+
+    .admin-form-grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+        gap:16px;
+    }
+
+    .admin-form-group{
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+    }
+
+    .admin-form-group label{
+        font-size:0.95rem;
+        font-weight:700;
+        color:#0f172b;
+    }
+
+    .admin-form-group input,
+    .admin-form-group select,
+    .admin-form-group textarea{
+        width:100%;
+        padding:12px 14px;
+        border:1px solid #cbd5e1;
+        border-radius:10px;
+        font-size:0.95rem;
+        box-sizing:border-box;
+        outline:none;
+        transition:border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .admin-form-group input:focus,
+    .admin-form-group select:focus,
+    .admin-form-group textarea:focus{
+        border-color:#0F172B;
+        box-shadow:0 0 0 3px rgba(15, 23, 43, 0.1);
+    }
+
+    .summary-card{
+        margin:18px 0;
+        padding:18px;
+        border-radius:14px;
+        background:#f8fafc;
+        border:1px solid #e2e8f0;
+        display:grid;
+        gap:10px;
+    }
+
+    .summary-row{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:16px;
+    }
+
+    .summary-row span{
+        color:#64748b;
+        font-weight:600;
+    }
+
+    .summary-row strong{
+        color:#0f172b;
+        font-size:1rem;
+    }
+
+    .button-row{
+        display:flex;
+        gap:12px;
+        margin-top:20px;
+        flex-wrap:wrap;
+    }
+
+    .alert{
+    padding:12px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+}
+
+.alert-error{
+    background:#fee2e2;
+    color:#b91c1c;
+    border:1px solid #fecaca;
+}
+
+.alert-success{
+    background:#dcfce7;
+    color:#166534;
+    border:1px solid #bbf7d0;
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="admin-shell">
+
+    <!-- Page Header -->
+    <div class="admin-page-header">
+
+        <div>
+            <h1>Withdraw from Deposit Scheme</h1>
+            <p>
+                Record a withdrawal of products from the customer's deposit.
+            </p>
+        </div>
+
+        <a href="{% url 'view_deposit' deposit.id %}"
+           class="admin-btn-secondary">
+            Back to Deposit
+        </a>
+
+    </div>
+
+
+    <!-- Main Panel -->
+    <div class="admin-panel">
+
+        <!-- Messages -->
+        {% if messages %}
+    <div class="messages" style="margin-bottom:20px;">
+
+        {% for message in messages %}
+
+            <div
+                class="
+                    alert
+                    {% if message.tags == 'error' %}
+                        alert-error
+                    {% else %}
+                        alert-success
+                    {% endif %}
+                "
+            >
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    </div>
+{% endif %}
+
+        <!-- Deposit Summary -->
+        <div class="summary-card">
+
+            <div class="summary-row">
+                <span>Customer</span>
+                <strong>{{ deposit.customer.name }}</strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Product</span>
+                <strong>{{ deposit.product.name }}</strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Remaining Balance</span>
+
+                <strong class="money-value">
+                    UGX {{ deposit.remaining_balance|default:0|floatformat:0|intcomma }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <!-- Withdrawal Form -->
+        <form method="POST" novalidate>
+
+            {% csrf_token %}
+
+            <div class="admin-form-grid">
+
+                <!-- Quantity -->
+                <div class="admin-form-group">
+
+                    <label for="quantity">
+                        Quantity to Withdraw
+                    </label>
+
+                    <input
+                        type="number"
+                        id="quantity"
+                        name="quantity"
+                    >
+
+                </div>
+
+
+                <!-- Comment -->
+                <div class="admin-form-group">
+
+                    <label for="comment">
+                        Comment (Optional)
+                    </label>
+
+                    <textarea
+                        id="comment"
+                        name="comment"
+                        rows="4"
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- Buttons -->
+            <div class="button-row">
+
+                <button type="submit"
+                        class="admin-btn-primary">
+                    Record Withdrawal
+                </button>
+
+                <a href="{% url 'view_deposit' deposit.id %}"
+                   class="admin-btn-secondary">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

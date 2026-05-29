@@ -21,5 +21,8 @@ urlpatterns = [
     path('edit_deposit/<int:pk>/', views.edit_deposit, name='edit_deposit'),
     path('delete_deposit/<int:pk>/', views.delete_deposit, name='delete_deposit'),
     path('view_deposit/<int:pk>/', views.view_deposit, name='view_deposit'),
+    path('withdraw_deposit/<int:pk>/', views.withdraw_deposit, name='withdraw_deposit'),
+    path('deposit_receipt/<int:pk>/', views.deposit_receipt, name='deposit_receipt'),
+    path('withdraw_receipt/<int:pk>/', views.withdraw_receipt, name='withdraw_receipt'),
     path('reports/', views.reports, name='reports'),
 ]

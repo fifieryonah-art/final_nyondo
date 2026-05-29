@@ -5,7 +5,7 @@ from nyondoapp.models import Sale, Payment, Customer, Product, Stock
 from django.db.models import Sum, Max, F
 from django.utils import timezone
 from .forms import SupplierForm, SupplierPaymentForm
-from .models import Supplier, DepositScheme, DepositPayment
+from .models import Supplier, DepositScheme, DepositPayment, DepositWithdrawal
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from nyondoapp.models import Employee
@@ -14,7 +14,7 @@ from nyondoapp.utils import role_required
 from nyondoapp.utils import (admin_required,manager_required,attendant_required,)
 
 
-@role_required(["attendant", "admin"])
+# this is a helper function which calculates the deposit values, total money paid, remaining balance, deposit status and returns them in a dictionary
 def _deposit_summary(deposit):
     payments_total = deposit.payments.aggregate(total=Sum("amount_paid"))["total"] or Decimal("0.00")
     saved_paid = deposit.amount_paid or Decimal("0.00")
@@ -36,7 +36,7 @@ def _deposit_summary(deposit):
         "status": status,
     }
 
-@role_required(["attendant", "admin"])
+# this function takes those calculated values and attaches them to deposit object
 def _attach_deposit_summary(deposit):
     summary = _deposit_summary(deposit)
     deposit.total_paid = summary["total_paid"]
@@ -352,7 +352,7 @@ def deposit_list(request):
         "deposit_rows": deposit_rows
     })
 
-@role_required(["attendant", "admin"])
+@role_required(["admin"])
 def add_deposit(request):
 
     customers = Customer.objects.all()
@@ -364,6 +364,10 @@ def add_deposit(request):
         product_id = request.POST.get("product")
         quantity = request.POST.get("quantity_expected")
         amount_paid = request.POST.get("amount_paid")
+
+        if not all([customer_id, product_id, quantity]):
+            messages.error(request, "Customer, Product, and Quantity are required fields.")
+            return render(request, "add_deposit.html", {"customers": customers, "products": products})
 
         customer = Customer.objects.get(id=customer_id)
         product = Product.objects.get(id=product_id)
@@ -415,10 +419,13 @@ def record_deposit(request, pk):
         method = request.POST.get("payment_method")
         comment = request.POST.get("comment")
 
+        if not amount or Decimal(amount) <= 0:
+            messages.error(request, "A valid payment amount is required.")
+            return render(request, "record_deposit.html", {"scheme": scheme})
+
         if amount:
             amount = Decimal(amount or "0")
-
-            DepositPayment.objects.create(
+            payment = DepositPayment.objects.create(
                 scheme=scheme,
                 amount_paid=amount,
                 payment_method=method,
@@ -439,7 +446,8 @@ def record_deposit(request, pk):
 
             scheme.save()
 
-        return redirect('view_deposit', pk=scheme.id)
+        messages.success(request, f"Payment of UGX {amount} recorded successfully.")
+        return redirect('deposit_receipt', pk=payment.id)
 
     return render(request, "record_deposit.html", {
         "scheme": scheme
@@ -452,6 +460,11 @@ def edit_deposit(request, pk):
 
     if request.method == "POST":
         quantity_expected = request.POST.get("quantity_expected")
+
+        if not quantity_expected or int(quantity_expected) <= 0:
+            messages.error(request, "Quantity expected must be a positive number.")
+            return render(request, "edit_deposit.html", {"deposit": deposit})
+
         deposit.quantity_expected = int(quantity_expected or 0)
         deposit.save()
         summary = _deposit_summary(deposit)
@@ -459,6 +472,7 @@ def edit_deposit(request, pk):
         deposit.balance = summary["balance"]
         deposit.status = summary["status"]
         deposit.save(update_fields=["amount_paid", "balance", "status"])
+        messages.success(request, "Deposit scheme updated successfully.")
         return redirect("deposit_list")
 
     return render(request, "edit_deposit.html", {"deposit": deposit})
@@ -469,6 +483,7 @@ def delete_deposit(request, pk):
 
     if request.method == "POST":
         deposit.delete()
+        messages.success(request, "Deposit scheme deleted successfully.")
         return redirect("deposit_list")
 
     return render(request, "delete_deposit.html", {"deposit": deposit})
@@ -478,6 +493,7 @@ def view_deposit(request, pk):
 
     deposit = get_object_or_404(DepositScheme, id=pk)
 
+    _attach_deposit_summary(deposit)
     payments = deposit.payments.all().order_by("-payment_date")
 
     total_paid = payments.aggregate(
@@ -490,12 +506,68 @@ def view_deposit(request, pk):
         "deposit": deposit,
         "payments": payments,
         "total_paid": summary["total_paid"],
+        "withdrawals": deposit.withdrawals.all().order_by("-withdrawal_date"),
         "balance": summary["display_balance"],
         "status": summary["status"],
     }
 
     return render(request, "view_deposit.html", context)
 
+@role_required(["attendant", "admin"])
+def withdraw_deposit(request, pk):
+
+    deposit = get_object_or_404(DepositScheme, id=pk)
+    _attach_deposit_summary(deposit)
+
+    if request.method == "POST":
+
+        quantity = request.POST.get("quantity")
+        comment = request.POST.get("comment")
+
+        if not quantity or int(quantity) <= 0:
+            messages.error(request, "Please enter a valid quantity to withdraw.")
+            return render(request, "withdraw_deposit.html", {"deposit": deposit})
+
+        withdrawal = DepositWithdrawal.objects.create(
+            scheme=deposit,
+            quantity_withdrawn=int(quantity),
+            comment=comment,
+            received_by=request.user if request.user.is_authenticated else None,
+        )
+
+        # Force status to Withdrawn and bypass model's auto-status logic
+        DepositScheme.objects.filter(pk=deposit.pk).update(status="Withdrawn")
+
+        messages.success(request, "Withdrawal recorded successfully.")
+        return redirect("withdraw_receipt", pk=withdrawal.id)
+
+    return render(request, "withdraw_deposit.html", {
+        "deposit": deposit
+    })
+
+@role_required(["attendant", "admin"])
+def deposit_receipt(request, pk):
+    payment = get_object_or_404(DepositPayment, id=pk)
+    summary = _deposit_summary(payment.scheme)
+
+    context = {
+        "payment": payment,
+        "deposit": payment.scheme,
+        "summary": summary,
+    }
+
+    return render(request, "deposit_receipt.html", context)
+
+@role_required(["attendant", "admin"])
+def withdraw_receipt(request, pk):
+
+    withdrawal = get_object_or_404(DepositWithdrawal, id=pk)
+
+    context = {
+        "withdrawal": withdrawal
+    }
+
+    return render(request, "withdraw_receipt.html", context)
 
 @role_required(["admin"])
 def reports(request):

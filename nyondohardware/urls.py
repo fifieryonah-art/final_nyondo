@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from nyondoapp import views
+from adminapp import views as admin_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -46,7 +47,7 @@ urlpatterns = [
     path('sales_list/', views.sales_list, name='sales_list'),
     path('add_sales/', views.add_sales, name='add_sales'),
     # deposit scheme urls
-    path('credit/', views.creditPage, name='credit'),
+    path('deposit_dashboard/', admin_views.deposit_dashboard, name='deposit_dashboard'),
     path('add_customer/', views.add_customer, name='add_customer'),
     path('customer_list/', views.customer_list, name='customer_list'),
     path('customers/edit/<int:pk>/', views.customer_edit, name='customer_edit'),
@@ -54,6 +55,7 @@ urlpatterns = [
     path('customers/<int:pk>/', views.customer_detail, name='customer_detail'),
     # payment urls
     path('payments/add/', views.add_payment, name='add_payment'),
+    path('payments/receipt/<int:pk>/', views.payment_receipt, name='payment_receipt'),
     path('payments/', views.payment_list, name='payment_list'), 
    
 ]
