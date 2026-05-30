@@ -283,42 +283,54 @@ def record_payment(request, pk):
 
 @role_required(["attendant", "admin"])
 def deposit_dashboard(request):
+    today = timezone.localdate()
 
-    deposits = DepositScheme.objects.select_related("customer", "product").all()
+    # For the table, we need all deposits with their summaries
+    all_deposits_queryset = DepositScheme.objects.select_related("customer", "product").all().order_by("-id")
+    all_deposits_for_table = []
+    total_balance_all_time = Decimal("0.00")
 
-    active = 0
-    completed = 0
-    pending = 0
+    for d in all_deposits_queryset:
+        updated_d = _attach_deposit_summary(d)
+        all_deposits_for_table.append(updated_d)
+        # Accumulate total balance for all schemes still in progress
+        if updated_d.live_status in ["Pending", "Active"]:
+            total_balance_all_time += updated_d.remaining_balance
 
-    total_expected_all = Decimal("0.00")
-    total_paid_all = Decimal("0.00")
-    total_balance_all = Decimal("0.00")
+    # For dashboard cards, we need schemes created today
+    schemes_created_today = DepositScheme.objects.filter(payment_date__date=today)
+    # And payments made today
+    payments_made_today = DepositPayment.objects.filter(payment_date__date=today)
 
-    for d in deposits:
-        _attach_deposit_summary(d)
+    # Calculate totals for the daily cards
+    total_expected_today = schemes_created_today.aggregate(total=Sum("total_amount"))["total"] or Decimal("0.00")
+    total_paid_today = payments_made_today.aggregate(total=Sum("amount_paid"))["total"] or Decimal("0.00")
 
-        if d.live_status == "Pending":
-            pending += 1
-        elif d.live_status == "Completed":
-            completed += 1
-        else:
-            active += 1
+    # Calculate status counts for schemes created today
+    pending_today = 0
+    active_today = 0
+    completed_today = 0
 
-        total_expected_all += d.total_amount or Decimal("0.00")
-        total_paid_all += d.total_paid
-        total_balance_all += d.remaining_balance
+    for scheme in schemes_created_today:
+        summary = _deposit_summary(scheme) # Get current status based on all payments for this scheme
+        if summary["status"] == "Pending":
+            pending_today += 1
+        elif summary["status"] == "Completed":
+            completed_today += 1
+        else: # Active
+            active_today += 1
 
     context = {
-        "deposits": deposits,
-        "total_deposits": deposits.count(),
+        "deposits": all_deposits_for_table, # This is for the table
+        "total_deposits_today": schemes_created_today.count(), # Count of schemes created today
 
-        "pending_schemes": pending,
-        "active_schemes": active,
-        "completed_schemes": completed,
+        "pending_schemes_today": pending_today,
+        "active_schemes_today": active_today,
+        "completed_schemes_today": completed_today,
 
-        "total_expected": total_expected_all,
-        "total_paid": total_paid_all,
-        "total_balance": total_balance_all,
+        "total_expected_today": total_expected_today,
+        "total_paid_today": total_paid_today,
+        "total_balance_all": total_balance_all_time,
     }
 
  

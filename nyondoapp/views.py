@@ -9,6 +9,7 @@ from .models import Stock, Product, Sale, Payment, Customer,Employee
 from decimal import Decimal
 from .forms import CustomerForm
 from adminapp.models import Supplier, DepositScheme, DepositPayment
+from django.db import transaction
 from django.db.models import F, DecimalField, ExpressionWrapper
 from django.db.models import Sum
 from .stock_services import update_stock
@@ -117,64 +118,8 @@ def stock_records(request):
     return render(request, "stock_records.html", {"stocks": stocks})
 
 @role_required(["manager", "admin"])
+@transaction.atomic
 def add_stock(request):
-
-    products = Product.objects.all()
-    suppliers = Supplier.objects.all()
-
-    if request.method == "POST":
-
-        product_id = request.POST.get("product")
-        supplier_id = request.POST.get("supplier")
-        quantity = int(request.POST.get("quantity") or 0)
-        cost_price = Decimal(request.POST.get("cost_price") or 0)
-        unit_price = Decimal(request.POST.get("unit_price") or 0)
-        comments = request.POST.get("comments")
-        is_on_credit = "is_on_credit" in request.POST
-        is_paid = "is_paid" in request.POST
-
-        if not product_id or not supplier_id:
-            messages.error(request, "Please select both product and supplier.")
-            return render(request, "add_stock.html", {"products": products, "suppliers": suppliers})
-
-        if quantity <= 0:
-            messages.error(request, "Quantity must be greater than zero.")
-            return render(request, "add_stock.html", {"products": products, "suppliers": suppliers})
-
-        if cost_price < 0 or unit_price < 0:
-            messages.error(request, "Prices cannot be negative.")
-            return render(request, "add_stock.html", {"products": products, "suppliers": suppliers})
-
-        if unit_price < cost_price:
-            messages.error(request, "Unit price cannot be lower than cost price.")
-            return render(request, "add_stock.html", {"products": products, "suppliers": suppliers})
-
-        product = get_object_or_404(Product, id=product_id)
-        supplier = get_object_or_404(Supplier, id=supplier_id)
-
-        total_cost = cost_price * quantity
-
-        #  UPDATE STOCK
-        update_stock(product, quantity)
-
-        product.cost_price = cost_price
-        product.unit_price = unit_price
-        product.save(update_fields=["cost_price", "unit_price"])
-
-        Stock.objects.create(
-            product=product,
-            supplier=supplier,
-            quantity=quantity,
-            comments=comments,
-            total_cost=total_cost,
-            is_on_credit=is_on_credit,
-            is_paid=is_paid,
-            entered_by=request.user if request.user.is_authenticated else None,
-        )
-
-        messages.success(request, "Stock added successfully!")
-        return redirect("stock")
-
     products = Product.objects.all()
     suppliers = Supplier.objects.all()
 
@@ -283,20 +228,11 @@ def add_stock(request):
             total_cost=total_cost,
             is_on_credit=is_on_credit,
             is_paid=is_paid,
-            entered_by=request.user
-            if request.user.is_authenticated
-            else None,
+            entered_by=request.user if request.user.is_authenticated else None,
         )
 
-        # SUCCESS MESSAGE
-
-        messages.success(request,
-            "Stock added successfully!"
-        )
-
+        messages.success(request, "Stock added successfully!")
         return redirect("stock")
-
-
 
     context = {
         "products": products,
@@ -345,10 +281,6 @@ def stock_update(request, pk):
 
         # update stock safely
         update_stock(product, difference)
-
-        stock.product = product
-        stock.supplier = supplier
-        stock.quantity = new_quantity
         stock.comments = comments
         stock.total_cost = total_cost
         stock.save()
@@ -441,6 +373,11 @@ def add_product(request):
         unit_price = Decimal(request.POST.get('unit_price'))
         reorder_level = request.POST.get('reorder_level') or 10
 
+        # VALIDATE SELLING PRICE
+        if unit_price < cost_price:
+            messages.error(request, "Unit price cannot be lower than cost price.")
+            return render(request, 'add_product.html', request.POST)
+
 
         Product.objects.create(
 
@@ -474,14 +411,20 @@ def update_product(request, pk):
     product = get_object_or_404( Product, pk=pk)
 
     if request.method == "POST":
+       cost_price = Decimal(request.POST.get("cost_price") or 0)
+       unit_price = Decimal(request.POST.get("unit_price") or 0)
+
+       # VALIDATE SELLING PRICE
+       if unit_price < cost_price:
+           messages.error(request, "Unit price cannot be lower than cost price.")
+           return render(request, 'update_product.html', {'product': product})
+
        product.name = request.POST.get("name")
        product.stock_quantity = int(request.POST.get("quantity"))
-       product.cost_price = float(request.POST.get("cost_price"))
-       product.unit_price = float(request.POST.get("unit_price"))
-       product.comments = request.POST.get("comments")
-       product.profit_margin = request.POST.get("profit")
+       product.cost_price = cost_price
+       product.unit_price = unit_price
        product.entered_by = request.user
-       
+       product.save()
 
        messages.success(request,"Product updated successfully")
        return redirect("product_list")
@@ -576,8 +519,8 @@ def sales_dash(request):
     total_products = products.count()
     total_sales = sales.count()
 
-    total_revenue = 0
-    for sale in sales:total_revenue += sale.final_amount
+    # Calculate total revenue for the current day only
+    total_revenue = sales.aggregate(Sum('final_amount'))['final_amount__sum'] or 0
     total_items_sold = sales.aggregate(Sum('quantity'))['quantity__sum'] or 0
 
     transport_total = sales.aggregate(
@@ -590,15 +533,22 @@ def sales_dash(request):
 
     low_stock_count = low_stock.count()
 
-    top_selling_items = sales.order_by('-quantity')[:5]
+    # Aggregate sales by product name and sum the quantities
+    top_selling_items = (
+        sales.values('name__name')
+        .annotate(total_qty=Sum('quantity'))
+        .order_by('-total_qty')[:5]
+    )
 
-    supplier_credit = 0
-    deposits = DepositScheme.objects.count()
+    supplier_credit = Supplier.objects.aggregate(total=Sum('outstanding_credit'))['total'] or 0
+    # Update Sales Dashboard card to show only new deposits for today
+    deposits = DepositScheme.objects.filter(payment_date__date=today).count()
 
     context = {
         'sales': sales,
         'total_sales': total_sales,
         'total_items_sold': total_items_sold,
+        'total_revenue': total_revenue,
         'transport_total': transport_total,
         'supplier_credit': supplier_credit,
         'deposits': deposits,
@@ -607,6 +557,25 @@ def sales_dash(request):
         'top_selling_items': top_selling_items,
             }
     return render(request, "sales_dash.html", context)
+
+@role_required(["attendant", "admin"])
+def detailed_sales_report(request):
+    """Comprehensive sales report showing payment details and re-print options."""
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    sales = Sale.objects.select_related('name', 'customer_name', 'payment').all().order_by('-date')
+    
+    if start_date:
+        sales = sales.filter(date__date__gte=start_date)
+    if end_date:
+        sales = sales.filter(date__date__lte=end_date)
+        
+    return render(request, 'detailed_sales_report.html', {
+        'sales': sales,
+        'start_date': start_date,
+        'end_date': end_date,
+    })
 
 @role_required(["attendant", "admin"])
 def sales_list(request):
@@ -620,30 +589,52 @@ def sales_list(request):
     return render(request, 'sales_list.html', context)
 
 @role_required(["attendant", "admin"])
-def add_sales(request):
+def top_selling_report(request):
+    """View to see all top selling items from best to least sold."""
+    top_selling = (
+        Sale.objects.values('name__name', 'name__type', 'unit_price')
+        .annotate(
+            total_qty=Sum('quantity'),
+            total_revenue=Sum('sub_total')
+        )
+        .order_by('-total_qty')
+    )
+    
+    return render(request, 'top_selling_report.html', {'top_selling': top_selling})
 
+@role_required(["attendant", "admin"])
+@transaction.atomic
+def add_sales(request):
     products = Product.objects.all()
     customers = Customer.objects.all()
 
     if request.method == 'POST':
 
-        # --------------------------------------------------
+        
         # CUSTOMER (TYPE OR SELECT)
-        # --------------------------------------------------
-        customer_name = request.POST.get('customer_name')
+        
+        customer_input = request.POST.get('customer_name')
 
-        if not customer_name:
+        if not customer_input:
             messages.error(request, 'Please enter customer name.')
             return redirect('add_sales')
 
-        # create or get customer (NO ID REQUIRED)
-        customer, created = Customer.objects.get_or_create(
-            name=customer_name
-        )
+        # Handle both ID selection (numeric) and new name input (string)
+        if customer_input.isdigit():
+            customer = get_object_or_404(Customer, id=customer_input)
+        else:
+            # Create or get customer by name. Defaults ensure mandatory fields are filled.
+            customer, created = Customer.objects.get_or_create(
+                name=customer_input,
+                defaults={
+                    'phone': '0000000000',
+                    'nin': f'TEMP-{uuid.uuid4().hex[:8].upper()}'
+                }
+            )
 
-        # --------------------------------------------------
+        
         # OTHER FIELDS
-        # --------------------------------------------------
+        
         distance = Decimal(request.POST.get('distance') or 0)
         payment_method = request.POST.get('payment_method')
         comments = request.POST.get('comments', '')
@@ -653,48 +644,46 @@ def add_sales(request):
 
         use_transport = request.POST.get('use_transport')  # optional checkbox
 
-        # --------------------------------------------------
+        
         # VALIDATION
-        # --------------------------------------------------
+        
         if not product_ids or len(product_ids) != len(quantities):
             messages.error(request, 'Please add at least one valid product.')
             return redirect('add_sales')
 
-        # --------------------------------------------------
-        # PRE-VALIDATE STOCK: Block sale if stock is low or insufficient
-        # --------------------------------------------------
-        sales_data = []
-        for product_id, quantity_raw in zip(product_ids, quantities):
-            quantity = int(quantity_raw or 0)
-            if quantity <= 0:
+        consolidated_cart = {}
+        for p_id, q_raw in zip(product_ids, quantities):
+            qty = int(q_raw or 0)
+            if qty <= 0:
                 messages.error(request, 'Quantity must be greater than zero.')
                 return redirect('add_sales')
-            
+            consolidated_cart[p_id] = consolidated_cart.get(p_id, 0) + qty
+
+        sales_data = []
+        for product_id, total_qty in consolidated_cart.items():
             product = get_object_or_404(Product, id=product_id)
-            
-            if product.stock_quantity < quantity:
-                messages.error(request, f"Sale Failed: {product.name} is low on stock. Available quantity is only {product.stock_quantity}.")
+            if product.stock_quantity < total_qty:
+                messages.error(request, f"Sale Failed: {product.name} is insufficient. Available: {product.stock_quantity}.")
                 return redirect('add_sales')
-            
             sales_data.append({
                 'product': product,
-                'quantity': quantity
+                'quantity': total_qty
             })
 
+        
+        # CREATE SALES RECORDS
+        
         created_sale_ids = []
 
-        # --------------------------------------------------
-        # CREATE SALES RECORDS
-        # --------------------------------------------------
         for item in sales_data:
             product = item['product']
             quantity = item['quantity']
 
             sub_total = Decimal(quantity) * product.unit_price
 
-            # --------------------------------------------------
+            
             # TRANSPORT LOGIC (OPTIONAL)
-            # --------------------------------------------------
+            
             transport_fee = Decimal('0.00')
 
             if use_transport:
@@ -703,9 +692,9 @@ def add_sales(request):
 
             final_amount = sub_total + transport_fee
 
-            # --------------------------------------------------
+            
             # CREATE SALE
-            # --------------------------------------------------
+            
             sale = Sale.objects.create(
                 name=product,
                 quantity=quantity,
@@ -720,25 +709,24 @@ def add_sales(request):
                 recorded_by=request.user if request.user.is_authenticated else None,
                 receipt_number=f"SALE-{uuid.uuid4().hex[:8].upper()}",
             )
-
             # REDUCE STOCK
             product.stock_quantity -= quantity
             product.save(update_fields=['stock_quantity'])
 
             created_sale_ids.append(str(sale.id))
-
-        # OPTIONAL: for payment flow
+            
+        # Save sales IDs to session and redirect immediately to Payment
         request.session['pending_sale_ids'] = created_sale_ids
-
+        request.session.modified = True
         return redirect('add_payment')
-
+        
     return render(request, 'add_sales.html', {
         'products': products,
         'customers': customers,
         'payment_methods': Sale.PAYMENT_METHODS,
     })
 
-@role_required(["attendant", "admin"])
+@role_required(["admin"])
 def add_customer(request, pk=None):
     form = CustomerForm()
 
@@ -760,7 +748,7 @@ def add_customer(request, pk=None):
             if form.is_valid():
                 form.save()
                 messages.success(request, "Deposit customer registered with NIN successfully.")
-                return redirect('customer_list')
+                return redirect('add_deposit')
 
     context = {
         'form': form,
@@ -778,7 +766,7 @@ def customer_list(request):
      }
     return render(request, 'customer_list.html', context)
 
-@role_required(["attendant", "admin"])
+@role_required(["admin"])
 def customer_edit(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
 
@@ -792,7 +780,7 @@ def customer_edit(request, pk):
 
     return render(request, 'add_customer.html', {'form': form})
 
-@role_required(["attendant", "admin"])
+@role_required(["admin"])
 def delete_customer(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
     if request.method == "POST":
@@ -801,14 +789,16 @@ def delete_customer(request, pk):
     return render(request, 'delete_customer.html', {'customer': customer})
 
 @role_required(["attendant", "admin"])
+@transaction.atomic
 def add_payment(request):
     sale_ids = request.POST.getlist('sales')
 
     if not sale_ids:
-        sale_ids = request.GET.get('sales', '').split(',')
-
-    if not sale_ids:
-        sale_ids = request.session.get('pending_sale_ids', [])
+        sale_ids_str = request.GET.get('sales', '')
+        if sale_ids_str:
+            sale_ids = sale_ids_str.split(',')
+        else:
+            sale_ids = request.session.get('pending_sale_ids', [])
 
     sale_ids = [sale_id for sale_id in sale_ids if sale_id]
 
@@ -836,7 +826,6 @@ def add_payment(request):
             'sub_total': line_sub_total,
             'transport': line_transport,
             'line_total': line_total,
-            'comments': sale.comments,
         })
 
         subtotal_total += line_sub_total
@@ -847,9 +836,13 @@ def add_payment(request):
     receipt_number = f"RCPT-{uuid.uuid4().hex[:8].upper()}"
 
     if request.method == 'POST':
-        amount_paid = Decimal(request.POST.get('amount_paid') or 0)
+        # Get amount given, defaulting to total if not provided
+        amount_given_input = request.POST.get('amount_given') or request.POST.get('amount_paid')
+        amount_given = Decimal(amount_given_input) if amount_given_input else total
         payment_method = request.POST.get('payment_method')
-        balance = total - amount_paid
+        amount_paid = amount_given  # Record the actual money received
+        balance = total - amount_paid  # Negative balance indicates "Change"
+        
 
         payment = Payment.objects.create(
             order_id=sales.first(),
@@ -862,11 +855,14 @@ def add_payment(request):
             entered_by=request.user if request.user.is_authenticated else None,
         )
 
-        request.session.pop('pending_sale_ids', None)
-
         # Link sales items to the payment for the receipt
+        # CONNECTION: Link sales items to the payment for the itemized receipt
         sales.update(payment=payment)
 
+        # Clear session after successful payment
+        request.session.pop('pending_sale_ids', None)
+
+        # CONNECTION: Redirect to the receipt for printing
         return redirect('payment_receipt', pk=payment.id)
 
     context = {
@@ -879,6 +875,7 @@ def add_payment(request):
         'transport_total': transport_total,
         'total': total,
         'amount_paid': total,
+        'amount_given': total,
         'balance': Decimal('0.00'),
     }
 
@@ -915,7 +912,8 @@ def payment_receipt(request, pk):
         'subtotal_total': subtotal_total,
         'transport_total': transport_total,
         'amount_paid': payment.amount_paid,
-        'balance': payment.balance,
+        'balance': max(Decimal('0.00'), payment.balance),
+        'change': max(Decimal('0.00'), -payment.balance),
     }
     return render(request, 'receipt.html', context)
 

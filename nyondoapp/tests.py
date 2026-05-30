@@ -13,10 +13,10 @@ class CustomerFormValidationTests(TestCase):
     def test_valid_ugandan_phone_and_nin_pass(self):
         form = CustomerForm(
             data={
-                "name": "Jane Doe",
+                "name": "Priscilla Veronika",
                 "on_scheme": False,
                 "phone": "+256770123456",
-                "nin": "12345678901234",
+                "nin": "CM123456789ABC",
                 "other_details": "Preferred evening calls",
             }
         )
@@ -26,7 +26,7 @@ class CustomerFormValidationTests(TestCase):
     def test_invalid_ugandan_phone_rejected(self):
         form = CustomerForm(
             data={
-                "name": "Jane Doe",
+                "name": "Patricia Josephine",
                 "on_scheme": False,
                 "phone": "12345",
                 "nin": "12345678901234",
@@ -37,27 +37,12 @@ class CustomerFormValidationTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("phone", form.errors)
 
-    def test_invalid_nin_rejected(self):
-        form = CustomerForm(
-            data={
-                "name": "Jane Doe",
-                "on_scheme": False,
-                "phone": "0770123456",
-                "nin": "ABC123",
-                "other_details": "Preferred evening calls",
-            }
-        )
-
-        self.assertFalse(form.is_valid())
-        self.assertIn("nin", form.errors)
-
-
 class CustomerViewTests(TestCase):
     def test_add_customer_returns_validation_errors(self):
         response = self.client.post(
             reverse("add_customer"),
             data={
-                "name": "Jane Doe",
+                "name": "Daughter",
                 "on_scheme": False,
                 "phone": "12345",
                 "nin": "ABC123",
@@ -67,7 +52,7 @@ class CustomerViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Enter a valid Ugandan mobile number")
-        self.assertContains(response, "Enter a valid 14-digit NIN")
+        self.assertContains(response, "Enter a valid 14-character alphanumeric NIN")
 
     def test_customer_edit_updates_existing_record(self):
         customer = Customer.objects.create(

@@ -46,6 +46,8 @@ urlpatterns = [
     path('sales_dash/', views.sales_dash, name='sales_dash'),
     path('sales_list/', views.sales_list, name='sales_list'),
     path('add_sales/', views.add_sales, name='add_sales'),
+    path('detailed_sales_report/', views.detailed_sales_report, name='detailed_sales_report'),
+    path('top_selling/', views.top_selling_report, name='top_selling_report'),
     # deposit scheme urls
     path('deposit_dashboard/', admin_views.deposit_dashboard, name='deposit_dashboard'),
     path('add_customer/', views.add_customer, name='add_customer'),

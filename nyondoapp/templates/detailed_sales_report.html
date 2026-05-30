@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Detailed Sales Report | Nyondo Hardware{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-shell { padding: 20px; }
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .filter-section { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .filter-form { display: flex; gap: 15px; align-items: flex-end; }
+    .table-container { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #0F172B; color: white; padding: 15px; text-align: left; font-size: 13px; }
+    td { padding: 15px; border-bottom: 1px solid #eee; font-size: 13px; }
+    .btn-print-report { background: #0B1F3A; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; }
+    .btn-reprint { background: #10b981; color: white; padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: 11px; font-weight: bold; }
+    .payment-badge { padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
+    .method-cash { background: #fef3c7; color: #92400e; }
+    .method-mtn { background: #fff7ed; color: #c2410c; }
+    .method-airtel { background: #fee2e2; color: #991b1b; }
+    .method-card { background: #dbeafe; color: #1e40af; }
+
+    @media print {
+        .sidebar, .filter-section, .btn-print-report, .btn-reprint, .navbar { display: none !important; }
+        .content-wrapper { margin-left: 0 !important; width: 100% !important; }
+        .report-shell { padding: 0; }
+        .table-container { box-shadow: none; border: 1px solid #ddd; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-shell">
+    <div class="report-header">
+        <div>
+            <h1>Detailed Sales Report</h1>
+            <p>View all transactions with payment methods and re-print receipts.</p>
+        </div>
+        <button onclick="window.print()" class="btn-print-report">
+            <i class="fas fa-file-pdf"></i> Save Report as PDF
+        </button>
+    </div>
+
+    <div class="filter-section">
+        <form method="GET" class="filter-form">
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary" style="background: #0F172B; border: none; padding: 10px 20px; border-radius: 8px; color: white;">
+                Filter Records
+            </button>
+            <a href="{% url 'detailed_sales_report' %}" class="btn btn-secondary" style="padding: 10px 20px; border-radius: 8px; text-decoration: none; background: #e2e8f0; color: #0F172B;">
+                Reset
+            </a>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Receipt No.</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Total (UGX)</th>
+                    <th>Payment Method</th>
+                    <th>Attendant</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                <tr>
+                    <td>
+                        <strong>{{ sale.date|date:"d M Y" }}</strong><br>
+                        <small>{{ sale.date|date:"H:i" }}</small>
+                    </td>
+                    <td>{{ sale.receipt_number }}</td>
+                    <td>{{ sale.customer_name.name|default:"Walk-in Customer" }}</td>
+                    <td>{{ sale.name.name }}</td>
+                    <td>{{ sale.quantity }}</td>
+                    <td><strong>{{ sale.final_amount|floatformat:0|intcomma }}</strong></td>
+                    <td>
+                        <span class="payment-badge 
+                            {% if sale.payment_method == 'cash' %}method-cash
+                            {% elif sale.payment_method == 'mtn' %}method-mtn
+                            {% elif sale.payment_method == 'airtel' %}method-airtel
+                            {% else %}method-card{% endif %}">
+                            {{ sale.get_payment_method_display }}
+                        </span>
+                    </td>
+                    <td>{{ sale.recorded_by.username|default:"System" }}</td>
+                    <td>
+                        {% if sale.payment %}
+                        <a href="{% url 'payment_receipt' sale.payment.id %}" class="btn-reprint">
+                            <i class="fas fa-print"></i> Re-print
+                        </a>
+                        {% else %}
+                        <small class="text-muted">Unpaid</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 40px;">No sales found for the selected period.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -112,7 +112,7 @@ class Sale(models.Model):
 
 
     def __str__(self):
-        return f"Sale #(self.id)"
+        return f"Sale #{self.id}"
 
 
 class Payment(models.Model):
@@ -130,7 +130,6 @@ class Payment(models.Model):
         ('pending', 'pending'),
     ]
     
-    order_id = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True)
     order_id = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True, related_name='payment_records')
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     total = models.DecimalField(max_digits=20, decimal_places=2)

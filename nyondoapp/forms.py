@@ -8,7 +8,7 @@ from adminapp.models import Supplier
 
 
 UGANDAN_PHONE_REGEX = re.compile(r"^07\d{8}$")
-UGANDAN_NIN_REGEX = re.compile(r"^\d{14}$")
+UGANDAN_NIN_REGEX = re.compile(r"^[A-Za-z0-9\-]{5,30}$")
 
 
 class CustomerForm(forms.ModelForm):
@@ -44,7 +44,6 @@ class CustomerForm(forms.ModelForm):
             raise ValidationError("NIN is required.")
 
         if not UGANDAN_NIN_REGEX.fullmatch(nin):
-            raise ValidationError("Enter a valid 14-digit NIN.")
+            raise ValidationError("Enter a valid alphanumeric NIN.")
 
         return nin
-

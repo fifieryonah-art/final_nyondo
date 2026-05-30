@@ -26,6 +26,9 @@ href="{% static 'css/reports.css' %}?v=20260525-report-v2">
             <h1>Business Reports</h1>
             <p>Track sales performance, collection health, stock movement, and customer activity from one clean view.</p>
         </div>
+        <button onclick="window.print()" class="badge-chip" style="cursor: pointer; background: #0B1F3A; color: white; border: none; margin-bottom: 10px;">
+            <i class="fas fa-file-pdf"></i> Print Report to PDF
+        </button>
         <div class="reports-header-badges">
             <a class="badge-chip {% if period == 'today' %}active{% endif %}" href="{% url 'reports' %}?period=today"><i class="fas fa-calendar-day"></i> Today</a>
             <a class="badge-chip {% if period == 'week' %}active{% endif %}" href="{% url 'reports' %}?period=week"><i class="fas fa-calendar-week"></i> Week</a>
