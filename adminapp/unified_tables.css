@@ -1,0 +1,72 @@
+/* Global Table Styling to match the Admin Dashboard */
+
+/* Define the Sidebar Color and Action Colors */
+:root {
+    --sidebar-color: #2c3e50; /* Professional Sidebar Blue */
+    --edit-color: #ffc107;    /* Warning/Orange for Edit */
+    --view-color: #17a2b8;    /* Info/Teal for View */
+    --delete-color: #dc3545;  /* Danger/Red for Delete */
+}
+
+/* Standardizes the container and borders */
+table, .table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background-color: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+    margin-bottom: 1.5rem !important;
+    border: none !important;
+}
+
+/* Forces the header to match the Sidebar color */
+table thead, .table thead {
+    background-color: #f8f9fa !important;
+    color: var(--sidebar-color) !important;
+    text-transform: capitalize;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+table th, table td, .table th, .table td {
+    padding: 16px 20px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+}
+
+/* Consistent striped rows */
+/* Smooth hover effect across all tables */
+table tbody tr:hover, .table tbody tr:hover {
+    background-color: #fdfdfd !important;
+    transition: background-color 0.2s ease;
+}
+
+/* Global Blue/Primary Override to match Sidebar */
+.bg-primary, .btn-primary, .btn-outline-primary:hover, .nav-pills .nav-link.active {
+    background-color: var(--sidebar-color) !important;
+    border-color: var(--sidebar-color) !important;
+    color: #ffffff !important;
+}
+
+/* Unified Action Buttons across the whole project */
+.btn-warning, [class*="btn-edit"], a[href*="edit"] {
+    background-color: var(--edit-color) !important;
+    border-color: var(--edit-color) !important;
+    color: #212529 !important; /* Dark text for yellow background */
+    font-weight: 500;
+}
+
+.btn-info, .btn-success, [class*="btn-view"], a[href*="view"], a[href*="detail"] {
+    background-color: var(--view-color) !important;
+    border-color: var(--view-color) !important;
+    color: #ffffff !important;
+    font-weight: 500;
+}
+
+.btn-danger, [class*="btn-delete"], a[href*="delete"] {
+    background-color: var(--delete-color) !important;
+    border-color: var(--delete-color) !important;
+    color: #ffffff !important;
+    font-weight: 500;
+}

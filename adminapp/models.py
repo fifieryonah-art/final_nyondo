@@ -6,11 +6,11 @@ from django.db import models
 # Create your models here.
 class Supplier(models.Model):
     name = models.CharField(max_length=100)
-    product = models.ForeignKey('nyondoapp.Product', on_delete=models.SET_NULL, null=True)
     category = models.CharField(max_length=50)
     address = models.CharField(max_length=50)
     contact = models.CharField(max_length=15, blank=True)
     email = models.EmailField(unique=True)  
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     outstanding_credit = models.DecimalField(max_digits=12,decimal_places=2,default=0)
     amount_paid = models.DecimalField(max_digits=12,decimal_places=2,default=0)
 

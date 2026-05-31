@@ -26,7 +26,6 @@ class SupplierFormValidationTests(TestCase):
         form = SupplierForm(
             data={
                 "name": "Apex Suppliers",
-                "product": self.product.pk,
                 "category": "Hardware",
                 "address": "Kampala",
                 "contact": "",
@@ -44,7 +43,6 @@ class SupplierFormValidationTests(TestCase):
         form = SupplierForm(
             data={
                 "name": "Apex Suppliers",
-                "product": self.product.pk,
                 "category": "Hardware",
                 "address": "Kampala",
                 "contact": "12345",

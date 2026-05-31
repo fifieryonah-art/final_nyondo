@@ -8,7 +8,7 @@ from django.utils import timezone
 from .models import Stock, Product, Sale, Payment, Customer,Employee
 from decimal import Decimal
 from .forms import CustomerForm
-from adminapp.models import Supplier, DepositScheme, DepositPayment
+from adminapp.models import Supplier, DepositScheme, DepositPayment, SupplierPayment
 from django.db import transaction
 from django.db.models import F, DecimalField, ExpressionWrapper
 from django.db.models import Sum
@@ -78,15 +78,17 @@ def stockPage(request):
     products = Product.objects.all()
     recent_stock = Stock.objects.select_related("product", "supplier", "entered_by").order_by("-date_arrival", "-time_arrival")[:10]
     total_products = products.count()
-    low_stock_items = products.filter(stock_quantity__lt=F('reorder_level'))
-    for product in low_stock_items:
-        product.stock_value = product.stock_quantity * product.unit_price
+    low_stock_items = products.filter(stock_quantity__lte=F('reorder_level'))
+    # Calculate stock value for all products and ensure low_stock_items have it
+    for product in products:
+        product.stock_value = product.stock_quantity * product.cost_price
     low_stock_count = low_stock_items.count()
     out_of_stock_count = products.filter(stock_quantity=0).count()
-    total_value = 0
-    # Auto calculate the total value of products in the business
-    for product in products:
-        total_value += (product.stock_quantity * product.cost_price)
+
+    # Optimized total value calculation using aggregation
+    total_value = products.aggregate(
+        total=Sum(F('stock_quantity') * F('cost_price'), output_field=DecimalField())
+    )['total'] or 0
 
     context = {
         "total_products": total_products,
@@ -103,9 +105,9 @@ def stockPage(request):
 def stock_list(request):
     products = Product.objects.all().order_by("name")
     for product in products:
-        product.stock_value = product.stock_quantity * product.unit_price
+        product.stock_value = product.stock_quantity * product.cost_price
     low_stock_items = products.filter(stock_quantity__lt=F("reorder_level"))
-    stock_value = sum(product.stock_quantity * product.unit_price for product in products)
+    stock_value = sum(product.stock_value for product in products)
     return render(request, "stock_list.html", {
         "products": products,
         "low_stock_items": low_stock_items,
@@ -124,114 +126,83 @@ def add_stock(request):
     suppliers = Supplier.objects.all()
 
     if request.method == "POST":
-
-        product_id = request.POST.get("product")
         supplier_id = request.POST.get("supplier")
-        quantity = int(request.POST.get("quantity") or 0)
-        cost_price = Decimal(request.POST.get("cost_price") or 0)
-        unit_price = Decimal(request.POST.get("unit_price") or 0)
         comments = request.POST.get("comments")
         is_on_credit = "is_on_credit" in request.POST
         is_paid = "is_paid" in request.POST
 
-        # VALIDATE PRODUCT + SUPPLIER
+        product_ids = request.POST.getlist("product")
+        quantities = request.POST.getlist("quantity")
+        cost_prices = request.POST.getlist("cost_price")
+        unit_prices = request.POST.getlist("unit_price")
 
-        if not product_id or not supplier_id:
-            messages.error(request,"Please select both product and supplier.")
-            return render(request,"add_stock.html",
-                {
-                    "products": products,
-                    "suppliers": suppliers
-                }
-            )
+        if not supplier_id or not product_ids:
+            messages.error(request, "Please select a supplier and add at least one product.")
+            return redirect("add_stock")
 
-
-
-        # VALIDATE QUANTITY
-
-        if quantity <= 0:
-            messages.error(request,
-                "Quantity must be greater than zero."
-            )
-
-            return render(request,"add_stock.html",
-                {
-                    "products": products,
-                    "suppliers": suppliers
-                }
-            )
-
-
-
-        # VALIDATE NEGATIVE VALUES
-
-        if cost_price < 0 or unit_price < 0:
-
-            messages.error(request,
-                "Prices cannot be negative."
-            )
-
-            return render(request,
-                "add_stock.html",
-                {
-                    "products": products,
-                    "suppliers": suppliers
-                }
-            )
-
-
-
-        # VALIDATE SELLING PRICE
-
-        if unit_price < cost_price:
-            messages.error(request,
-                "Unit price cannot be lower than cost price."
-            )
-
-            return render(request,
-                "add_stock.html",
-                {
-                    "products": products,
-                    "suppliers": suppliers
-                }
-            )
-
-
-
-        # GET OBJECTS
-
-        product = get_object_or_404(Product, id=product_id)
         supplier = get_object_or_404(Supplier, id=supplier_id)
+        batch_total_cost = Decimal("0.00")
 
+        for p_id, qty_str, cp_str, up_str in zip(product_ids, quantities, cost_prices, unit_prices):
+            if not p_id:
+                continue
 
+            try:
+                qty = int(qty_str or 0)
+                cp = Decimal(cp_str or 0)
+                up = Decimal(up_str or 0)
+            except (ValueError, Decimal.InvalidOperation):
+                messages.warning(request, f"Skipped invalid row for product ID {p_id}.")
+                continue
 
-        # CALCULATE TOTAL COST
+            if qty <= 0:
+                continue
 
-        total_cost = cost_price * quantity
+            product = get_object_or_404(Product, id=p_id)
+            item_total = cp * qty
+            batch_total_cost += item_total
 
-        # UPDATE PRODUCT
+            # Update product prices and inventory
+            product.cost_price = cp
+            product.unit_price = up
+            product.stock_quantity += qty
+            product.save()
 
-        product.cost_price = cost_price
-        product.unit_price = unit_price
-        product.stock_quantity += quantity
-        product.save()
+            # Create individual stock record
+            Stock.objects.create(
+                product=product,
+                supplier=supplier,
+                quantity=qty,
+                comments=comments,
+                total_cost=item_total,
+                is_on_credit=is_on_credit,
+                is_paid=is_paid,
+                entered_by=request.user,
+            )
 
+        # Update supplier's master financials
+        supplier.total_amount += batch_total_cost
+        if is_paid:
+            supplier.amount_paid += batch_total_cost
+            # Create a payment record for tracking history
+            SupplierPayment.objects.create(
+                supplier=supplier,
+                amount_paid=batch_total_cost,
+                comment=f"Direct payment for stock supply batch. {comments or ''}"
+            )
+        
+        supplier.outstanding_credit = max(0, supplier.total_amount - supplier.amount_paid)
+        
+        if supplier.outstanding_credit <= 0:
+            supplier.status = "Paid"
+        elif supplier.amount_paid > 0:
+            supplier.status = "Partial"
+        else:
+            supplier.status = "Pending"
+        
+        supplier.save()
 
-
-        # CREATE STOCK ENTRY
-
-        Stock.objects.create(
-            product=product,
-            supplier=supplier,
-            quantity=quantity,
-            comments=comments,
-            total_cost=total_cost,
-            is_on_credit=is_on_credit,
-            is_paid=is_paid,
-            entered_by=request.user if request.user.is_authenticated else None,
-        )
-
-        messages.success(request, "Stock added successfully!")
+        messages.success(request, "Stock records added successfully!")
         return redirect("stock")
 
     context = {
@@ -243,14 +214,27 @@ def add_stock(request):
     return render(request, "add_stock.html",context)
 
 @role_required(["manager", "admin"])
+@transaction.atomic
 def stock_delete(request, pk):
     stock = get_object_or_404(Stock, pk=pk)
-    product = stock.product
 
     if request.method == "POST":
+        product = stock.product
+        supplier = stock.supplier
+        
+        # Reverse stock movement
+        if product:
+            update_stock(product, -stock.quantity)
 
-        #  reverse stock movement
-        update_stock(product, -stock.quantity)
+        # Sync Supplier Financials
+        if supplier:
+            supplier.total_amount -= stock.total_cost
+            if stock.is_paid:
+                supplier.amount_paid -= stock.total_cost
+
+            supplier.outstanding_credit = max(0, supplier.total_amount - supplier.amount_paid)
+            supplier.status = "Paid" if supplier.outstanding_credit <= 0 else ("Partial" if supplier.amount_paid > 0 else "Pending")
+            supplier.save()
 
         stock.delete()
 
@@ -260,6 +244,7 @@ def stock_delete(request, pk):
     return render(request, 'stock_delete.html', {'stock': stock})
 
 @role_required(["manager", "admin"])
+@transaction.atomic
 def stock_update(request, pk):
     stock = get_object_or_404(Stock, pk=pk)
 
@@ -267,22 +252,59 @@ def stock_update(request, pk):
     suppliers = Supplier.objects.all()
 
     old_quantity = stock.quantity
+    old_cost = stock.total_cost
 
     if request.method == "POST":
+        new_product = get_object_or_404(Product, id=request.POST.get('product'))
+        new_supplier = get_object_or_404(Supplier, id=request.POST.get('supplier'))
 
-        product = get_object_or_404(Product, id=request.POST.get('product'))
-        supplier = get_object_or_404(Supplier, id=request.POST.get('supplier'))
-
-        new_quantity = int(request.POST.get('quantity'))
+        new_quantity = int(request.POST.get('quantity') or 0)
         comments = request.POST.get('comments')
         total_cost = Decimal(request.POST.get('total_cost') or 0)
 
-        difference = new_quantity - old_quantity
+        # Handle potential change in product or supplier
+        if stock.product_id != new_product.id:
+            if stock.product:
+                update_stock(stock.product, -old_quantity)
+            update_stock(new_product, new_quantity)
+        else:
+            update_stock(new_product, (new_quantity - old_quantity))
+            
 
-        # update stock safely
-        update_stock(product, difference)
+        # Sync Financials - Fixed logic to handle same or different suppliers correctly
+        if stock.supplier_id == new_supplier.id:
+            # Updating the same supplier: calculate net change on one instance to prevent overwrites
+            supplier = stock.supplier
+            if supplier:
+                supplier.total_amount = supplier.total_amount - old_cost + total_cost
+                if stock.is_paid:
+
+                    supplier.outstanding_credit = max(0, supplier.total_amount - supplier.amount_paid)
+                    supplier.status = "Paid" if supplier.outstanding_credit <= 0 else ("Partial" if supplier.amount_paid > 0 else "Pending")
+                    supplier.save()
+        else:
+            # Supplier changed: subtract from old supplier
+            if stock.supplier:
+                old_supplier = stock.supplier
+                old_supplier.total_amount -= old_cost
+                if stock.is_paid:
+                    old_supplier.amount_paid -= old_cost
+                old_supplier.outstanding_credit = max(0, old_supplier.total_amount - old_supplier.amount_paid)
+                old_supplier.status = "Paid" if old_supplier.outstanding_credit <= 0 else ("Partial" if old_supplier.amount_paid > 0 else "Pending")
+                old_supplier.save()
+
+            # Add to new supplier
+            new_supplier.total_amount += total_cost
+            if stock.is_paid:
+                new_supplier.amount_paid += total_cost
+            new_supplier.outstanding_credit = max(0, new_supplier.total_amount - new_supplier.amount_paid)
+            new_supplier.status = "Paid" if new_supplier.outstanding_credit <= 0 else ("Partial" if new_supplier.amount_paid > 0 else "Pending")
+            new_supplier.save()
+
         stock.comments = comments
         stock.total_cost = total_cost
+        stock.product = new_product
+        stock.supplier = new_supplier
         stock.save()
 
         messages.success(request, "Stock updated successfully")
@@ -346,7 +368,8 @@ def stock_supplier_dashboard(request):
     suppliers = Supplier.objects.all().order_by('id')
     total_suppliers = suppliers.count()
     pending_credit = suppliers.filter(status__iexact='pending').count()
-    total_credit = suppliers.aggregate(total=Sum('outstanding_credit'))['total'] or 0
+    credits_sum = suppliers.aggregate(total=Sum('outstanding_credit'))['total'] or 0
+    total_credit = max(0, credits_sum)
 
     context = {
         'suppliers': suppliers,

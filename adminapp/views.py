@@ -48,10 +48,11 @@ def _attach_deposit_summary(deposit):
 # Create your views here.
 @role_required(["admin"])
 def admin_dash(request):
-    today = date.today()
+    today = timezone.localdate()
     sales_today = Sale.objects.filter(date__date=today)
     sales_total = sales_today.aggregate(total=Sum('final_amount'))['total'] or 0
-    total_revenue = Payment.objects.aggregate(
+    # Revenue renewals each day by filtering payments by today's date
+    total_revenue = Payment.objects.filter(created_at__date=today).aggregate(
         total=Sum('amount_paid')
     )['total'] or 0
     customer_count = Customer.objects.count() or 0
@@ -60,14 +61,15 @@ def admin_dash(request):
     low_stock_count = low_stock.count() or 0
     total_sales = Sale.objects.aggregate(total=Sum('final_amount'))['total'] or 0
     total_paid = Payment.objects.aggregate(total=Sum('amount_paid'))['total'] or 0
-    total_credit = total_sales - total_paid
+    # Ensure outstanding credit does not show negative figures
+    total_credit = max(0, total_sales - total_paid)
     recent_sales = sales_today.order_by('-date')[:5]
     recent_payments = Payment.objects.order_by('-id')[:5]
     top_products = ( Sale.objects.values('name__name')   
     .annotate(total_qty=Sum('quantity')).order_by('-total_qty')[:5]
      )
-    
-    low_stock_products = Product.objects.filter(stock_quantity__lte=5)
+
+    low_stock_products = Product.objects.filter(stock_quantity__lte=F('reorder_level'))
 
     context = {
         "sales_total": sales_total,
@@ -180,8 +182,9 @@ def supplier_dashboard(request):
     suppliers = Supplier.objects.all()
     total_suppliers = suppliers.count()
     pending_credit = suppliers.filter(status='pending').count()
-    total_credit = suppliers.aggregate(total=Sum('outstanding_credit')
-    )['total'] or 0
+    # Ensure the dashboard card figure doesn't show negative totals
+    credits_sum = suppliers.aggregate(total=Sum('outstanding_credit'))['total'] or 0
+    total_credit = max(0, credits_sum)
 
     context = {
         'suppliers': suppliers,
@@ -254,10 +257,8 @@ def record_payment(request, pk):
 
             # update supplier totals
             supplier.amount_paid += payment.amount_paid
-
-            supplier.outstanding_credit = (
-                supplier.total_amount - supplier.amount_paid
-            )
+            # Ensure outstanding credit does not show negative figures
+            supplier.outstanding_credit = max(0, supplier.total_amount - supplier.amount_paid)
 
             # update status
             if supplier.outstanding_credit <= 0:
@@ -605,7 +606,8 @@ def reports(request):
 
     total_sales = sales.aggregate(total=Sum('final_amount'))['total'] or 0
     total_paid = payments.aggregate(total=Sum('amount_paid'))['total'] or 0
-    total_balance = total_sales - total_paid
+    # Ensure figures don't show as negative
+    total_balance = max(0, total_sales - total_paid)
 
     total_quantity_sold = sales.aggregate(total=Sum('quantity'))['total'] or 0
     total_transactions = sales.count()
