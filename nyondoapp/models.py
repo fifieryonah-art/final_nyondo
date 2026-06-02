@@ -37,6 +37,7 @@ class Product(models.Model):
     profit_margin = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
     entered_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True) # foreign key means this feild creates a many to one relationship eg many products can belong to one supplier
     # SET_NULL means that when the related record is deleted, the connection is removed but the current record remains in the database.
+    date_added = models.DateTimeField(auto_now_add=True)
     reorder_level = models.PositiveIntegerField(default=10)
 
 
@@ -71,6 +72,7 @@ class Customer(models.Model):
     phone = models.CharField(max_length=15)
     nin = models.TextField(unique=True)
     other_details = models.TextField()
+    date_joined = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -145,4 +147,47 @@ class Payment(models.Model):
 
     def __str__(self):
         return self.receipt_number
+
+
+class Expense(models.Model):
+    """Model for recording business expenses"""
+
+    EXPENSE_CATEGORIES = [
+        ('utilities', 'Utilities (Water, Electricity)'),
+        ('rent', 'Rent/Premises'),
+        ('transport', 'Transport & Fuel'),
+        ('salary', 'Staff Salary'),
+        ('supplies', 'Office Supplies'),
+        ('maintenance', 'Maintenance & Repairs'),
+        ('advertising', 'Advertising & Marketing'),
+        ('insurance', 'Insurance'),
+        ('professional', 'Professional Services'),
+        ('other', 'Other'),
+    ]
+
+    PAYMENT_METHODS = [
+        ('cash', 'Cash'),
+        ('mtn', 'MTN Mobile Money'),
+        ('airtel', 'Airtel Money'),
+        ('card', 'Bank Card'),
+        ('bank_transfer', 'Bank Transfer'),
+    ]
+
+    expense_reference = models.CharField(max_length=50, unique=True)
+    date = models.DateField()
+    category = models.CharField(max_length=30, choices=EXPENSE_CATEGORIES)
+    description = models.TextField()
+    amount = models.DecimalField(max_digits=20, decimal_places=2)
+    payment_method = models.CharField(max_length=30, choices=PAYMENT_METHODS)
+    vendor = models.CharField(max_length=100, blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-date', '-created_at']
+
+    def __str__(self):
+        return f"{self.expense_reference} - {self.get_category_display()}"
     

@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Expense | Nyondo Hardware{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 24px;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .form-header {
+        margin-bottom: 28px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .form-header h1 {
+        font-size: 24px;
+        color: #0f172a;
+        margin: 0 0 4px 0;
+    }
+
+    .form-header p {
+        color: #64748b;
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .form-field {
+        margin-bottom: 20px;
+    }
+
+    .form-field label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #0f172a;
+        font-size: 14px;
+    }
+
+    .form-field label.required::after {
+        content: " *";
+        color: #ef4444;
+        font-weight: 700;
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.3s ease;
+        background-color: white;
+        box-sizing: border-box;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-field textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid #e2e8f0;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-primary {
+        background-color: #0B1F3A;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #102B52;
+    }
+
+    .btn-secondary {
+        background-color: #e2e8f0;
+        color: #0f172a;
+    }
+
+    .btn-secondary:hover {
+        background-color: #cbd5e1;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    .back-link:hover {
+        color: #1d4ed8;
+    }
+
+    .form-group-hint {
+        background-color: #f0f9ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 20px;
+        color: #0c2340;
+        font-size: 13px;
+    }
+
+    .reference-display {
+        background-color: #f1f5f9;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        color: #0f172a;
+    }
+</style>
+
+<div class="form-container">
+    <a href="{% url 'expense_list' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Expenses
+    </a>
+
+    <div class="form-card">
+        <div class="form-header">
+            <h1>Edit Expense</h1>
+            <p>Update expense details</p>
+        </div>
+
+        <div style="margin-bottom: 20px; padding: 12px; background-color: #f1f5f9; border-radius: 8px;">
+            <strong>Reference:</strong> <span class="reference-display">{{ expense.expense_reference }}</span>
+        </div>
+
+        <form method="POST" id="expense-form" novalidate>
+            {% csrf_token %}
+            
+            <div class="form-group-hint">
+                <i class="fas fa-info-circle"></i> Fields marked with <span style="color: #ef4444;">*</span> are required
+            </div>
+
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="{{ form.date.id_for_label }}" class="required">Date</label>
+                    {{ form.date }}
+                </div>
+
+                <div class="form-field">
+                    <label for="{{ form.category.id_for_label }}" class="required">Category</label>
+                    {{ form.category }}
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.description.id_for_label }}" class="required">Description</label>
+                {{ form.description }}
+            </div>
+
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="{{ form.amount.id_for_label }}" class="required">Amount (UGX)</label>
+                    {{ form.amount }}
+                </div>
+
+                <div class="form-field">
+                    <label for="{{ form.payment_method.id_for_label }}" class="required">Payment Method</label>
+                    {{ form.payment_method }}
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.vendor.id_for_label }}">Vendor / Service Provider</label>
+                {{ form.vendor }}
+            </div>
+
+            <div class="form-field">
+                <label for="{{ form.notes.id_for_label }}">Notes</label>
+                {{ form.notes }}
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'view_expense' expense.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Expense
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/validation.js' %}"></script>
+{% endblock %}

@@ -354,14 +354,22 @@ Employee List | Nyondo Hardware
 
         </div>
 
-        <a href="{% url 'create_employee' %}"
-           class="add-employee-btn">
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'admin_dash' %}"
+               class="add-employee-btn" style="background: #e2e8f0; color: #0f172b; box-shadow: none;">
+                <i class="fas fa-arrow-left"></i>
+                Dashboard
+            </a>
 
-            <i class="fas fa-plus"></i>
+            <a href="{% url 'create_employee' %}"
+               class="add-employee-btn">
 
-            Add Employee
+                <i class="fas fa-plus"></i>
 
-        </a>
+                Add Employee
+
+            </a>
+        </div>
 
     </div>
 

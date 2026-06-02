@@ -10,11 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='stock',
-            old_name='Total_cost',
-            new_name='total_cost',
-        ),
         migrations.AlterField(
             model_name='product',
             name='stock_quantity',

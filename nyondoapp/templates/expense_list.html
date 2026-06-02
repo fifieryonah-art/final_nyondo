@@ -1,0 +1,436 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Expenses | Nyondo Hardware{% endblock %}
+
+{% block content %}
+<style>
+    .expenses-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 28px;
+        color: #0f172a;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background-color: #0B1F3A;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #102B52;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    .filters-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 20px;
+    }
+
+    .filter-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .filter-group label {
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #0f172a;
+        font-size: 13px;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+        align-items: flex-end;
+    }
+
+    .btn-sm {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table thead {
+        background-color: #f1f5f9;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .table thead th {
+        padding: 14px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid #e2e8f0;
+        transition: background-color 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: #fafbfc;
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: #fafbfc;
+    }
+
+    .table tbody td {
+        padding: 14px 16px;
+        font-size: 13px;
+        vertical-align: middle;
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .btn-action {
+        padding: 6px 10px;
+        font-size: 11px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-view {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .btn-view:hover {
+        background-color: #bfdbfe;
+    }
+
+    .btn-edit {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .btn-edit:hover {
+        background-color: #bfdbfe;
+    }
+
+    .btn-delete {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-delete:hover {
+        background-color: #fecaca;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-cash {
+        background-color: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
+    }
+
+    .badge-mtn {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #f59e0b;
+    }
+
+    .badge-airtel {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .badge-card {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .badge-bank-transfer {
+        background-color: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #64748b;
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 20px;
+        padding: 20px;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #0f172a;
+        transition: all 0.2s ease;
+    }
+
+    .pagination a:hover {
+        background-color: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .pagination .current {
+        background-color: #0B1F3A;
+        color: white;
+        border-color: #0B1F3A;
+    }
+</style>
+
+<div class="expenses-shell">
+    <a href="{% url 'admin_dash' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+
+    <div class="page-header">
+        <div>
+            <h1>Expenses Management</h1>
+            <p style="color: #64748b; margin: 6px 0 0 0; font-size: 13px;">Track and manage all business expenses</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'add_expense' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Record Expense
+            </a>
+            <a href="{% url 'expense_report' %}" class="btn btn-primary" style="background-color: #64748b;">
+                <i class="fas fa-chart-bar"></i> View Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-card">
+        <form method="GET" class="no-validation">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Search</label>
+                    <input type="text" name="search" placeholder="Reference, vendor, description..." value="{{ search_query }}">
+                </div>
+                <div class="filter-group">
+                    <label>Category</label>
+                    <select name="category">
+                        <option value="">All Categories</option>
+                        {% for code, name in expense_categories %}
+                            <option value="{{ code }}" {% if selected_category == code %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Payment Method</label>
+                    <select name="payment_method">
+                        <option value="">All Methods</option>
+                        {% for code, name in payment_methods %}
+                            <option value="{{ code }}" {% if selected_payment_method == code %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>From Date</label>
+                    <input type="date" name="from_date" value="{{ from_date }}">
+                </div>
+                <div class="filter-group">
+                    <label>To Date</label>
+                    <input type="date" name="to_date" value="{{ to_date }}">
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-sm btn-primary">
+                    <i class="fas fa-search"></i> Filter
+                </button>
+                <a href="{% url 'expense_list' %}" class="btn btn-sm btn-secondary">
+                    <i class="fas fa-redo"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table -->
+    {% if expenses %}
+    <div class="table-card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Vendor</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td><strong>{{ expense.expense_reference }}</strong></td>
+                    <td>{{ expense.date|date:"d M Y" }}</td>
+                    <td>{{ expense.get_category_display }}</td>
+                    <td><strong>UGX {{ expense.amount|floatformat:0|intcomma }}</strong></td>
+                    <td>
+                        <span class="badge badge-{{ expense.get_payment_method_display|lower|cut:' ' }}">
+                            {{ expense.get_payment_method_display }}
+                        </span>
+                    </td>
+                    <td>{{ expense.vendor|default:"—" }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <a href="{% url 'view_expense' expense.pk %}" class="btn-action btn-view">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="{% url 'edit_expense' expense.pk %}" class="btn-action btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{% url 'delete_expense' expense.pk %}" class="btn-action btn-delete">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if expenses.has_other_pages %}
+    <div class="pagination">
+        {% if expenses.has_previous %}
+            <a href="?page=1">First</a>
+            <a href="?page={{ expenses.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        {% for num in expenses.paginator.page_range %}
+            {% if expenses.number == num %}
+                <span class="current">{{ num }}</span>
+            {% else %}
+                <a href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if expenses.has_next %}
+            <a href="?page={{ expenses.next_page_number }}">Next</a>
+            <a href="?page={{ expenses.paginator.num_pages }}">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="table-card">
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-inbox"></i></div>
+            <h3 style="margin: 0 0 8px 0;">No Expenses Found</h3>
+            <p style="margin: 0;">Start recording expenses to see them here.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

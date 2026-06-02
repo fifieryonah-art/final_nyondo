@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load humanize %}
+{% load nav_tags %}
 
 {% block title %}
 Stock Dashboard | Nyondo Hardware
@@ -123,7 +124,7 @@ Stock Dashboard | Nyondo Hardware
             Reports
         </a>
 
-        <a href="{% url 'supplier_dashboard' %}" class="{% if request.resolver_match.url_name == 'supplier_dashboard' or request.resolver_match.url_name == 'add_supplier' or request.resolver_match.url_name == 'edit_supplier' or request.resolver_match.url_name == 'view_supplier' %}active{% endif %}">
+        <a href="{% url 'supplier_dashboard' %}" class="{% active 'supplier_dashboard' 'add_supplier' 'edit_supplier' 'view_supplier' %}">
             <i class="fas fa-truck"></i>
             Suppliers
         </a>

@@ -51,6 +51,24 @@ class SupplierForm(forms.ModelForm):
     def clean_contact(self):
         return validate_ugandan_phone(self.cleaned_data.get("contact"))
 
+    def clean_outstanding_credit(self):
+        value = self.cleaned_data.get('outstanding_credit')
+        if value is not None and value < 0:
+            raise ValidationError("Outstanding credit cannot be a negative value.")
+        return value
+
+    def clean_total_amount(self):
+        value = self.cleaned_data.get('total_amount')
+        if value is not None and value < 0:
+            raise ValidationError("Total amount cannot be a negative value.")
+        return value
+
+    def clean_amount_paid(self):
+        value = self.cleaned_data.get('amount_paid')
+        if value is not None and value < 0:
+            raise ValidationError("Amount paid cannot be a negative value.")
+        return value
+
 
 class SupplierPaymentForm(forms.ModelForm):
 

@@ -58,6 +58,16 @@ urlpatterns = [
     # payment urls
     path('payments/add/', views.add_payment, name='add_payment'),
     path('payments/receipt/<int:pk>/', views.payment_receipt, name='payment_receipt'),
-    path('payments/', views.payment_list, name='payment_list'), 
+    path('payments/', views.payment_list, name='payment_list'),
+    
+    # expense urls
+    path('expenses/dashboard/', views.expense_dashboard, name='expense_dashboard'),
+    path('expenses/', views.expense_list, name='expense_list'),
+    path('expenses/add/', views.add_expense, name='add_expense'),
+    path('expenses/<int:pk>/edit/', views.edit_expense, name='edit_expense'),
+    path('expenses/<int:pk>/view/', views.view_expense, name='view_expense'),
+    path('expenses/<int:pk>/delete/', views.delete_expense, name='delete_expense'),
+    path('expenses/<int:pk>/receipt/', views.expense_receipt, name='expense_receipt'),
+    path('expenses/report/', views.expense_report, name='expense_report'),
    
 ]

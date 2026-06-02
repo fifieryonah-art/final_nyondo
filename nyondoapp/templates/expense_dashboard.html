@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Expense Dashboard | Nyondo Hardware{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+        padding: 24px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 28px;
+        color: #0f172a;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-primary {
+        background-color: #0B1F3A;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #102B52;
+    }
+
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #0B1F3A;
+    }
+
+    .stat-label {
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .category-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .category-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background-color: #f1f5f9;
+        border-radius: 8px;
+    }
+
+    .category-name {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .category-amount {
+        font-weight: 700;
+        color: #0B1F3A;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 6px;
+        background-color: #e2e8f0;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background-color: #3b82f6;
+        transition: width 0.3s ease;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-bottom: 0;
+        font-weight: 600;
+    }
+
+    .back-link:hover {
+        color: #1d4ed8;
+    }
+</style>
+
+<div class="dashboard-shell">
+    <div class="page-header">
+        <div>
+            <h1>Expense Dashboard</h1>
+            <p style="color: #64748b; margin: 6px 0 0 0; font-size: 13px;">Overview of business expenses</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'add_expense' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Expense
+            </a>
+            <a href="{% url 'expense_list' %}" class="btn btn-primary" style="background-color: #64748b;">
+                <i class="fas fa-list"></i> View All
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="cards">
+        <div class="stat-card">
+            <div class="stat-label">Total Expenses (All Time)</div>
+            <div class="stat-value">UGX {{ total_expenses|floatformat:0|intcomma }}</div>
+        </div>
+
+        <div class="stat-card" style="border-left-color: #10b981;">
+            <div class="stat-label">This Month</div>
+            <div class="stat-value">UGX {{ month_expenses|floatformat:0|intcomma }}</div>
+        </div>
+
+        <div class="stat-card" style="border-left-color: #f59e0b;">
+            <div class="stat-label">This Year</div>
+            <div class="stat-value">UGX {{ year_expenses|floatformat:0|intcomma }}</div>
+        </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="section-card">
+        <div class="section-title">Expense Breakdown by Category</div>
+        <div class="category-list">
+            {% for cat in category_stats %}
+                {% if cat.amount > 0 %}
+                <div class="category-item">
+                    <div style="flex:1; margin-right:12px;">
+                        <div class="category-name">{{ cat.name }}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{ cat.percent|floatformat:0 }}%"></div>
+                        </div>
+                    </div>
+                    <div style="min-width:140px; text-align:right;">
+                        <div class="category-amount">UGX {{ cat.amount|floatformat:0|intcomma }}</div>
+                        <div style="font-size:12px; color:#64748b;">{{ cat.percent|floatformat:1 }}%</div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Payment Method Analysis -->
+    <div class="section-card">
+        <div class="section-title">Payment Methods Used</div>
+        <div class="category-list">
+            {% for method, amount in payment_methods.items %}
+                {% if amount > 0 %}
+                <div class="category-item">
+                    <div class="category-name">{{ method }}</div>
+                    <div class="category-amount">UGX {{ amount|floatformat:0|intcomma }}</div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div style="text-align: center; padding: 20px;">
+        <a href="{% url 'admin_dash' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

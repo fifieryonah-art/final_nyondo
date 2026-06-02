@@ -5,9 +5,9 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import F
 from django.utils import timezone
-from .models import Stock, Product, Sale, Payment, Customer,Employee
+from .models import Stock, Product, Sale, Payment, Customer, Employee, Expense
 from decimal import Decimal
-from .forms import CustomerForm
+from .forms import CustomerForm, ExpenseForm
 from adminapp.models import Supplier, DepositScheme, DepositPayment, SupplierPayment
 from django.db import transaction
 from django.db.models import F, DecimalField, ExpressionWrapper
@@ -165,8 +165,15 @@ def add_stock(request):
             # Update product prices and inventory
             product.cost_price = cp
             product.unit_price = up
-            product.stock_quantity += qty
-            product.save()
+            # Persist price updates first
+            product.save(update_fields=["cost_price", "unit_price"])
+
+            # Use centralized stock service to mutate stock safely
+            try:
+                update_stock(product, qty, user=request.user, reason="stock_purchase")
+            except ValueError as e:
+                messages.error(request, f"Stock update failed for {product.name}: {e}")
+                return redirect('add_stock')
 
             # Create individual stock record
             Stock.objects.create(
@@ -443,10 +450,29 @@ def update_product(request, pk):
            return render(request, 'update_product.html', {'product': product})
 
        product.name = request.POST.get("name")
-       product.stock_quantity = int(request.POST.get("quantity"))
+       try:
+           new_qty = int(request.POST.get("quantity") or 0)
+       except ValueError:
+           messages.error(request, "Quantity must be an integer.")
+           return render(request, 'update_product.html', {'product': product})
+
+       if new_qty < 0:
+           messages.error(request, "Quantity cannot be negative.")
+           return render(request, 'update_product.html', {'product': product})
+
        product.cost_price = cost_price
        product.unit_price = unit_price
        product.entered_by = request.user
+
+       # Update stock via centralized service to keep audit/validation consistent
+       delta = new_qty - product.stock_quantity
+       if delta != 0:
+           try:
+               update_stock(product, delta, user=request.user, reason=f"product_update:{product.id}")
+           except ValueError as e:
+               messages.error(request, f"Unable to update stock: {e}")
+               return render(request, 'update_product.html', {'product': product})
+
        product.save()
 
        messages.success(request,"Product updated successfully")
@@ -732,9 +758,12 @@ def add_sales(request):
                 recorded_by=request.user if request.user.is_authenticated else None,
                 receipt_number=f"SALE-{uuid.uuid4().hex[:8].upper()}",
             )
-            # REDUCE STOCK
-            product.stock_quantity -= quantity
-            product.save(update_fields=['stock_quantity'])
+            # Reduce stock via centralized service
+            try:
+                update_stock(product, -quantity, user=request.user, reason=f"sale:{sale.id}")
+            except ValueError as e:
+                messages.error(request, f"Sale Failed: {product.name} - {e}")
+                return redirect('add_sales')
 
             created_sale_ids.append(str(sale.id))
             
@@ -990,3 +1019,286 @@ def customer_detail(request, pk):
     }
 
     return render(request, 'customer_detail.html', context)
+
+
+# ===================================
+# EXPENSE MANAGEMENT VIEWS
+# ===================================
+
+def generate_expense_reference():
+    """Generate a unique expense reference number"""
+    import datetime
+    date_str = datetime.datetime.now().strftime('%Y%m%d')
+    random_str = str(uuid.uuid4())[:8].upper()
+    return f"EXP-{date_str}-{random_str}"
+
+
+@role_required(["admin"])
+def expense_dashboard(request):
+    """Display expense dashboard with summary and recent expenses"""
+    from django.db.models import Sum
+    from datetime import timedelta
+    
+    expenses = Expense.objects.all()
+    
+    # Calculate statistics
+    total_expenses = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    # Current month
+    current_month_start = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    month_expenses = expenses.filter(date__gte=current_month_start).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    # Current year
+    current_year_start = timezone.now().replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    year_expenses = expenses.filter(date__gte=current_year_start).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    # Category breakdown (include percentage of total for UI)
+    category_stats = []
+    for category_code, category_name in Expense.EXPENSE_CATEGORIES:
+        cat_total = expenses.filter(category=category_code).aggregate(Sum('amount'))['amount__sum'] or 0
+        percent = 0
+        try:
+            if total_expenses and total_expenses != 0:
+                percent = float(cat_total) / float(total_expenses) * 100
+        except Exception:
+            percent = 0
+        category_stats.append({
+            'name': category_name,
+            'amount': cat_total,
+            'percent': percent,
+        })
+    
+    # Recent expenses
+    recent_expenses = expenses.order_by('-date')[:10]
+    
+    # Payment method breakdown
+    payment_methods = {}
+    for method_code, method_name in Expense.PAYMENT_METHODS:
+        method_total = expenses.filter(payment_method=method_code).aggregate(Sum('amount'))['amount__sum'] or 0
+        payment_methods[method_name] = method_total
+    
+    context = {
+        'total_expenses': total_expenses,
+        'month_expenses': month_expenses,
+        'year_expenses': year_expenses,
+        'category_stats': category_stats,
+        'recent_expenses': recent_expenses,
+        'payment_methods': payment_methods,
+    }
+    
+    return render(request, 'expense_dashboard.html', context)
+
+
+@role_required(["admin"])
+def expense_list(request):
+    """Display list of all expenses with filtering and search"""
+    expenses = Expense.objects.all().order_by('-date', '-created_at')
+    
+    # Search
+    search_query = request.GET.get('search', '')
+    if search_query:
+        from django.db.models import Q
+        expenses = expenses.filter(
+            Q(expense_reference__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(vendor__icontains=search_query) |
+            Q(category__icontains=search_query)
+        )
+    
+    # Filter by category
+    category = request.GET.get('category', '')
+    if category:
+        expenses = expenses.filter(category=category)
+    
+    # Filter by payment method
+    payment_method = request.GET.get('payment_method', '')
+    if payment_method:
+        expenses = expenses.filter(payment_method=payment_method)
+    
+    # Filter by date range
+    from_date = request.GET.get('from_date', '')
+    to_date = request.GET.get('to_date', '')
+    if from_date:
+        expenses = expenses.filter(date__gte=from_date)
+    if to_date:
+        expenses = expenses.filter(date__lte=to_date)
+    
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(expenses, 20)
+    page = request.GET.get('page', 1)
+    expenses = paginator.get_page(page)
+    
+    context = {
+        'expenses': expenses,
+        'search_query': search_query,
+        'selected_category': category,
+        'selected_payment_method': payment_method,
+        'from_date': from_date,
+        'to_date': to_date,
+        'expense_categories': Expense.EXPENSE_CATEGORIES,
+        'payment_methods': Expense.PAYMENT_METHODS,
+    }
+    
+    return render(request, 'expense_list.html', context)
+
+
+@role_required(["admin"])
+def add_expense(request):
+    """Create a new expense record"""
+    if request.method == 'POST':
+        form = ExpenseForm(request.POST)
+        if form.is_valid():
+            expense = form.save(commit=False)
+            expense.expense_reference = generate_expense_reference()
+            expense.recorded_by = request.user
+            expense.save()
+            messages.success(request, f'Expense {expense.expense_reference} recorded successfully!')
+            return redirect('expense_list')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = ExpenseForm()
+    
+    context = {
+        'form': form,
+        'page_title': 'Record New Expense',
+    }
+    
+    return render(request, 'add_expense.html', context)
+
+
+@role_required(["admin"])
+def edit_expense(request, pk):
+    """Edit an existing expense record"""
+    expense = get_object_or_404(Expense, pk=pk)
+    
+    if request.method == 'POST':
+        form = ExpenseForm(request.POST, instance=expense)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Expense updated successfully!')
+            return redirect('expense_list')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = ExpenseForm(instance=expense)
+    
+    context = {
+        'form': form,
+        'expense': expense,
+        'page_title': f'Edit Expense {expense.expense_reference}',
+    }
+    
+    return render(request, 'edit_expense.html', context)
+
+
+@role_required(["admin"])
+def view_expense(request, pk):
+    """View expense details"""
+    expense = get_object_or_404(Expense, pk=pk)
+    
+    context = {
+        'expense': expense,
+    }
+    
+    return render(request, 'view_expense.html', context)
+
+
+@role_required(["admin"])
+def delete_expense(request, pk):
+    """Delete an expense record"""
+    expense = get_object_or_404(Expense, pk=pk)
+    
+    if request.method == 'POST':
+        expense_ref = expense.expense_reference
+        expense.delete()
+        messages.success(request, f'Expense {expense_ref} deleted successfully!')
+        return redirect('expense_list')
+    
+    context = {
+        'expense': expense,
+    }
+    
+    return render(request, 'delete_expense.html', context)
+
+
+@role_required(["admin"])
+def expense_receipt(request, pk):
+    """Display printable expense receipt"""
+    expense = get_object_or_404(Expense, pk=pk)
+    
+    context = {
+        'expense': expense,
+    }
+    
+    return render(request, 'expense_receipt.html', context)
+
+
+@role_required(["admin"])
+def expense_report(request):
+    """Generate expense report with filters"""
+    from django.db.models import Sum
+    from datetime import timedelta
+    
+    expenses = Expense.objects.all()
+    
+    # Filter by date range
+    from_date = request.GET.get('from_date', '')
+    to_date = request.GET.get('to_date', '')
+    
+    if not from_date:
+        from_date = (timezone.now() - timedelta(days=30)).date()
+    else:
+        from_date = timezone.datetime.strptime(from_date, '%Y-%m-%d').date()
+    
+    if not to_date:
+        to_date = timezone.now().date()
+    else:
+        to_date = timezone.datetime.strptime(to_date, '%Y-%m-%d').date()
+    
+    expenses = expenses.filter(date__gte=from_date, date__lte=to_date)
+    
+    # Category analysis
+    category_analysis = []
+    for category_code, category_name in Expense.EXPENSE_CATEGORIES:
+        cat_expenses = expenses.filter(category=category_code)
+        if cat_expenses.exists():
+            cat_total = cat_expenses.aggregate(Sum('amount'))['amount__sum']
+            cat_count = cat_expenses.count()
+            category_analysis.append({
+                'category': category_name,
+                'total': cat_total,
+                'count': cat_count,
+                'percentage': (cat_total / (expenses.aggregate(Sum('amount'))['amount__sum'] or 1)) * 100
+            })
+    
+    # Payment method analysis
+    payment_analysis = []
+    for method_code, method_name in Expense.PAYMENT_METHODS:
+        method_expenses = expenses.filter(payment_method=method_code)
+        if method_expenses.exists():
+            method_total = method_expenses.aggregate(Sum('amount'))['amount__sum']
+            method_count = method_expenses.count()
+            payment_analysis.append({
+                'method': method_name,
+                'total': method_total,
+                'count': method_count,
+            })
+    
+    total_expenses = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    context = {
+        'expenses': expenses.order_by('-date'),
+        'total_expenses': total_expenses,
+        'category_analysis': category_analysis,
+        'payment_analysis': payment_analysis,
+        'from_date': from_date.isoformat(),
+        'to_date': to_date.isoformat(),
+    }
+    
+    return render(request, 'expense_report.html', context)

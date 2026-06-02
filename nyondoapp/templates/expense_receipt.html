@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Expense Receipt | Nyondo Hardware{% endblock %}
+
+{% block content %}
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+        body {
+            background: white;
+        }
+        .receipt-container {
+            box-shadow: none;
+            border: 1px solid #ddd;
+        }
+    }
+
+    .print-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 24px;
+    }
+
+    .print-actions {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-primary {
+        background-color: #0B1F3A;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #102B52;
+    }
+
+    .btn-secondary {
+        background-color: #e2e8f0;
+        color: #0f172a;
+    }
+
+    .btn-secondary:hover {
+        background-color: #cbd5e1;
+    }
+
+    .receipt-container {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 40px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .receipt-header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 20px;
+    }
+
+    .receipt-logo {
+        font-size: 32px;
+        font-weight: 700;
+        color: #0B1F3A;
+        margin-bottom: 8px;
+    }
+
+    .receipt-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+
+    .receipt-subtitle {
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .receipt-body {
+        margin-bottom: 30px;
+    }
+
+    .receipt-section {
+        margin-bottom: 24px;
+    }
+
+    .receipt-section-title {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #0f172a;
+        margin-bottom: 12px;
+        letter-spacing: 1px;
+        color: #0B1F3A;
+    }
+
+    .receipt-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 14px;
+    }
+
+    .receipt-row-label {
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .receipt-row-value {
+        color: #0f172a;
+        font-weight: 600;
+    }
+
+    .receipt-amount-box {
+        background-color: #f0f9ff;
+        border: 2px solid #0B1F3A;
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .receipt-amount-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #64748b;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .receipt-amount {
+        font-size: 32px;
+        font-weight: 700;
+        color: #0B1F3A;
+    }
+
+    .receipt-footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid #e2e8f0;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .receipt-footer-text {
+        margin-bottom: 8px;
+    }
+
+    .receipt-reference {
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    .back-link:hover {
+        color: #1d4ed8;
+    }
+</style>
+
+<div class="print-container">
+    <div class="no-print">
+        <a href="{% url 'view_expense' expense.pk %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Expense
+        </a>
+        <div class="print-actions">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fas fa-print"></i> Print Receipt
+            </button>
+            <a href="{% url 'view_expense' expense.pk %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Close
+            </a>
+        </div>
+    </div>
+
+    <div class="receipt-container">
+        <div class="receipt-header">
+            <div class="receipt-logo">Nyondo Hardware</div>
+            <div class="receipt-title">Expense Receipt</div>
+            <div class="receipt-subtitle">Business Expense Record</div>
+        </div>
+
+        <div class="receipt-body">
+            <div class="receipt-section">
+                <div class="receipt-section-title">Receipt Details</div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Reference Number</span>
+                    <span class="receipt-row-value">{{ expense.expense_reference }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Date</span>
+                    <span class="receipt-row-value">{{ expense.date|date:"d M Y" }}</span>
+                </div>
+            </div>
+
+            <div class="receipt-section">
+                <div class="receipt-section-title">Expense Information</div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Category</span>
+                    <span class="receipt-row-value">{{ expense.get_category_display }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Payment Method</span>
+                    <span class="receipt-row-value">{{ expense.get_payment_method_display }}</span>
+                </div>
+                {% if expense.vendor %}
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Vendor</span>
+                    <span class="receipt-row-value">{{ expense.vendor }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="receipt-section">
+                <div class="receipt-section-title">Description</div>
+                <div style="padding: 12px; background-color: #f1f5f9; border-radius: 6px; font-size: 14px; color: #0f172a;">
+                    {{ expense.description }}
+                </div>
+            </div>
+
+            <div class="receipt-amount-box">
+                <div class="receipt-amount-label">Amount Expended</div>
+                <div class="receipt-amount">UGX {{ expense.amount|floatformat:0|intcomma }}</div>
+            </div>
+
+            <div class="receipt-section">
+                <div class="receipt-section-title">Recorded Information</div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Recorded By</span>
+                    <span class="receipt-row-value">{{ expense.recorded_by.get_full_name|default:expense.recorded_by.username }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Date Recorded</span>
+                    <span class="receipt-row-value">{{ expense.created_at|date:"d M Y, H:i" }}</span>
+                </div>
+            </div>
+
+            {% if expense.notes %}
+            <div class="receipt-section">
+                <div class="receipt-section-title">Notes</div>
+                <div style="padding: 12px; background-color: #fef3c7; border-radius: 6px; font-size: 14px; color: #92400e;">
+                    {{ expense.notes }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="receipt-footer">
+            <div class="receipt-footer-text">{{ expense.expense_reference }}</div>
+            <div class="receipt-footer-text">Generated on {{ "now"|date:"d M Y, H:i" }}</div>
+            <div class="receipt-footer-text" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
+                This is an official expense receipt from Nyondo Hardware Management System
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

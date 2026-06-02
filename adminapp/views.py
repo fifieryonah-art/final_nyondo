@@ -601,6 +601,7 @@ def reports(request):
         sales = sales.filter(date__year=today.year, date__month=today.month)
         payments = payments.filter(created_at__year=today.year, created_at__month=today.month)
     products = Product.objects.all()
+    
     suppliers = Supplier.objects.all()
     customers = Customer.objects.all()
 
@@ -608,12 +609,46 @@ def reports(request):
     total_paid = payments.aggregate(total=Sum('amount_paid'))['total'] or 0
     # Ensure figures don't show as negative
     total_balance = max(0, total_sales - total_paid)
+    
+    # Determine date range for the period
+    start_date_for_period = None
+    end_date_for_period = today
+
+    if period == 'today':
+        start_date_for_period = today
+    elif period == 'week':
+        start_date_for_period = today - timedelta(days=today.weekday())
+    elif period == 'month':
+        start_date_for_period = today.replace(day=1)
+    elif period == 'all':
+        earliest_sale = Sale.objects.order_by('date').first()
+        earliest_payment = Payment.objects.order_by('created_at').first()
+        if earliest_sale and earliest_payment:
+            start_date_for_period = min(earliest_sale.date.date(), earliest_payment.created_at.date())
+        elif earliest_sale:
+            start_date_for_period = earliest_sale.date.date()
+        elif earliest_payment:
+            start_date_for_period = earliest_payment.created_at.date()
+        else:
+            start_date_for_period = today # Default if no data
+
+    # Calculate total reporting days
+    total_reporting_days = (end_date_for_period - start_date_for_period).days + 1 if start_date_for_period else 0
+
 
     total_quantity_sold = sales.aggregate(total=Sum('quantity'))['total'] or 0
     total_transactions = sales.count()
     average_sale_value = round((total_sales / total_transactions), 2) if total_transactions else 0
 
     collection_rate = round((total_paid / total_sales) * 100, 2) if total_sales else 0
+
+    # Financial Performance Metrics
+    cogs = Decimal('0.00')
+    for sale in sales:
+        if sale.name and sale.name.cost_price:
+            cogs += sale.quantity * sale.name.cost_price
+    gross_profit = total_sales - cogs
+    net_profit = gross_profit # Assuming no other operational expenses are tracked in this system
 
     total_products = products.count()
     low_stock = products.filter(stock_quantity__lt=F('reorder_level'))
@@ -629,13 +664,15 @@ def reports(request):
         .count()
     )
 
-    total_payments = payments.aggregate(total=Sum('amount_paid'))['total'] or 0
+    total_payments_count = payments.count() # Renamed to avoid conflict with total_paid amount
 
     recent_sales = sales[:10]
     for sale in recent_sales:
-        sale.balance = (sale.final_amount or 0) - (sale.sub_total or 0)
+        sale.balance = (sale.final_amount or Decimal('0.00')) - (sale.payment.amount_paid if sale.payment else Decimal('0.00')) # Assuming payment is linked
+        sale.balance = max(Decimal('0.00'), sale.balance) # Ensure balance is not negative
 
     recent_payments = payments[:10]
+
 
     top_products = (
         sales.values('name__name')
@@ -644,6 +681,59 @@ def reports(request):
     )
 
     total_suppliers = suppliers.count()
+
+    # New Business Activity Summary metrics
+    new_products_added = Product.objects.filter(date_added__date__range=(start_date_for_period, end_date_for_period)).count() if start_date_for_period else 0
+    new_customers_registered = Customer.objects.filter(date_joined__date__range=(start_date_for_period, end_date_for_period)).count() if start_date_for_period else 0
+
+    # Outstanding Balances Report
+    outstanding_customers_data = []
+    for customer in Customer.objects.all():
+        customer_sales_total = Sale.objects.filter(customer_name=customer, date__date__range=(start_date_for_period, end_date_for_period)).aggregate(total=Sum('final_amount'))['total'] or Decimal('0.00')
+        customer_payments_total = Payment.objects.filter(customer=customer, created_at__date__range=(start_date_for_period, end_date_for_period)).aggregate(total=Sum('amount_paid'))['total'] or Decimal('0.00')
+        customer_balance = customer_sales_total - customer_payments_total
+
+        if customer_balance > 0:
+            last_sale_date = Sale.objects.filter(customer_name=customer).aggregate(latest_date=Max('date'))['latest_date']
+            last_payment_date = Payment.objects.filter(customer=customer).aggregate(latest_date=Max('created_at'))['latest_date']
+            last_transaction_date = None
+            if last_sale_date and last_payment_date:
+                last_transaction_date = max(last_sale_date, last_payment_date)
+            elif last_sale_date:
+                last_transaction_date = last_sale_date
+            elif last_payment_date:
+                last_transaction_date = last_payment_date
+
+            outstanding_customers_data.append({
+                'customer_name': customer.name,
+                'outstanding_balance': customer_balance,
+                'last_transaction_date': last_transaction_date,
+            })
+
+    # Inventory Status Report
+    inventory_status_data = []
+    for product in Product.objects.all():
+        status = "In Stock"
+        if product.stock_quantity == 0:
+            status = "Out of Stock"
+        elif product.stock_quantity <= product.reorder_level:
+            status = "Low Stock"
+        inventory_status_data.append({
+            'product_name': product.name,
+            'current_quantity': product.stock_quantity,
+            'status': status,
+        })
+
+    # Management Recommendations
+    recommendations = []
+    if low_stock.exists():
+        recommendations.append("Products that require restocking: " + ", ".join([p.name for p in low_stock[:3]]) + ("..." if low_stock.count() > 3 else ""))
+    if outstanding_customers_data:
+        recommendations.append("Customers with outstanding balances need follow-up.")
+    if gross_profit < 0: # Simple threshold for monitoring expenses
+        recommendations.append("Gross profit is negative. Review pricing and costs.")
+    if top_products:
+        recommendations.append("Prioritize high-performing products: " + ", ".join([p['name__name'] for p in top_products[:3]]) + ("..." if top_products.count() > 3 else ""))
 
     context = {
         'sales': sales,
@@ -654,10 +744,16 @@ def reports(request):
         'total_quantity_sold': total_quantity_sold,
         'total_transactions': total_transactions,
         'average_sale_value': average_sale_value,
+        "cogs": cogs,
+        "gross_profit": gross_profit,
+        "net_profit": net_profit,
         'collection_rate': collection_rate,
         'expected_money': total_sales,
         'products': products,
         'total_products': total_products,
+        "date_generated": timezone.now(),
+        "generated_by": request.user.username,
+        "total_reporting_days": total_reporting_days,
         'low_stock': low_stock,
         'out_of_stock': out_of_stock,
         'total_stock_quantity': total_stock_quantity,
@@ -665,12 +761,17 @@ def reports(request):
         'customers': customers,
         'total_customers': total_customers,
         'customers_with_balance': customers_with_balance,
-        'payments': payments,
+        'payments': payments, # This is the queryset for the period
         'recent_payments': recent_payments,
-        'total_payments': total_payments,
+        'total_payments': total_payments_count, # This is the count of payments
         'top_products': top_products,
         'total_suppliers': total_suppliers,
         'period': period,
+        "new_products_added": new_products_added,
+        "new_customers_registered": new_customers_registered,
+        "outstanding_customers_data": outstanding_customers_data,
+        "inventory_status_data": inventory_status_data,
+        "recommendations": recommendations,
     }
 
     return render(request, 'reports.html', context)

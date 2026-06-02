@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Expense Report | Nyondo Hardware{% endblock %}
+
+{% block content %}
+<style>
+    .report-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+        padding: 24px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 28px;
+        color: #0f172a;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-primary {
+        background-color: #0B1F3A;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #102B52;
+    }
+
+    .report-filters {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .filter-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .filter-group label {
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #0f172a;
+        font-size: 13px;
+    }
+
+    .filter-group input {
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+    .report-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .report-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 16px;
+    }
+
+    .table thead {
+        background-color: #f1f5f9;
+    }
+
+    .table thead th {
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 12px;
+        color: #0f172a;
+        border-bottom: 2px solid #e2e8f0;
+        text-transform: uppercase;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table tbody tr:hover {
+        background-color: #fafbfc;
+    }
+
+    .table tbody td {
+        padding: 12px;
+        font-size: 13px;
+        color: #475569;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    .back-link:hover {
+        color: #1d4ed8;
+    }
+</style>
+
+<div class="report-shell">
+    <a href="{% url 'expense_dashboard' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+
+    <div class="page-header">
+        <div>
+            <h1>Expense Report</h1>
+            <p style="color: #64748b; margin: 6px 0 0 0; font-size: 13px;">Detailed expense analysis and breakdown</p>
+        </div>
+        <div class="header-actions">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fas fa-print"></i> Print
+            </button>
+        </div>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="report-filters">
+        <form method="GET" class="no-validation">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>From Date</label>
+                    <input type="date" name="from_date" value="{{ from_date }}">
+                </div>
+                <div class="filter-group">
+                    <label>To Date</label>
+                    <input type="date" name="to_date" value="{{ to_date }}">
+                </div>
+                <div class="filter-group" style="justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Report Period Info -->
+    <div class="report-card">
+        <div class="report-title">Report Period: {{ from_date|date:"M d, Y" }} to {{ to_date|date:"M d, Y" }}</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+            <div style="padding: 12px; background-color: #f0fdf4; border-radius: 8px; border-left: 4px solid #10b981;">
+                <div style="font-size: 12px; color: #64748b;">Total Expenses</div>
+                <div style="font-size: 20px; font-weight: 700; color: #047857;">UGX {{ total_expenses|floatformat:0|intcomma }}</div>
+            </div>
+            <div style="padding: 12px; background-color: #f0f9ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                <div style="font-size: 12px; color: #64748b;">Records</div>
+                <div style="font-size: 20px; font-weight: 700; color: #1e40af;">{{ expenses.count }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Analysis -->
+    {% if category_analysis %}
+    <div class="report-card">
+        <div class="report-title">Breakdown by Category</div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th class="text-right">Records</th>
+                    <th class="text-right">Amount</th>
+                    <th class="text-right">% of Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in category_analysis %}
+                <tr>
+                    <td>{{ item.category }}</td>
+                    <td class="text-right">{{ item.count }}</td>
+                    <td class="text-right" style="font-weight: 600;">UGX {{ item.total|floatformat:0|intcomma }}</td>
+                    <td class="text-right">{{ item.percentage|floatformat:1 }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Payment Method Analysis -->
+    {% if payment_analysis %}
+    <div class="report-card">
+        <div class="report-title">Payment Methods</div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Payment Method</th>
+                    <th class="text-right">Transactions</th>
+                    <th class="text-right">Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in payment_analysis %}
+                <tr>
+                    <td>{{ item.method }}</td>
+                    <td class="text-right">{{ item.count }}</td>
+                    <td class="text-right" style="font-weight: 600;">UGX {{ item.total|floatformat:0|intcomma }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Detailed Expenses List -->
+    <div class="report-card">
+        <div class="report-title">All Expenses</div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th class="text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td><strong>{{ expense.expense_reference }}</strong></td>
+                    <td>{{ expense.date|date:"d M Y" }}</td>
+                    <td>{{ expense.get_category_display }}</td>
+                    <td>{{ expense.description|truncatewords:10 }}</td>
+                    <td class="text-right" style="font-weight: 600;">UGX {{ expense.amount|floatformat:0|intcomma }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Print styles
+    @media print {
+        .no-print {
+            display: none;
+        }
+        body {
+            background: white;
+        }
+        .report-card {
+            page-break-inside: avoid;
+        }
+    }
+</script>
+{% endblock %}

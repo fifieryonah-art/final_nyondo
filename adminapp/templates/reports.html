@@ -8,11 +8,534 @@ Reports | Nyondo Hardware
 
 {% block extra_css %}
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<link rel="stylesheet"
-href="{% static 'css/reports.css' %}?v=20260525-report-v2">
+<style>
+/* =========================
+   PAGE LAYOUT
+========================= */
+
+.reports-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    padding: 24px; /* Added padding for overall container */
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.reports-header {
+    display: flex;
+    flex-direction: column; /* Changed to column for better stacking */
+    gap: 16px;
+    padding: 24px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 55%, #eef4ff 100%);
+    border: 1px solid #dbe7f5;
+    box-shadow: 0 8px 24px rgba(15, 23, 43, 0.06);
+}
+
+.reports-header h1 {
+    font-size: 32px; /* Larger for main title */
+    color: #0f172b;
+    margin-bottom: 8px;
+}
+
+.reports-header p {
+    color: #64748b;
+    font-size: 15px; /* Slightly larger for readability */
+    max-width: 700px;
+    line-height: 1.6;
+}
+
+.reports-eyebrow {
+    font-size: 13px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.reports-header-badges {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px; /* Spacing from header text */
+}
+
+.badge-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.2s ease;
+    background: #e2e8f0;
+    color: #0f172b;
+}
+
+.badge-chip:hover {
+    background: #cbd5e1;
+}
+
+.badge-chip.active {
+    background: #0f172b;
+    color: white;
+}
+
+/* Print button styling */
+.print-button {
+    background: #0B1F3A;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s ease;
+    box-shadow: 0 4px 12px rgba(15, 23, 43, 0.1);
+}
+
+.print-button:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
+}
+
+/* =========================
+   REPORT INFO CARD
+========================= */
+.report-info-card {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-item span {
+    font-size: 12px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.info-item strong {
+    font-size: 15px;
+    color: #0f172b;
+    font-weight: 700;
+}
+
+
+/* =========================
+   CARDS GRID
+========================= */
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-auto-rows: 1fr;
+    gap: 16px;
+}
+
+.report-card {
+    background: white;
+    padding: 16px;
+    min-height: 140px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: 0.2s ease;
+    height: 100%;
+}
+
+.report-card:hover {
+    transform: translateY(-2px);
+}
+
+.report-card > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.report-card i {
+    font-size: 20px;
+    color: #0f172b;
+}
+
+.report-card h3 {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+    font-weight: 600;
+}
+
+.report-card h2 {
+    font-size: 20px;
+    color: #0f172b;
+    font-weight: 800;
+    margin: 0;
+}
+
+.report-card small,
+.analytics-card small,
+.report-info-card small {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* Highlighted financial cards */
+.financial-card {
+    border-left: 4px solid #0f172b; /* Stronger border */
+    background: linear-gradient(135deg, #f8fafc 0%, #eef4ff 100%);
+}
+.financial-card i {
+    color: #2563eb; /* Blue icon for financial */
+}
+
+
+/* =========================
+   ANALYTICS GRID
+========================= */
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-auto-rows: 1fr;
+    gap: 24px;
+}
+
+.analytics-card {
+    background: white;
+    padding: 16px;
+    min-height: 140px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    height: 100%;
+}
+
+.section-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.section-header h3 {
+    font-size: 18px;
+    color: #0f172b;
+    margin-bottom: 6px;
+}
+
+.section-header p {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-item span {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.summary-item strong {
+    font-size: 14px;
+    color: #0f172b;
+    font-weight: 700;
+}
+
+/* =========================
+   TABLE SECTION
+========================= */
+
+.table-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    overflow: hidden; /* For table border-radius */
+}
+
+.table-section .section-header {
+    padding: 20px;
+    margin-bottom: 0; /* Remove bottom margin as table starts immediately */
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.report-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    position: relative; /* For sticky header */
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px; /* Ensure horizontal scroll on smaller screens */
+}
+
+.report-table thead {
+    background: #f8fafc;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.05); /* Subtle shadow for sticky header */
+}
+
+.report-table th {
+    text-align: left;
+    padding: 15px 20px;
+    color: #0f172b;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.report-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eef2f7;
+    color: #334155;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.report-table tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+.report-table tbody tr:hover {
+    background: #edf4ff;
+}
+
+/* Status Badges for Inventory */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.status-in-stock {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-low-stock {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.status-out-of-stock {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Management Recommendations */
+.recommendations-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+}
+
+.recommendations-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recommendations-list li {
+    padding: 8px 0;
+    font-size: 14px;
+    color: #334155;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.recommendations-list li:not(:last-child) {
+    border-bottom: 1px solid #f8fafc;
+}
+
+.recommendations-list li i {
+    color: #2563eb; /* Info blue */
+    margin-top: 2px;
+}
+
+
+/* =========================
+   PRINT STYLES
+========================= */
+
+@media print {
+    body {
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .reports-container {
+        padding: 15mm !important; /* A4 margins */
+        gap: 15mm !important;
+    }
+    .reports-header {
+        box-shadow: none !important;
+        border: none !important;
+        background: none !important;
+        padding: 0 !important;
+        margin-bottom: 10mm;
+    }
+    .reports-header h1 {
+        font-size: 24pt !important;
+    }
+    .reports-header p, .reports-eyebrow {
+        font-size: 10pt !important;
+        color: #333 !important;
+    }
+    .reports-header-badges, .print-button {
+        display: none !important; /* Hide navigation and print button */
+    }
+    .report-info-card, .report-card, .analytics-card, .table-section, .recommendations-card {
+        box-shadow: none !important;
+        border: 1px solid #eee !important;
+        page-break-inside: avoid; /* Prevent breaking cards/tables across pages */
+        margin-bottom: 10mm;
+    }
+    .report-info-card {
+        grid-template-columns: 1fr 1fr !important; /* Simpler layout for print */
+    }
+    .cards-grid, .analytics-grid {
+        grid-template-columns: 1fr 1fr !important; /* Force 2 columns for print */
+        gap: 10mm !important;
+    }
+    .report-card h2 {
+        font-size: 18pt !important;
+    }
+    .report-table {
+        min-width: auto !important; /* Allow table to shrink if needed */
+    }
+    .report-table th, .report-table td {
+        padding: 8px 12px !important;
+        font-size: 9pt !important;
+        white-space: normal !important; /* Allow text to wrap */
+    }
+    .report-table thead {
+        position: static !important; /* Disable sticky header for print */
+        box-shadow: none !important;
+    }
+    .report-table tbody tr:nth-child(even) {
+        background: #f9f9f9 !important; /* Lighter stripe for print */
+    }
+    .report-table tbody tr:hover {
+        background: #f9f9f9 !important; /* No hover effect on print */
+    }
+    .section-header h3 {
+        font-size: 14pt !important;
+    }
+    .section-header p {
+        font-size: 10pt !important;
+    }
+    .summary-item span, .summary-item strong {
+        font-size: 10pt !important;
+    }
+    .recommendations-list li {
+        font-size: 10pt !important;
+    }
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1024px) {
+    .reports-container {
+        padding: 16px;
+    }
+    .reports-header h1 {
+        font-size: 28px;
+    }
+    .reports-header p {
+        font-size: 14px;
+    }
+    .cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .reports-header {
+        padding: 16px;
+    }
+    .reports-header h1 {
+        font-size: 24px;
+    }
+    .reports-header-badges {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .badge-chip {
+        width: 100%;
+        justify-content: center;
+    }
+    .report-info-card {
+        grid-template-columns: 1fr;
+    }
+    .cards-grid {
+        grid-template-columns: 1fr;
+    }
+    .report-card h2 {
+        font-size: 20px;
+    }
+    .report-table th, .report-table td {
+        padding: 12px 15px;
+    }
+}
+
+</style>
 
 {% endblock %}
 
@@ -26,14 +549,70 @@ href="{% static 'css/reports.css' %}?v=20260525-report-v2">
             <h1>Business Reports</h1>
             <p>Track sales performance, collection health, stock movement, and customer activity from one clean view.</p>
         </div>
-        <button onclick="window.print()" class="badge-chip" style="cursor: pointer; background: #0B1F3A; color: white; border: none; margin-bottom: 10px;">
-            <i class="fas fa-file-pdf"></i> Print Report to PDF
+        <button onclick="window.print()" class="print-button">
+            <i class="fas fa-print"></i> Print Report to PDF
         </button>
         <div class="reports-header-badges">
+            <a class="badge-chip" href="{% url 'admin_dash' %}"><i class="fas fa-arrow-left"></i> Dashboard</a>
             <a class="badge-chip {% if period == 'today' %}active{% endif %}" href="{% url 'reports' %}?period=today"><i class="fas fa-calendar-day"></i> Today</a>
             <a class="badge-chip {% if period == 'week' %}active{% endif %}" href="{% url 'reports' %}?period=week"><i class="fas fa-calendar-week"></i> Week</a>
             <a class="badge-chip {% if period == 'month' %}active{% endif %}" href="{% url 'reports' %}?period=month"><i class="fas fa-calendar"></i> Month</a>
             <a class="badge-chip {% if period == 'all' %}active{% endif %}" href="{% url 'reports' %}?period=all"><i class="fas fa-chart-line"></i> All</a>
+        </div>
+    </div>
+
+    <!-- 1. Report Information Section -->
+    <div class="report-info-card">
+        <div class="info-item">
+            <span>Report Period</span>
+            <strong>{{ period|title }}</strong>
+        </div>
+        <div class="info-item">
+            <span>Date Generated</span>
+            <strong>{{ date_generated|date:"M d, Y H:i" }}</strong>
+        </div>
+        <div class="info-item">
+            <span>Generated By</span>
+            <strong>{{ generated_by }}</strong>
+        </div>
+        <div class="info-item">
+            <span>Total Reporting Days</span>
+            <strong>{{ total_reporting_days }}</strong>
+        </div>
+    </div>
+
+    <!-- 2. Financial Performance Metrics -->
+    <div class="cards-grid">
+        <div class="report-card financial-card">
+            <div>
+                <i class="fas fa-chart-pie"></i>
+                <h3>Gross Sales</h3>
+            </div>
+            <h2>UGX {{ total_sales|floatformat:0|intcomma }}</h2>
+        </div>
+
+        <div class="report-card financial-card">
+            <div>
+                <i class="fas fa-dollar-sign"></i>
+                <h3>Cost of Goods Sold</h3>
+            </div>
+            <h2>UGX {{ cogs|floatformat:0|intcomma }}</h2>
+        </div>
+
+        <div class="report-card financial-card">
+            <div>
+                <i class="fas fa-hand-holding-usd"></i>
+                <h3>Gross Profit</h3>
+            </div>
+            <h2>UGX {{ gross_profit|floatformat:0|intcomma }}</h2>
+        </div>
+
+        <div class="report-card financial-card">
+            <div>
+                <i class="fas fa-money-check-alt"></i>
+                <h3>Net Profit</h3>
+            </div>
+            <h2>UGX {{ net_profit|floatformat:0|intcomma }} <small>(Excludes operational expenses)</small></h2>
         </div>
     </div>
 
@@ -135,6 +714,163 @@ href="{% static 'css/reports.css' %}?v=20260525-report-v2">
         </div>
     </div>
 
+    <!-- 5. Business Activity Summary -->
+    <div class="analytics-grid">
+        <div class="analytics-card">
+            <div class="section-header">
+                <h3>Business Activity Summary</h3>
+                <p>Key operational activities during the reporting period.</p>
+            </div>
+
+            <div class="summary-item">
+                <span>Total Transactions</span>
+                <strong>{{ total_transactions }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Products Sold</span>
+                <strong>{{ total_quantity_sold }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Customers Served</span>
+                <strong>{{ total_customers }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Payments Received</span>
+                <strong>UGX {{ total_paid|floatformat:0|intcomma }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>New Products Added</span>
+                <strong>{{ new_products_added }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>New Customers Registered</span>
+                <strong>{{ new_customers_registered }}</strong>
+            </div>
+        </div>
+
+        <!-- Existing Inventory Health -->
+        <div class="analytics-card">
+            <div class="section-header">
+                <h3>Inventory health</h3>
+                <p>Quick signal for replenishment and stock control.</p>
+            </div>
+
+            <div class="summary-item">
+                <span>Low stock alerts</span>
+                <strong>{{ low_stock.count }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Out of stock items</span>
+                <strong>{{ out_of_stock.count }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Registered suppliers</span>
+                <strong>{{ total_suppliers }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Payment activity</span>
+                <strong>UGX {{ total_payments|floatformat:0|intcomma }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Outstanding Balances Report -->
+    <div class="table-section">
+        <div class="section-header">
+            <h3>Outstanding Balances Report</h3>
+            <p>Customers with pending payments requiring follow-up.</p>
+        </div>
+
+        <div class="report-table-wrapper">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Outstanding Balance</th>
+                        <th>Last Transaction Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer_data in outstanding_customers_data %}
+                    <tr>
+                        <td>{{ customer_data.customer_name }}</td>
+                        <td>UGX {{ customer_data.outstanding_balance|floatformat:0|intcomma }}</td>
+                        <td>{{ customer_data.last_transaction_date|date:"M d, Y H:i"|default:"N/A" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">No customers with outstanding balances for this period.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. Inventory Status Report -->
+    <div class="table-section">
+        <div class="section-header">
+            <h3>Inventory Status Report</h3>
+            <p>Current stock levels and status for all products.</p>
+        </div>
+
+        <div class="report-table-wrapper">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Current Quantity</th>
+                        <th>Stock Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product_data in inventory_status_data %}
+                    <tr>
+                        <td>{{ product_data.product_name }}</td>
+                        <td>{{ product_data.current_quantity }}</td>
+                        <td>
+                            {% if product_data.status == "Out of Stock" %}
+                                <span class="status-badge status-out-of-stock">{{ product_data.status }}</span>
+                            {% elif product_data.status == "Low Stock" %}
+                                <span class="status-badge status-low-stock">{{ product_data.status }}</span>
+                            {% else %}
+                                <span class="status-badge status-in-stock">{{ product_data.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">No product inventory data available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 6. Management Recommendations -->
+    <div class="recommendations-card">
+        <div class="section-header">
+            <h3>Management Recommendations</h3>
+            <p>Actionable insights based on the current report data.</p>
+        </div>
+        <ul class="recommendations-list">
+            {% for recommendation in recommendations %}
+                <li><i class="fas fa-lightbulb"></i> {{ recommendation }}</li>
+            {% empty %}
+                <li><i class="fas fa-check-circle"></i> All key metrics appear healthy for this period.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
     <div class="analytics-grid">
         <div class="analytics-card">
             <div class="section-header">
@@ -168,6 +904,7 @@ href="{% static 'css/reports.css' %}?v=20260525-report-v2">
             </div>
         </div>
 
+        <!-- Existing Inventory Health -->
         <div class="analytics-card">
             <div class="section-header">
                 <h3>Inventory health</h3>
@@ -196,109 +933,118 @@ href="{% static 'css/reports.css' %}?v=20260525-report-v2">
         </div>
     </div>
 
+    <!-- Existing Recent Sales -->
     <div class="table-section">
         <div class="section-header">
             <h3>Recent Sales</h3>
             <p>Latest transactions and their outstanding balances.</p>
         </div>
 
-        <table class="report-table">
-            <thead>
-                <tr>
-                    <th>Receipt</th>
-                    <th>Customer</th>
-                    <th>Product</th>
-                    <th>Qty</th>
-                    <th>Total</th>
-                    <th>Paid</th>
-                    <th>Balance</th>
-                    <th>Method</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
+        <div class="report-table-wrapper">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Receipt</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th>Paid</th>
+                        <th>Balance</th>
+                        <th>Method</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
 
-            <tbody>
-                {% for sale in recent_sales %}
-                <tr>
-                    <td>{{ sale.receipt_number }}</td>
-                    <td>{{ sale.customer_name.name|default:sale.customer_name|default:'Walk-in Customer' }}</td>
-                    <td>{{ sale.name.name|default:sale.name|default:'Unavailable' }}</td>
-                    <td>{{ sale.quantity }}</td>
-                    <td>UGX {{ sale.final_amount|floatformat:0|intcomma }}</td>
-                    <td>UGX {{ sale.sub_total|floatformat:0|intcomma }}</td>
-                    <td>UGX {{ sale.balance|floatformat:0|intcomma }}</td>
-                    <td>{{ sale.payment_method|title }}</td>
-                    <td>{{ sale.date|date:'Y-m-d H:i' }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="9">No sales records found</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                <tbody>
+                    {% for sale in recent_sales %}
+                    <tr>
+                        <td>{{ sale.receipt_number }}</td>
+                        <td>{{ sale.customer_name.name|default:'Walk-in Customer' }}</td>
+                        <td>{{ sale.name.name|default:'Unavailable' }}</td>
+                        <td>{{ sale.quantity }}</td>
+                        <td>UGX {{ sale.final_amount|floatformat:0|intcomma }}</td>
+                        <td>UGX {{ sale.sub_total|floatformat:0|intcomma }}</td>
+                        <td>UGX {{ sale.balance|floatformat:0|intcomma }}</td>
+                        <td>{{ sale.payment_method|title }}</td>
+                        <td>{{ sale.date|date:'Y-m-d H:i' }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9">No sales records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
+    <!-- Existing Recent Payments -->
     <div class="table-section">
         <div class="section-header">
             <h3>Recent Payments</h3>
             <p>Latest customer payments captured in the system.</p>
         </div>
 
-        <table class="report-table">
-            <thead>
-                <tr>
-                    <th>Customer</th>
-                    <th>Amount</th>
-                    <th>Method</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
+        <div class="report-table-wrapper">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
 
-            <tbody>
-                {% for payment in recent_payments %}
-                <tr>
-                    <td>{{ payment.customer.name|default:payment.customer|default:'Walk-in Customer' }}</td>
-                    <td>UGX {{ payment.amount_paid|floatformat:0|intcomma }}</td>
-                    <td>{{ payment.payment_method|title }}</td>
-                    <td>{{ payment.created_at|date:'Y-m-d H:i' }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4">No payment records found</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                <tbody>
+                    {% for payment in recent_payments %}
+                    <tr>
+                        <td>{{ payment.customer.name|default:'Walk-in Customer' }}</td>
+                        <td>UGX {{ payment.amount_paid|floatformat:0|intcomma }}</td>
+                        <td>{{ payment.payment_method|title }}</td>
+                        <td>{{ payment.created_at|date:'Y-m-d H:i' }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">No payment records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
+    <!-- Existing Top Selling Products -->
     <div class="table-section">
         <div class="section-header">
             <h3>Top Selling Products</h3>
             <p>Most demanded products based on the latest sales activity.</p>
         </div>
 
-        <table class="report-table">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Units Sold</th>
-                </tr>
-            </thead>
+        <div class="report-table-wrapper">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Units Sold</th>
+                    </tr>
+                </thead>
 
-            <tbody>
-                {% for product in top_products %}
-                <tr>
-                    <td>{{ product.name__name }}</td>
-                    <td>{{ product.total_qty }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="2">No sales data available</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                <tbody>
+                    {% for product in top_products %}
+                    <tr>
+                        <td>{{ product.name__name }}</td>
+                        <td>{{ product.total_qty }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2">No sales data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>

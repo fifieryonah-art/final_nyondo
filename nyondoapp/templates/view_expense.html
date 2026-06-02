@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}View Expense | Nyondo Hardware{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 24px;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .detail-header {
+        margin-bottom: 28px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .detail-header h1 {
+        font-size: 24px;
+        color: #0f172a;
+        margin: 0 0 4px 0;
+    }
+
+    .detail-row {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 16px;
+        padding: 16px 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+        color: #475569;
+        font-size: 14px;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-utilities {
+        background-color: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+    }
+
+    .badge-rent {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+    }
+
+    .badge-transport {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .badge-salary {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #059669;
+    }
+
+    .badge-supplies {
+        background-color: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+    }
+
+    .badge-maintenance {
+        background-color: rgba(249, 115, 22, 0.1);
+        color: #ea580c;
+    }
+
+    .badge-advertising {
+        background-color: rgba(236, 72, 153, 0.1);
+        color: #be185d;
+    }
+
+    .badge-insurance {
+        background-color: rgba(20, 184, 166, 0.1);
+        color: #0d9488;
+    }
+
+    .badge-professional {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #1e40af;
+    }
+
+    .badge-cash {
+        background-color: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
+    }
+
+    .badge-mtn {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #f59e0b;
+    }
+
+    .badge-airtel {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .badge-card {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .badge-bank-transfer {
+        background-color: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+    }
+
+    .amount-display {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0B1F3A;
+    }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid #e2e8f0;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-primary {
+        background-color: #0B1F3A;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #102B52;
+    }
+
+    .btn-secondary {
+        background-color: #e2e8f0;
+        color: #0f172a;
+    }
+
+    .btn-secondary:hover {
+        background-color: #cbd5e1;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    .back-link:hover {
+        color: #1d4ed8;
+    }
+</style>
+
+<div class="container">
+    <a href="{% url 'expense_list' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Expenses
+    </a>
+
+    <div class="detail-card">
+        <div class="detail-header">
+            <h1>Expense Details</h1>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Reference</div>
+            <div class="detail-value"><strong>{{ expense.expense_reference }}</strong></div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Amount</div>
+            <div class="detail-value"><span class="amount-display">UGX {{ expense.amount|floatformat:0|intcomma }}</span></div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Date</div>
+            <div class="detail-value">{{ expense.date|date:"d M Y" }}</div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Category</div>
+            <div class="detail-value">
+                <span class="badge badge-{{ expense.category }}">
+                    {{ expense.get_category_display }}
+                </span>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Payment Method</div>
+            <div class="detail-value">
+                <span class="badge badge-{{ expense.get_payment_method_display|lower|cut:' ' }}">
+                    {{ expense.get_payment_method_display }}
+                </span>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Description</div>
+            <div class="detail-value">{{ expense.description }}</div>
+        </div>
+
+        {% if expense.vendor %}
+        <div class="detail-row">
+            <div class="detail-label">Vendor</div>
+            <div class="detail-value">{{ expense.vendor }}</div>
+        </div>
+        {% endif %}
+
+        {% if expense.notes %}
+        <div class="detail-row">
+            <div class="detail-label">Notes</div>
+            <div class="detail-value">{{ expense.notes }}</div>
+        </div>
+        {% endif %}
+
+        <div class="detail-row">
+            <div class="detail-label">Recorded By</div>
+            <div class="detail-value">{{ expense.recorded_by.get_full_name|default:expense.recorded_by.username }}</div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Created</div>
+            <div class="detail-value">{{ expense.created_at|date:"d M Y, H:i" }}</div>
+        </div>
+
+        <div class="actions">
+            <a href="{% url 'expense_receipt' expense.pk %}" class="btn btn-secondary">
+                <i class="fas fa-print"></i> Print Receipt
+            </a>
+            <a href="{% url 'edit_expense' expense.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
