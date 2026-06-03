@@ -734,7 +734,7 @@ def add_sales(request):
         product_ids = request.POST.getlist('product')
         quantities = request.POST.getlist('quantity')
 
-        use_transport = request.POST.get('use_transport')  # optional checkbox
+        use_transport = request.POST.get('use_transport') == 'on'
 
         
         # VALIDATION
@@ -758,6 +758,7 @@ def add_sales(request):
             consolidated_cart[p_id] = consolidated_cart.get(p_id, 0) + qty
 
         sales_data = []
+        cart_subtotal = Decimal('0.00')
         for product_id, total_qty in consolidated_cart.items():
             product = get_object_or_404(Product, id=product_id)
             if product.stock_quantity < total_qty:
@@ -766,32 +767,29 @@ def add_sales(request):
                     'products': products, 'customers': customers,
                     'payment_methods': Sale.PAYMENT_METHODS,
                 })
+            
+            line_price = Decimal(total_qty) * product.unit_price
+            cart_subtotal += line_price
             sales_data.append({
                 'product': product,
-                'quantity': total_qty
+                'quantity': total_qty,
+                'line_subtotal': line_price
             })
 
-        
-        # CREATE SALES RECORDS
-        
-        created_sale_ids = []
+        # Calculate single transport fee for the whole cart
+        transport_fee_total = Decimal('0.00')
+        if use_transport:
+            if not (distance <= Decimal('10') and cart_subtotal >= Decimal('500000')):
+                transport_fee_total = Decimal('30000.00')
 
-        for item in sales_data:
+        created_sale_ids = []
+        for i, item in enumerate(sales_data):
             product = item['product']
             quantity = item['quantity']
-
-            sub_total = Decimal(quantity) * product.unit_price
-
+            sub_total = item['line_subtotal']
             
-            # TRANSPORT LOGIC (OPTIONAL)
-            
-            transport_fee = Decimal('0.00')
-
-            if use_transport:
-                if not (distance <= Decimal('10') and sub_total >= Decimal('500000')):
-                    transport_fee = Decimal('30000.00')
-
-            final_amount = sub_total + transport_fee
+            # Apply the transport fee only to the first item in the sale batch
+            transport_fee = transport_fee_total if i == 0 else Decimal('0.00')
 
             
             # CREATE SALE
@@ -803,7 +801,7 @@ def add_sales(request):
                 unit_price=product.unit_price,
                 transport=transport_fee,
                 sub_total=sub_total,
-                final_amount=final_amount,
+                final_amount=sub_total + transport_fee,
                 customer_name=customer,
                 payment_method=payment_method,
                 comments=comments,
@@ -925,8 +923,10 @@ def add_payment(request):
 
         subtotal_total += line_sub_total
         transport_total += line_transport
-        total += line_total
-
+    
+    # Explicitly calculate total to ensure transport is never dropped
+    total = subtotal_total + transport_total
+    
     customer = sales.first().customer_name if sales else None
     receipt_number = f"RCPT-{uuid.uuid4().hex[:8].upper()}"
 
@@ -980,6 +980,8 @@ def add_payment(request):
             payment_method=payment_method,
             receipt_number=receipt_number,
             entered_by=request.user if request.user.is_authenticated else None,
+            transport_fee=transport_total,
+            distance=int(sales.first().distance) if sales.exists() else 0,
         )
 
         # Link sales items to the payment for the receipt

@@ -138,14 +138,14 @@ th{
 .btn-edit {
     background: #e0f2fe;
     color: #0369a1;
-    padding: 10px 18px;
+    padding: 7px 10px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 0.78rem;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     transition: 0.2s ease;
 }
 

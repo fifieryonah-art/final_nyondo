@@ -140,29 +140,53 @@ tbody tr:hover{
     flex-wrap: wrap;
 }
 
-.btn-edit,
-.btn-delete{
-    color: #ffffff;
-    min-height: 32px;
+.btn-edit{
+    background: #e0f2fe;
+    color: #0369a1;
+
     padding: 7px 10px;
     border-radius: 8px;
-    text-decoration: none;
-    font-size: 12px;
+
+    font-size: 0.78rem;
     font-weight: 700;
-    line-height: 1;
+
+    text-decoration: none;
+
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 6px;
-    white-space: nowrap;
+
+    transition: 0.2s ease;
 }
 
-.btn-edit{
-    background: #2563eb;
+.btn-edit:hover{
+    background: #bae6fd;
+    transform: translateY(-2px);
 }
 
+/* DELETE BUTTON (SOFT RED) */
 .btn-delete{
-    background: #dc2626;
+    background: #fee2e2;
+    color: #b91c1c;
+
+    padding: 7px 10px;
+    border-radius: 8px;
+
+    font-size: 0.78rem;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    transition: 0.2s ease;
+}
+
+.btn-delete:hover{
+    background: #fecaca;
+    transform: translateY(-2px);
 }
 
 @media (max-width: 900px){

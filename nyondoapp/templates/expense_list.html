@@ -298,8 +298,10 @@
         </div>
         <div class="header-actions">
             <a href="{% url 'add_expense' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Expense
             </a>
             <a href="{% url 'expense_report' %}" class="btn btn-primary" style="background-color: #64748b;">
+                <i class="fas fa-file-invoice"></i> Expense Report
             </a>
         </div>
     </div>
@@ -381,10 +383,13 @@
                     <td>
                         <div class="table-actions">
                             <a href="{% url 'view_expense' expense.pk %}" class="btn-action btn-view">
+                              View
                             </a>
                             <a href="{% url 'edit_expense' expense.pk %}" class="btn-action btn-edit">
+                               Edit
                             </a>
                             <a href="{% url 'delete_expense' expense.pk %}" class="btn-action btn-delete">
+                               Delete
                             </a>
                         </div>
                     </td>

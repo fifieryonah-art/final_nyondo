@@ -13,7 +13,7 @@
     --border:     #e2e8f0;
     --muted:      #64748b;
     --text:       #334155;
-    --danger:     #dc2626;
+    --danger:     #b91c1c;
     --danger-bg:  #fee2e2;
     --success:    #059669;
     --success-bg: #dcfce7;
@@ -97,12 +97,29 @@
 .sys-btn-edit {
     background: #e0f2fe;
     color: #0369a1;
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    gap: 6px;
 }
-.sys-btn-edit:hover { background: #d97706; color: white; }
+
+.sys-btn-edit:hover {
+    background: #bae6fd;
+    transform: translateY(-2px);
+}
 
 /* DELETE */
-.sys-btn-delete { background: var(--danger-bg); color: var(--danger); }
-.sys-btn-delete:hover { background: var(--danger); color: white; }
+.sys-btn-delete {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    gap: 6px;
+}
+
+.sys-btn-delete:hover {
+    background: #fecaca;
+    transform: translateY(-2px);
+}
 
 .sys-btn-sm {
     padding: 7px 12px;

@@ -10,31 +10,55 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/stock_list.css' %}">
     <style>
-        .btn-edit {
-            background-color: #ffc107 !important;
-            color: #212529 !important;
-            padding: 8px 14px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .btn-delete {
-            background-color: #dc3545 !important;
-            color: white !important;
-            padding: 8px 14px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .btn-edit:hover, .btn-delete:hover { opacity: 0.85; transform: translateY(-1px); }
+        .btn-edit{
+                background: #e0f2fe;
+                color: #0369a1;
+
+                padding: 7px 10px;
+                border-radius: 8px;
+
+                font-size: 0.78rem;
+                font-weight: 700;
+
+                text-decoration: none;
+
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+
+                transition: 0.2s ease;
+            }
+        .btn-edit:hover{
+    background: #bae6fd;
+    transform: translateY(-2px);
+}
+
+/* DELETE BUTTON (SOFT RED) */
+.btn-delete{
+    background: #fee2e2;
+    color: #b91c1c;
+
+    padding: 7px 10px;
+    border-radius: 8px;
+
+    font-size: 0.78rem;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    transition: 0.2s ease;
+}
+
+.btn-delete:hover{
+    background: #fecaca;
+    transform: translateY(-2px);
+}
+
+
     </style>
 </head>
 <body>
@@ -94,10 +118,10 @@
                     </td>
                     <td class="actions">
                         <a href="{% url 'stock_update' stock.id %}" class="btn-edit">
-                            <i class="fas fa-pen"></i> Edit
+                             Edit
                         </a>
                         <a href="{% url 'stock_delete' stock.id %}" class="btn-delete">
-                            <i class="fas fa-trash"></i> Delete
+                             Delete
                         </a>
                     </td>
                 </tr>

@@ -3,9 +3,9 @@
 /* Define the Sidebar Color and Action Colors */
 :root {
     --sidebar-color: #2c3e50; /* Professional Sidebar Blue */
-    --edit-color: #ffc107;    /* Warning/Orange for Edit */
+    --edit-color: #e0f2fe;    /* Soft Blue for Edit */
     --view-color: #17a2b8;    /* Info/Teal for View */
-    --delete-color: #dc3545;  /* Danger/Red for Delete */
+    --delete-color: #fee2e2;  /* Soft Red for Delete */
 }
 
 /* Standardizes the container and borders */
@@ -52,21 +52,36 @@ table tbody tr:hover, .table tbody tr:hover {
 /* Unified Action Buttons across the whole project */
 .btn-warning, [class*="btn-edit"], a[href*="edit"] {
     background-color: var(--edit-color) !important;
-    border-color: var(--edit-color) !important;
-    color: #212529 !important; /* Dark text for yellow background */
-    font-weight: 500;
+    color: #0369a1 !important;
+    padding: 7px 10px !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    transition: 0.2s ease !important;
 }
 
-.btn-info, .btn-success, [class*="btn-view"], a[href*="view"], a[href*="detail"] {
-    background-color: var(--view-color) !important;
-    border-color: var(--view-color) !important;
-    color: #ffffff !important;
-    font-weight: 500;
+.btn-warning:hover, [class*="btn-edit"]:hover, a[href*="edit"]:hover {
+    background-color: #bae6fd !important;
+    transform: translateY(-2px) !important;
 }
 
 .btn-danger, [class*="btn-delete"], a[href*="delete"] {
     background-color: var(--delete-color) !important;
-    border-color: var(--delete-color) !important;
-    color: #ffffff !important;
-    font-weight: 500;
+    color: #b91c1c !important;
+    padding: 7px 10px !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    transition: 0.2s ease !important;
+}
+
+.btn-danger:hover, [class*="btn-delete"]:hover, a[href*="delete"]:hover {
+    background-color: #fecaca !important;
+    transform: translateY(-2px) !important;
 }

@@ -1,6 +1,6 @@
-/* =========================
-   PAGE BASE (MATCH STOCK DASHBOARD STYLE)
-========================= */
+
+   /* PAGE BASE (MATCH STOCK DASHBOARD STYLE) */
+
 
 body{
     font-family: "Inter", "Segoe UI", Arial, sans-serif;
@@ -9,9 +9,9 @@ body{
     color: #0f172b;
 }
 
-/* =========================
-   PAGE HEADER
-========================= */
+
+   /* PAGE HEADER */
+
 
 .page-shell{
     display: flex;
@@ -45,9 +45,9 @@ body{
     font-size: 0.95rem;
 }
 
-/* =========================
-   ADD BUTTON
-========================= */
+
+   /* ADD BUTTON */
+
 
 .btn-add{
     background: #0f172b;
@@ -72,9 +72,9 @@ body{
     transform: translateY(-2px);
 }
 
-/* =========================
-   TABLE
-========================= */
+
+   /* TABLE */
+
 
 .table-container{
     background: white;
@@ -118,9 +118,9 @@ tr:hover{
     background: #eef4ff;
 }
 
-/* =========================
-   STATUS BADGES
-========================= */
+
+   /* STATUS BADGES */
+
 
 .status-good,
 .status-warning,
@@ -147,9 +147,9 @@ tr:hover{
     color: #b91c1c;
 }
 
-/* =========================
-   ACTION BUTTONS (IMPROVED)
-========================= */
+
+   /* ACTION BUTTONS (IMPROVED) */
+
 
 .action{
     display: flex;
@@ -207,9 +207,9 @@ tr:hover{
     transform: translateY(-2px);
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+
+   /* RESPONSIVE */
+
 
 @media (max-width: 768px){
 
