@@ -25,10 +25,15 @@ def loginPage(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
+        errors = {}
 
-        if not username or not password:
-            messages.error(request, "Please provide both username and password.")
-            return render(request, "login.html")
+        if not username:
+            errors['username'] = "Username is required."
+        if not password:
+            errors['password'] = "Password is required."
+
+        if errors:
+            return render(request, "login.html", {'errors': errors, 'post_data': request.POST})
 
         # authenticate user
         user = authenticate(request, username=username, password=password)
@@ -63,6 +68,7 @@ def loginPage(request):
 
         else:
             messages.error(request, "Invalid username or password")
+            return render(request, "login.html", {'post_data': request.POST})
             
     return render(request, "login.html")
 
@@ -128,64 +134,81 @@ def add_stock(request):
     if request.method == "POST":
         supplier_id = request.POST.get("supplier")
         comments = request.POST.get("comments")
-        is_on_credit = "is_on_credit" in request.POST
         is_paid = "is_paid" in request.POST
+        
+        # Since template only has is_paid, if it's not paid, it's on credit
+        is_on_credit = not is_paid
 
-        product_ids = request.POST.getlist("product")
-        quantities = request.POST.getlist("quantity")
-        cost_prices = request.POST.getlist("cost_price")
-        unit_prices = request.POST.getlist("unit_price")
+        p_id = request.POST.get("product")
+        qty_str = request.POST.get("quantity")
+        cp_str = request.POST.get("cost_price")
+        up_str = request.POST.get("unit_price")
 
-        if not supplier_id or not product_ids:
-            messages.error(request, "Please select a supplier and add at least one product.")
-            return redirect("add_stock")
+        errors = {}
+        if not supplier_id:
+            errors['supplier'] = "Please select a supplier."
+        if not p_id:
+            errors['product'] = "Please select a product."
+        
+        try:
+            qty = int(qty_str or 0)
+            if qty <= 0:
+                errors['quantity'] = "Quantity must be greater than zero."
+        except ValueError:
+            errors['quantity'] = "Enter a valid quantity."
+
+        try:
+            cp = Decimal(cp_str or 0)
+            if cp <= 0:
+                errors['cost_price'] = "Cost price must be greater than zero."
+        except (ValueError, Decimal.InvalidOperation):
+            errors['cost_price'] = "Enter a valid cost price."
+
+        try:
+            up = Decimal(up_str or 0)
+            if up <= 0:
+                errors['unit_price'] = "Selling price must be greater than zero."
+            elif cp > 0 and up < cp:
+                errors['unit_price'] = "Selling price cannot be lower than cost price."
+        except (ValueError, Decimal.InvalidOperation):
+            errors['unit_price'] = "Enter a valid selling price."
+
+        if errors:
+            return render(request, "add_stock.html", {
+                "products": products,
+                "suppliers": suppliers,
+                "errors": errors,
+                "post_data": request.POST
+            })
 
         supplier = get_object_or_404(Supplier, id=supplier_id)
         batch_total_cost = Decimal("0.00")
 
-        for p_id, qty_str, cp_str, up_str in zip(product_ids, quantities, cost_prices, unit_prices):
-            if not p_id:
-                continue
+        product = get_object_or_404(Product, id=p_id)
+        item_total = cp * qty
+        batch_total_cost += item_total
 
-            try:
-                qty = int(qty_str or 0)
-                cp = Decimal(cp_str or 0)
-                up = Decimal(up_str or 0)
-            except (ValueError, Decimal.InvalidOperation):
-                messages.warning(request, f"Skipped invalid row for product ID {p_id}.")
-                continue
+        # Update product prices and inventory
+        product.cost_price = cp
+        product.unit_price = up
+        product.save(update_fields=["cost_price", "unit_price"])
 
-            if qty <= 0:
-                continue
+        try:
+            update_stock(product, qty, user=request.user, reason="stock_purchase")
+        except ValueError as e:
+            messages.error(request, f"Stock update failed: {e}")
+            return render(request, "add_stock.html", {"products": products, "suppliers": suppliers, "post_data": request.POST})
 
-            product = get_object_or_404(Product, id=p_id)
-            item_total = cp * qty
-            batch_total_cost += item_total
-
-            # Update product prices and inventory
-            product.cost_price = cp
-            product.unit_price = up
-            # Persist price updates first
-            product.save(update_fields=["cost_price", "unit_price"])
-
-            # Use centralized stock service to mutate stock safely
-            try:
-                update_stock(product, qty, user=request.user, reason="stock_purchase")
-            except ValueError as e:
-                messages.error(request, f"Stock update failed for {product.name}: {e}")
-                return redirect('add_stock')
-
-            # Create individual stock record
-            Stock.objects.create(
-                product=product,
-                supplier=supplier,
-                quantity=qty,
-                comments=comments,
-                total_cost=item_total,
-                is_on_credit=is_on_credit,
-                is_paid=is_paid,
-                entered_by=request.user,
-            )
+        Stock.objects.create(
+            product=product,
+            supplier=supplier,
+            quantity=qty,
+            comments=comments,
+            total_cost=item_total,
+            is_on_credit=is_on_credit,
+            is_paid=is_paid,
+            entered_by=request.user,
+        )
 
         # Update supplier's master financials
         supplier.total_amount += batch_total_cost
@@ -220,7 +243,7 @@ def add_stock(request):
 
     return render(request, "add_stock.html",context)
 
-@role_required(["manager", "admin"])
+@role_required(["admin"])
 @transaction.atomic
 def stock_delete(request, pk):
     stock = get_object_or_404(Stock, pk=pk)
@@ -391,40 +414,26 @@ def stock_supplier_dashboard(request):
 #product page
 @role_required(["admin"])
 def add_product(request):
-
+    from .forms import ProductForm
+    form = ProductForm()
     if request.method == 'POST':
-
-        name = request.POST.get('name')
-        description = request.POST.get('description')
-        specification = request.POST.get('specification')
-        stock_quantity = request.POST.get('stock_quantity')
-        type = request.POST.get('type')
-        cost_price =Decimal(request.POST.get('cost_price'))
-        unit_price = Decimal(request.POST.get('unit_price'))
-        reorder_level = request.POST.get('reorder_level') or 10
-
-        # VALIDATE SELLING PRICE
-        if unit_price < cost_price:
-            messages.error(request, "Unit price cannot be lower than cost price.")
-            return render(request, 'add_product.html', request.POST)
-
-
-        Product.objects.create(
-
-            name=name,
-            description=description,
-            specification=specification,
-            stock_quantity=stock_quantity,
-            type=type,
-            cost_price=cost_price,
-            unit_price=unit_price,
-            reorder_level=reorder_level,
-            entered_by=request.user
-        )
-
-        return redirect('product_list')
-
-    return render(request, 'add_product.html')
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.entered_by = request.user
+            product.save()
+            messages.success(request, 'Product added successfully.')
+            return redirect('product_list')
+        else:
+            # Extract errors from the form and pass them to the template
+            errors = {field: form.errors[field][0] for field in form.errors}
+            return render(request, 'add_product.html', {
+                'form': form,
+                'errors': errors,
+                'post_data': request.POST
+            })
+    form = ProductForm() # For GET request
+    return render(request, 'add_product.html', {'form': form, 'post_data': request.POST})
 
 @role_required(["attendant", "admin"])
 def product_list(request):
@@ -441,46 +450,76 @@ def update_product(request, pk):
     product = get_object_or_404( Product, pk=pk)
 
     if request.method == "POST":
-       cost_price = Decimal(request.POST.get("cost_price") or 0)
-       unit_price = Decimal(request.POST.get("unit_price") or 0)
+        errors = {}
+        name = request.POST.get("name")
+        description = request.POST.get("description")
+        specification = request.POST.get("specification")
+        product_type = request.POST.get("type")
+        reorder_level_str = request.POST.get("reorder_level")
 
-       # VALIDATE SELLING PRICE
-       if unit_price < cost_price:
-           messages.error(request, "Unit price cannot be lower than cost price.")
-           return render(request, 'update_product.html', {'product': product})
+        if not name:
+            errors['name'] = "Product name is required."
 
-       product.name = request.POST.get("name")
-       try:
-           new_qty = int(request.POST.get("quantity") or 0)
-       except ValueError:
-           messages.error(request, "Quantity must be an integer.")
-           return render(request, 'update_product.html', {'product': product})
+        try:
+            cost_price = Decimal(request.POST.get("cost_price") or 0)
+            if cost_price <= 0:
+                errors['cost_price'] = "Cost price must be greater than zero."
+        except (ValueError, Decimal.InvalidOperation):
+            errors['cost_price'] = "Enter a valid cost price."
 
-       if new_qty < 0:
-           messages.error(request, "Quantity cannot be negative.")
-           return render(request, 'update_product.html', {'product': product})
+        try:
+            unit_price = Decimal(request.POST.get("unit_price") or 0)
+            if unit_price <= 0:
+                errors['unit_price'] = "Selling price must be greater than zero."
+            elif cost_price > 0 and unit_price < cost_price:
+                errors['unit_price'] = "Selling price cannot be lower than cost price."
+        except (ValueError, Decimal.InvalidOperation):
+            errors['unit_price'] = "Enter a valid selling price."
 
-       product.cost_price = cost_price
-       product.unit_price = unit_price
-       product.entered_by = request.user
+        try:
+            new_qty = int(request.POST.get("stock_quantity") or 0)
+            if new_qty < 0:
+                errors['stock_quantity'] = "Quantity cannot be negative."
+        except ValueError:
+            errors['stock_quantity'] = "Quantity must be an integer."
 
-       # Update stock via centralized service to keep audit/validation consistent
-       delta = new_qty - product.stock_quantity
-       if delta != 0:
-           try:
-               update_stock(product, delta, user=request.user, reason=f"product_update:{product.id}")
-           except ValueError as e:
-               messages.error(request, f"Unable to update stock: {e}")
-               return render(request, 'update_product.html', {'product': product})
+        try:
+            reorder_level = int(reorder_level_str or 0)
+            if reorder_level < 0:
+                errors['reorder_level'] = "Reorder level cannot be negative."
+        except ValueError:
+            errors['reorder_level'] = "Reorder level must be an integer."
 
-       product.save()
+        if errors:
+            return render(request, 'update_product.html', {'product': product, 'errors': errors, 'post_data': request.POST})
 
-       messages.success(request,"Product updated successfully")
-       return redirect("product_list")
+        # Update stock via centralized service to keep audit/validation consistent
+        delta = new_qty - product.stock_quantity
+        if delta != 0:
+            try:
+                update_stock(product, delta, user=request.user, reason=f"product_update:{product.id}")
+            except ValueError as e:
+                messages.error(request, f"Unable to update stock: {e}")
+                return render(request, 'update_product.html', {'product': product})
+
+        product.name = name
+        product.description = description
+        product.specification = specification
+        product.type = product_type
+        product.cost_price = cost_price
+        product.unit_price = unit_price
+        product.reorder_level = reorder_level
+        product.entered_by = request.user 
+        product.save()
+
+        messages.success(request,"Product updated successfully")
+        return redirect("product_list")
 
     context ={
         'product': product
     }
+    # Initial load, populate post_data with current product values
+    context['post_data'] = product.__dict__
 
     return render(request, 'update_product.html', context)
 
@@ -584,7 +623,8 @@ def sales_dash(request):
 
     # Aggregate sales by product name and sum the quantities
     top_selling_items = (
-        sales.values('name__name')
+        Sale.objects.filter(name__isnull=False)
+        .values('name__name')
         .annotate(total_qty=Sum('quantity'))
         .order_by('-total_qty')[:5]
     )
@@ -665,8 +705,11 @@ def add_sales(request):
         customer_input = request.POST.get('customer_name')
 
         if not customer_input:
-            messages.error(request, 'Please enter customer name.')
-            return redirect('add_sales')
+            messages.error(request, 'Customer name is required.')
+            return render(request, 'add_sales.html', {
+                'products': products, 'customers': customers,
+                'payment_methods': Sale.PAYMENT_METHODS,
+            })
 
         # Handle both ID selection (numeric) and new name input (string)
         if customer_input.isdigit():
@@ -697,15 +740,21 @@ def add_sales(request):
         # VALIDATION
         
         if not product_ids or len(product_ids) != len(quantities):
-            messages.error(request, 'Please add at least one valid product.')
-            return redirect('add_sales')
+            messages.error(request, 'Please add at least one product to the sale.')
+            return render(request, 'add_sales.html', {
+                'products': products, 'customers': customers,
+                'payment_methods': Sale.PAYMENT_METHODS,
+            })
 
         consolidated_cart = {}
         for p_id, q_raw in zip(product_ids, quantities):
             qty = int(q_raw or 0)
             if qty <= 0:
                 messages.error(request, 'Quantity must be greater than zero.')
-                return redirect('add_sales')
+                return render(request, 'add_sales.html', {
+                    'products': products, 'customers': customers,
+                    'payment_methods': Sale.PAYMENT_METHODS,
+                })
             consolidated_cart[p_id] = consolidated_cart.get(p_id, 0) + qty
 
         sales_data = []
@@ -713,7 +762,10 @@ def add_sales(request):
             product = get_object_or_404(Product, id=product_id)
             if product.stock_quantity < total_qty:
                 messages.error(request, f"Sale Failed: {product.name} is insufficient. Available: {product.stock_quantity}.")
-                return redirect('add_sales')
+                return render(request, 'add_sales.html', {
+                    'products': products, 'customers': customers,
+                    'payment_methods': Sale.PAYMENT_METHODS,
+                })
             sales_data.append({
                 'product': product,
                 'quantity': total_qty
@@ -779,33 +831,24 @@ def add_sales(request):
     })
 
 @role_required(["admin"])
-def add_customer(request, pk=None):
-    form = CustomerForm()
-
-    if request.method == 'POST':
-        # Extract data to handle conditional validation
-        on_scheme = request.POST.get('on_scheme') == 'on'
-        nin = request.POST.get('nin')
-        
+def add_customer(request):
+    if request.method == "POST":
         form = CustomerForm(request.POST)
-        
-        # If not on scheme, we don't care about NIN/Phone validation errors from the form
-        if not on_scheme:
-            customer = form.save(commit=False)
-            customer.on_scheme = False
-            customer.save()
-            messages.success(request, f"Customer {customer.name} added successfully.")
-            return redirect('customer_list')
+        if form.is_valid():
+            customer = form.save()
+            messages.success(request, "Customer added successfully.")
+            if customer.on_scheme:
+                return redirect(f"{reverse('add_deposit')}?customer_id={customer.id}")
+            return redirect("customer_list")
         else:
-            if form.is_valid():
-                form.save()
-                messages.success(request, "Deposit customer registered with NIN successfully.")
-                return redirect('add_deposit')
-
-    context = {
-        'form': form,
-    }
-    return render(request, 'add_customer.html', context)
+            errors = {field: form.errors[field][0] for field in form.errors}
+            return render(request, "add_customer.html", {
+                "form": form,
+                "errors": errors,
+                "post_data": request.POST
+            })
+    form = CustomerForm() # For GET request
+    return render(request, "add_customer.html", {"form": form, "post_data": request.POST})
 
 @role_required(["attendant", "admin"])
 def customer_list(request):
@@ -888,12 +931,44 @@ def add_payment(request):
     receipt_number = f"RCPT-{uuid.uuid4().hex[:8].upper()}"
 
     if request.method == 'POST':
-        # Get amount given, defaulting to total if not provided
         amount_given_input = request.POST.get('amount_given') or request.POST.get('amount_paid')
-        amount_given = Decimal(amount_given_input) if amount_given_input else total
+        if not amount_given_input:
+            messages.error(request, 'Amount paid is required.')
+            return render(request, 'add_payment.html', {
+                'sales': sales, 'payment_items': payment_items, 'customer': customer,
+                'payment_methods': Payment.PAYMENT_METHODS, 'receipt_number': receipt_number,
+                'subtotal_total': subtotal_total, 'transport_total': transport_total,
+                'total': total, 'amount_paid': total, 'balance': Decimal('0.00'),
+            })
+        try:
+            amount_given = Decimal(amount_given_input)
+            if amount_given < 0:
+                raise ValueError
+        except Exception:
+            messages.error(request, 'Please enter a valid amount paid.')
+            return render(request, 'add_payment.html', {
+                'sales': sales, 'payment_items': payment_items, 'customer': customer,
+                'payment_methods': Payment.PAYMENT_METHODS, 'receipt_number': receipt_number,
+                'subtotal_total': subtotal_total, 'transport_total': transport_total,
+                'total': total, 'amount_paid': total, 'balance': Decimal('0.00'),
+            })
         payment_method = request.POST.get('payment_method')
-        amount_paid = amount_given  # Record the actual money received
-        balance = total - amount_paid  # Negative balance indicates "Change"
+
+        # Validate if amount_given is less than total for walk-in/unregistered customers
+        # Assuming 'customer' is the customer object associated with the sale(s)
+        # and that walk-in/unregistered customers might not have a full profile or are identified by a specific ID/name pattern.
+        # For simplicity, if the customer is not explicitly registered (e.g., a temporary UUID customer),
+        # we enforce full payment. You might need to adjust this logic based on how you identify "walk-in" customers.
+        if customer and customer.name.startswith('TEMP-') and amount_given < total:
+            messages.error(request, 'Walk-in customers must pay the full amount for their products.')
+            return render(request, 'add_payment.html', {
+                'sales': sales, 'payment_items': payment_items, 'customer': customer,
+                'payment_methods': Payment.PAYMENT_METHODS, 'receipt_number': receipt_number,
+                'subtotal_total': subtotal_total, 'transport_total': transport_total,
+                'total': total, 'amount_paid': amount_given, 'balance': total - amount_given, # Pass back current amount_given
+            })
+        amount_paid = amount_given
+        balance = total - amount_paid
         
 
         payment = Payment.objects.create(
@@ -1021,9 +1096,8 @@ def customer_detail(request, pk):
     return render(request, 'customer_detail.html', context)
 
 
-# ===================================
 # EXPENSE MANAGEMENT VIEWS
-# ===================================
+
 
 def generate_expense_reference():
     """Generate a unique expense reference number"""
@@ -1036,8 +1110,6 @@ def generate_expense_reference():
 @role_required(["admin"])
 def expense_dashboard(request):
     """Display expense dashboard with summary and recent expenses"""
-    from django.db.models import Sum
-    from datetime import timedelta
     
     expenses = Expense.objects.all()
     

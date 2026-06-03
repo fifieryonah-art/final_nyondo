@@ -15,11 +15,23 @@
 <link rel="stylesheet"
       href="{% static 'css/customer_detail.css' %}">
 
-{% endblock %}
+<style>
+    .customer-avatar {
+        background: #0B1F3A !important;
+        color: #ffffff !important;
+    }
+    /* Aligned summary card icon colors with project theme */
+    .card-icon.blue { background: rgba(11, 31, 58, 0.1) !important; color: #0B1F3A !important; }
+    .card-icon.green { background: rgba(11, 31, 58, 0.05) !important; color: #102B52 !important; }
+    .card-icon.red { background: rgba(11, 31, 58, 0.05) !important; color: #163A6B !important; }
+    
+    thead {
+        background-color: #0B1F3A !important;
+    }
+    th { color: #ffffff !important; }
+</style>
 
-<!-- {% block sidebar %}
-    {% include 'salessidebar.html' %}
-{% endblock %} -->
+{% endblock %}
 
 {% block content %}
 
@@ -57,9 +69,14 @@
 
         <div class="header-actions">
 
-            <a href="#"
-               class="btn-edit">
+            <a href="{% url 'customer_list' %}"
+               class="sys-btn sys-btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Back to List
+            </a>
 
+            <a href="{% url 'customer_edit' customer.id %}"
+               class="sys-btn sys-btn-primary">
                 <i class="fas fa-pen"></i>
 
                 Edit Customer

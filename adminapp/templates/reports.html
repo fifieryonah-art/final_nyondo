@@ -584,8 +584,7 @@ Reports | Nyondo Hardware
     <!-- 2. Financial Performance Metrics -->
     <div class="cards-grid">
         <div class="report-card financial-card">
-            <div>
-                <i class="fas fa-chart-pie"></i>
+            <div> 
                 <h3>Gross Sales</h3>
             </div>
             <h2>UGX {{ total_sales|floatformat:0|intcomma }}</h2>
@@ -593,7 +592,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card financial-card">
             <div>
-                <i class="fas fa-dollar-sign"></i>
+                
                 <h3>Cost of Goods Sold</h3>
             </div>
             <h2>UGX {{ cogs|floatformat:0|intcomma }}</h2>
@@ -601,7 +600,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card financial-card">
             <div>
-                <i class="fas fa-hand-holding-usd"></i>
+                
                 <h3>Gross Profit</h3>
             </div>
             <h2>UGX {{ gross_profit|floatformat:0|intcomma }}</h2>
@@ -609,7 +608,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card financial-card">
             <div>
-                <i class="fas fa-money-check-alt"></i>
+                
                 <h3>Net Profit</h3>
             </div>
             <h2>UGX {{ net_profit|floatformat:0|intcomma }} <small>(Excludes operational expenses)</small></h2>
@@ -618,8 +617,7 @@ Reports | Nyondo Hardware
 
     <div class="cards-grid">
         <div class="report-card">
-            <div>
-                <i class="fas fa-wallet"></i>
+            <div> 
                 <h3>Total Sales</h3>
             </div>
             <h2>UGX {{ total_sales|floatformat:0|intcomma }}</h2>
@@ -627,7 +625,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card">
             <div>
-                <i class="fas fa-money-bill-wave"></i>
+                
                 <h3>Collected</h3>
             </div>
             <h2>UGX {{ total_paid|floatformat:0|intcomma }}</h2>
@@ -635,7 +633,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card">
             <div>
-                <i class="fas fa-credit-card"></i>
+                
                 <h3>Outstanding Balance</h3>
             </div>
             <h2>UGX {{ total_balance|floatformat:0|intcomma }}</h2>
@@ -643,7 +641,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card">
             <div>
-                <i class="fas fa-users"></i>
+                
                 <h3>Customers</h3>
             </div>
             <h2>{{ total_customers }}</h2>
@@ -651,7 +649,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card">
             <div>
-                <i class="fas fa-box"></i>
+                
                 <h3>Total Products</h3>
             </div>
             <h2>{{ total_products }}</h2>
@@ -659,7 +657,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card">
             <div>
-                <i class="fas fa-shopping-cart"></i>
+                
                 <h3>Transactions</h3>
             </div>
             <h2>{{ total_transactions }}</h2>
@@ -667,7 +665,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card">
             <div>
-                <i class="fas fa-warehouse"></i>
+                
                 <h3>Stock Units</h3>
             </div>
             <h2>{{ total_stock_quantity }}</h2>
@@ -675,7 +673,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card">
             <div>
-                <i class="fas fa-chart-line"></i>
+                
                 <h3>Stock Value</h3>
             </div>
             <h2>UGX {{ stock_value|floatformat:0|intcomma }}</h2>
@@ -683,7 +681,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card">
             <div>
-                <i class="fas fa-users-cog"></i>
+                
                 <h3>Suppliers</h3>
             </div>
             <h2>{{ total_suppliers }}</h2>
@@ -691,7 +689,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card">
             <div>
-                <i class="fas fa-hand-holding-usd"></i>
+                
                 <h3>Payments</h3>
             </div>
             <h2>UGX {{ total_payments|floatformat:0|intcomma }}</h2>
@@ -699,7 +697,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card">
             <div>
-                <i class="fas fa-exclamation-triangle"></i>
+                
                 <h3>Low Stock</h3>
             </div>
             <h2>{{ low_stock.count }}</h2>
@@ -707,7 +705,7 @@ Reports | Nyondo Hardware
 
         <div class="report-card">
             <div>
-                <i class="fas fa-times-circle"></i>
+                
                 <h3>Out of Stock</h3>
             </div>
             <h2>{{ out_of_stock.count }}</h2>

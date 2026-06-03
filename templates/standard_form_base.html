@@ -35,11 +35,11 @@
         margin: 0;
     }
 
-    .form-field {
+    .form-group {
         margin-bottom: 20px;
     }
 
-    .form-field label {
+    .form-group label {
         display: block;
         font-weight: 600;
         margin-bottom: 8px;
@@ -47,15 +47,15 @@
         font-size: 14px;
     }
 
-    .form-field label.required::after {
+    .form-group label.required::after {
         content: " *";
         color: #ef4444;
         font-weight: 700;
     }
 
-    .form-field input,
-    .form-field select,
-    .form-field textarea {
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
         width: 100%;
         padding: 10px 12px;
         border: 1px solid #e2e8f0;
@@ -66,27 +66,27 @@
         background-color: white;
     }
 
-    .form-field input:focus,
-    .form-field select:focus,
-    .form-field textarea:focus {
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    .form-field textarea {
+    .form-group textarea {
         resize: vertical;
         min-height: 100px;
     }
 
-    .form-field.error input,
-    .form-field.error select,
-    .form-field.error textarea {
+    .form-group.has-error input,
+    .form-group.has-error select,
+    .form-group.has-error textarea {
         border-color: #ef4444;
         background-color: #fff5f5;
     }
 
-    .form-field .error-message {
+    .form-group .form-error {
         color: #ef4444;
         font-size: 12px;
         margin-top: 4px;
@@ -95,7 +95,7 @@
         gap: 4px;
     }
 
-    .form-field .help-text {
+    .form-group .help-text {
         color: #64748b;
         font-size: 12px;
         margin-top: 4px;
@@ -223,10 +223,10 @@
 
             <div class="form-actions">
                 <a href="{% block cancel_url %}#{% endblock %}" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Cancel
+                    {% block cancel_text %}Cancel{% endblock %}
                 </a>
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Save
+                    {% block submit_text %}Save Changes{% endblock %}
                 </button>
             </div>
         </form>

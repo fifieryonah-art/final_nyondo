@@ -39,7 +39,7 @@
             <p>View all transactions with payment methods and re-print receipts.</p>
         </div>
         <button onclick="window.print()" class="btn-print-report">
-            <i class="fas fa-file-pdf"></i> Save Report as PDF
+            Save Report as PDF
         </button>
     </div>
 
@@ -54,10 +54,8 @@
                 <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
             </div>
             <button type="submit" class="btn btn-primary" style="background: #0F172B; border: none; padding: 10px 20px; border-radius: 8px; color: white;">
-                Filter Records
             </button>
             <a href="{% url 'detailed_sales_report' %}" class="btn btn-secondary" style="padding: 10px 20px; border-radius: 8px; text-decoration: none; background: #e2e8f0; color: #0F172B;">
-                Reset
             </a>
         </form>
     </div>
@@ -102,7 +100,7 @@
                     <td>
                         {% if sale.payment %}
                         <a href="{% url 'payment_receipt' sale.payment.id %}" class="btn-reprint">
-                            <i class="fas fa-print"></i> Re-print
+                            Re-print
                         </a>
                         {% else %}
                         <small class="text-muted">Unpaid</small>

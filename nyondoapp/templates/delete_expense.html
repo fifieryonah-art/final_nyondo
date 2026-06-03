@@ -185,11 +185,8 @@
         <form method="POST">
             {% csrf_token %}
             <div class="actions">
-                <a href="{% url 'view_expense' expense.pk %}" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Cancel
-                </a>
+                <a href="{% url 'view_expense' expense.pk %}" class="btn btn-secondary">Cancel</a>
                 <button type="submit" class="btn btn-danger">
-                    <i class="fas fa-trash"></i> Delete Expense
                 </button>
             </div>
         </form>

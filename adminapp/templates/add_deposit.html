@@ -9,17 +9,17 @@ Add Deposit Scheme | Nyondo Hardware
 
 {% block content %}
 
-<div class="page-shell">
+<div class="admin-shell">
 
-    <div class="page-header">
+    <div class="admin-page-header">
 
         <div>
             <h2>Add Deposit Scheme</h2>
             <p>Create a new customer deposit plan.</p>
         </div>
 
-        <a href="{% url 'deposit_dashboard' %}" class="btn-light">
-            Back
+        <a href="{% url 'deposit_dashboard' %}" class="admin-btn-secondary">
+            Back to Dashboard
         </a>
 
     </div>
@@ -36,65 +36,79 @@ Add Deposit Scheme | Nyondo Hardware
 
     <div class="form-card">
 
-        <form method="POST">
+        <form method="POST" novalidate>
             {% csrf_token %}
 
             <div class="form-grid">
 
                 <div class="form-group">
-                    <label>Customer</label>
-                    <select name="customer">
+                    <label>Customer <span style="color:#dc2626">*</span></label>
+                    <select name="customer" class="{% if errors.customer %}input-error{% endif %}">
                         <option value="">Select Customer</option>
                         {% for c in customers %}
-                            <option value="{{ c.id }}">{{ c.name }}</option>
+                            <option value="{{ c.id }}" {% if post_data.customer|slugify == c.id|slugify %}selected{% endif %}>
+                                {{ c.name }}
+                            </option>
                         {% endfor %}
                     </select>
+                    {% if errors.customer %}<span class="field-error-msg">{{ errors.customer }}</span>{% endif %}
                 </div>
 
                 <div class="form-group">
-                    <label>Product</label>
-                    <select name="product" id="productSelect">
+                    <label>Product <span style="color:#dc2626">*</span></label>
+                    <select name="product" id="productSelect" class="{% if errors.product %}input-error{% endif %}">
                         <option value="">Select Product</option>
                         {% for p in products %}
-                            <option value="{{ p.id }}" data-price="{{ p.unit_price }}">
+                            <option value="{{ p.id }}" data-price="{{ p.unit_price }}" {% if post_data.product|slugify == p.id|slugify %}selected{% endif %}>
                                 {{ p.name }}
                             </option>
                         {% endfor %}
                     </select>
+                    {% if errors.product %}<span class="field-error-msg">{{ errors.product }}</span>{% endif %}
                 </div>
 
                 <div class="form-group">
-                    <label>Quantity</label>
-                    <input type="number" id="qty" name="quantity_expected">
+                    <label>Quantity <span style="color:#dc2626">*</span></label>
+                    <input type="number" id="qty" name="quantity_expected" value="{{ post_data.quantity_expected }}" class="{% if errors.quantity_expected %}input-error{% endif %}">
+                    {% if errors.quantity_expected %}<span class="field-error-msg">{{ errors.quantity_expected }}</span>{% endif %}
                 </div>
 
                 <div class="form-group">
-                    <label>Amount Paid</label>
-                    <input type="number" id="paid" name="amount_paid" value="0">
+                    <label>Initial Deposit <span style="color:#dc2626">*</span></label>
+                    <input type="number" id="paid" name="amount_paid" value="{{ post_data.amount_paid|default:'0' }}" class="{% if errors.amount_paid %}input-error{% endif %}">
+                    {% if errors.amount_paid %}<span class="field-error-msg">{{ errors.amount_paid }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Method <span style="color:#dc2626">*</span></label>
+                    <select name="payment_method" class="{% if errors.payment_method %}input-error{% endif %}">
+                        <option value="">Select Method</option>
+                        <option value="cash" {% if post_data.payment_method == 'cash' %}selected{% endif %}>Cash</option>
+                        <option value="mtn" {% if post_data.payment_method == 'mtn' %}selected{% endif %}>MTN Mobile Money</option>
+                        <option value="airtel" {% if post_data.payment_method == 'airtel' %}selected{% endif %}>Airtel Money</option>
+                        <option value="bank" {% if post_data.payment_method == 'bank' %}selected{% endif %}>Bank Transfer</option>
+                    </select>
+                    {% if errors.payment_method %}<span class="field-error-msg">{{ errors.payment_method }}</span>{% endif %}
                 </div>
 
             </div>
 
-            <div class="summary-box">
-
+            <div class="summary-card">
                 <div class="summary-row">
                     <span>Unit Price</span>
                     <strong id="unitPrice">UGX 0</strong>
                 </div>
-
                 <div class="summary-row">
                     <span>Total</span>
                     <strong id="total">UGX 0</strong>
                 </div>
-
                 <div class="summary-row">
                     <span>Balance</span>
                     <strong id="balance">UGX 0</strong>
                 </div>
-
             </div>
 
-            <div class="btn-row">
+            <div class="button-row">
 
                 <button type="submit" class="btn-primary">
                     Save Deposit
@@ -115,94 +129,119 @@ Add Deposit Scheme | Nyondo Hardware
 {% block extra_css %}
 <style>
 
-
-
-   /* PAGE WRAPPER */
-
 .admin-shell {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 20px;
+    width: 100%;
 }
 
+.admin-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
 
-   /* HEADER */
-
-.admin-page-header h1 {
-    font-size: 20px;
+.admin-page-header h2 {
+    font-size: 24px;
     color: #0F172B;
-    margin-bottom: 4px;
+    margin: 0;
 }
 
 .admin-page-header p {
     font-size: 13px;
     color: #64748b;
+    margin: 4px 0 0 0;
 }
 
+/* FORM DESIGN */
+.form-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
 
-   /* FORM GRID */
-
-.admin-form-grid {
+.form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
 }
 
-
-   /* FORM GROUP */
-
-.admin-form-group {
+.form-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
-.admin-form-group label {
+.form-group label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.form-group input,
+.form-group select {
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: white;
+    color: #334155;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #0F172B;
+    box-shadow: 0 0 0 3px rgba(15, 23, 43, 0.1);
+}
+
+.input-error {
+    border-color: #dc2626 !important;
+    background-color: #fffafb !important;
+}
+
+.field-error-msg {
+    color: #b91c1c;
     font-size: 12px;
     font-weight: 700;
-    color: #0F172B;
+    margin-top: 4px;
 }
 
-.admin-form-group input,
-.admin-form-group select,
-.admin-form-group textarea {
-    padding: 10px 12px;
-    font-size: 13px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    outline: none;
-    transition: 0.2s ease;
-    background: white;
-}
-
-.admin-form-group input:focus,
-.admin-form-group select:focus,
-.admin-form-group textarea:focus {
-    border-color: #0F172B;
-    box-shadow: 0 0 0 3px rgba(15, 23, 43, 0.08);
-}
-
-
-   /* SUMMARY CARD */
-
+/* SUMMARY SECTION */
 .summary-card {
-    margin-top: 14px;
-    padding: 14px;
-    border-radius: 12px;
-    background: #f8fafc;
+    margin-bottom: 24px;
+    padding: 18px;
+    border-radius: 14px;
+    background: #f1f5f9;
     border: 1px solid #e2e8f0;
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 10px;
 }
 
 .summary-row {
     display: flex;
-    justify-content: space-between;
-    font-size: 13px;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
 }
 
 .summary-row span {
     color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
 .summary-row strong {
@@ -210,47 +249,39 @@ Add Deposit Scheme | Nyondo Hardware
     font-size: 13px;
 }
 
-
-   /* BUTTONS */
-
 .button-row {
     display: flex;
     gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 14px;
 }
 
-.admin-btn-primary,
-.admin-btn-secondary {
-    padding: 10px 14px;
+.btn-primary, .btn-light {
+    padding: 12px 24px;
     font-size: 13px;
     border-radius: 8px;
     font-weight: 700;
     text-decoration: none;
     cursor: pointer;
+    border: 1px solid transparent; /* Consistent border for both */
     transition: 0.2s ease;
 }
 
-.admin-btn-primary {
+.btn-primary {
     background: #0F172B;
     color: white;
-    border: none;
 }
 
-.admin-btn-primary:hover {
+.btn-primary:hover {
     background: #1e293b;
 }
 
-.admin-btn-secondary {
+.btn-light {
     background: #e2e8f0;
     color: #0F172B;
-    border: none;
 }
 
-.admin-btn-secondary:hover {
+.btn-light:hover {
     background: #cbd5e1;
 }
-
 </style>
 {% endblock %}
 
@@ -263,30 +294,32 @@ const unitPriceEl = document.getElementById("unitPrice");
 const totalEl = document.getElementById("total");
 const balanceEl = document.getElementById("balance");
 
-function format(v){
-    return new Intl.NumberFormat('en-UG',{
-        style:'currency',
-        currency:'UGX',
-        maximumFractionDigits:0
+function formatCurrency(v) {
+    return new Intl.NumberFormat('en-UG', {
+        style: 'currency',
+        currency: 'UGX',
+        maximumFractionDigits: 0
     }).format(v);
 }
 
-function update(){
-    const price = parseFloat(product.options[product.selectedIndex]?.dataset.price || 0);
-    const q = parseFloat(qty.value || 0);
-    const p = parseFloat(paid.value || 0);
+function updateCalculations() {
+    const selectedOption = product.options[product.selectedIndex];
+    const unitPrice = parseFloat(selectedOption?.dataset.price || 0);
+    const quantity = parseFloat(qty.value || 0);
+    const amountPaid = parseFloat(paid.value || 0);
 
-    const total = price * q;
-    const balance = total - p;
+    const totalAmount = unitPrice * quantity;
+    const balance = totalAmount - amountPaid;
 
-    unitPriceEl.textContent = format(price);
-    totalEl.textContent = format(total);
-    balanceEl.textContent = format(balance);
+    unitPriceEl.textContent = formatCurrency(unitPrice);
+    totalEl.textContent = formatCurrency(totalAmount);
+    balanceEl.textContent = formatCurrency(balance);
 }
 
-product.onchange = update;
-qty.oninput = update;
-paid.oninput = update;
-</script>
+product.addEventListener('change', updateCalculations);
+qty.addEventListener('input', updateCalculations);
+paid.addEventListener('input', updateCalculations);
 
+document.addEventListener('DOMContentLoaded', updateCalculations);
+</script>
 {% endblock %}

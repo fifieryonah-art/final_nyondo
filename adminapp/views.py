@@ -88,18 +88,20 @@ def admin_dash(request):
 
 @role_required("admin")
 def create_employee(request):
-
     if request.method == "POST":
         form = EmployeeCreationForm(request.POST)
-
         if form.is_valid():
             form.save()
             messages.success(request, "Employee created successfully!")
             return redirect("employee_list")
-
-    else:
-        form = EmployeeCreationForm()
-
+        else:
+            errors = {field: form.errors[field][0] for field in form.errors}
+            return render(request, "create_employee.html", {
+                "form": form,
+                "errors": errors,
+                "post_data": request.POST
+            })
+    form = EmployeeCreationForm()
     return render(request, "create_employee.html", {"form": form})
 
 
@@ -159,22 +161,21 @@ def toggle_employee_status(request, pk):
 
 @role_required(["admin"])
 def add_supplier(request):
-
     if request.method == "POST":
         form = SupplierForm(request.POST)
-
         if form.is_valid():
             form.save()
+            messages.success(request, "Supplier added successfully.")
             return redirect("supplier_dashboard")
-
-    else:
-        form = SupplierForm()
-
-    context = {
-        "form": form
-    }
-
-    return render(request, "add_supplier.html", context)
+        else:
+            errors = {field: form.errors[field][0] for field in form.errors}
+            return render(request, "add_supplier.html", {
+                "form": form,
+                "errors": errors,
+                "post_data": request.POST
+            })
+    form = SupplierForm()
+    return render(request, "add_supplier.html", {"form": form})
 
 
 @role_required(["manager", "admin"])
@@ -273,9 +274,17 @@ def record_payment(request, pk):
             supplier.save()
 
             return redirect('view_supplier', pk=supplier.id)
-
+        else:
+            errors = {field: form.errors[field][0] for field in form.errors}
+            return render(request, 'record_payment.html', {
+                'form': form,
+                'supplier': supplier,
+                'errors': errors,
+                'post_data': request.POST
+            })
     else:
         form = SupplierPaymentForm()
+        return render(request, 'record_payment.html', {'form': form, 'supplier': supplier})
 
     return render(request, 'record_payment.html', {
         'form': form,
@@ -284,54 +293,39 @@ def record_payment(request, pk):
 
 @role_required(["attendant", "admin"])
 def deposit_dashboard(request):
-    today = timezone.localdate()
-
     # For the table, we need all deposits with their summaries
     all_deposits_queryset = DepositScheme.objects.select_related("customer", "product").all().order_by("-id")
     all_deposits_for_table = []
-    total_balance_all_time = Decimal("0.00")
+    
+    total_paid_all = Decimal("0.00")
+    total_balance_all = Decimal("0.00")
+    pending_count = 0
+    active_count = 0
+    completed_count = 0
 
     for d in all_deposits_queryset:
         updated_d = _attach_deposit_summary(d)
         all_deposits_for_table.append(updated_d)
-        # Accumulate total balance for all schemes still in progress
-        if updated_d.live_status in ["Pending", "Active"]:
-            total_balance_all_time += updated_d.remaining_balance
-
-    # For dashboard cards, we need schemes created today
-    schemes_created_today = DepositScheme.objects.filter(payment_date__date=today)
-    # And payments made today
-    payments_made_today = DepositPayment.objects.filter(payment_date__date=today)
-
-    # Calculate totals for the daily cards
-    total_expected_today = schemes_created_today.aggregate(total=Sum("total_amount"))["total"] or Decimal("0.00")
-    total_paid_today = payments_made_today.aggregate(total=Sum("amount_paid"))["total"] or Decimal("0.00")
-
-    # Calculate status counts for schemes created today
-    pending_today = 0
-    active_today = 0
-    completed_today = 0
-
-    for scheme in schemes_created_today:
-        summary = _deposit_summary(scheme) # Get current status based on all payments for this scheme
-        if summary["status"] == "Pending":
-            pending_today += 1
-        elif summary["status"] == "Completed":
-            completed_today += 1
+        
+        # Accumulate totals for dashboard cards
+        total_paid_all += updated_d.total_paid
+        total_balance_all += updated_d.remaining_balance
+        
+        if updated_d.live_status == "Pending":
+            pending_count += 1
+        elif updated_d.live_status == "Completed":
+            completed_count += 1
         else: # Active
-            active_today += 1
+            active_count += 1
 
     context = {
-        "deposits": all_deposits_for_table, # This is for the table
-        "total_deposits_today": schemes_created_today.count(), # Count of schemes created today
-
-        "pending_schemes_today": pending_today,
-        "active_schemes_today": active_today,
-        "completed_schemes_today": completed_today,
-
-        "total_expected_today": total_expected_today,
-        "total_paid_today": total_paid_today,
-        "total_balance_all": total_balance_all_time,
+        "deposits": all_deposits_for_table,
+        "total_deposits": all_deposits_queryset.count(),
+        "pending_schemes": pending_count,
+        "active_schemes": active_count,
+        "completed_schemes": completed_count,
+        "total_paid": total_paid_all,
+        "total_balance": total_balance_all,
     }
 
  
@@ -367,34 +361,73 @@ def deposit_list(request):
 
 @role_required(["admin"])
 def add_deposit(request):
-
     customers = Customer.objects.all()
     products = Product.objects.all()
 
-    if request.method == "POST":
+    # 1. Handle pre-selection from the URL parameter (passed from add_customer)
+    preselected_customer_id = request.GET.get('customer_id')
+    
+    # Initialize post_data for the first GET request to pre-fill the customer field
+    initial_post_data = {'customer': preselected_customer_id} if preselected_customer_id else {}
 
-        customer_id = request.POST.get("customer")
+    if request.method == "POST":
+        customer_id = request.POST.get("customer") or preselected_customer_id
         product_id = request.POST.get("product")
         quantity = request.POST.get("quantity_expected")
         amount_paid = request.POST.get("amount_paid")
+        payment_method = request.POST.get("payment_method")
 
-        if not all([customer_id, product_id, quantity]):
-            messages.error(request, "Customer, Product, and Quantity are required fields.")
-            return render(request, "add_deposit.html", {"customers": customers, "products": products})
+        errors = {}
+        if not customer_id:
+            errors['customer'] = "Please select a customer."
+        if not product_id:
+            errors['product'] = "Please select a product."
+        if not payment_method:
+            errors['payment_method'] = "Payment method is required."
+        
+        # 2. Strict Numeric Validation (Django-side, No JS)
+        if not quantity or quantity.strip() == "" or Decimal(quantity or 0) <= 0:
+            errors['quantity_expected'] = "Quantity must be greater than zero."
+        else:
+            try:
+                quantity_value = int(quantity)
+                if quantity_value <= 0:
+                    errors['quantity_expected'] = "Quantity must be greater than zero."
+            except (ValueError, TypeError):
+                errors['quantity_expected'] = "Enter a valid whole number for quantity."
 
-        customer = Customer.objects.get(id=customer_id)
-        product = Product.objects.get(id=product_id)
+        if not amount_paid or amount_paid.strip() == "" or Decimal(amount_paid or 0) <= 0:
+            errors['amount_paid'] = "Initial deposit must be greater than zero."
+        else:
+            try:
+                amount_paid_value = Decimal(amount_paid)
+                if amount_paid_value <= 0:
+                    errors['amount_paid'] = "Initial deposit must be greater than zero."
+            except (ValueError, Decimal.InvalidOperation):
+                errors['amount_paid'] = "Enter a valid numeric amount."
 
-        quantity_value = int(quantity or 0)
-        amount_paid_value = Decimal(amount_paid or 0)
+        if errors:
+            return render(request, "add_deposit.html", {
+                "customers": customers, "products": products,
+                "payment_methods": Sale.PAYMENT_METHODS,
+                "errors": errors, "post_data": request.POST,
+                "preselected_customer_id": preselected_customer_id
+            })
+            
+        # 3. Save Logic
+        customer = get_object_or_404(Customer, id=customer_id)
+        product = get_object_or_404(Product, id=product_id)
+
         total_amount = (product.unit_price * Decimal(quantity_value))
         balance = total_amount - amount_paid_value
-        if amount_paid_value <= 0:
-            status = 'Pending'
-        elif balance <= 0:
+
+        # 4. Status Logic: Ensures tracking on Dashboard and Lists
+        if balance <= 0:
             status = 'Completed'
-        else:
+        elif amount_paid_value > 0:
             status = 'Active'
+        else:
+            status = 'Pending'
 
         deposit = DepositScheme.objects.create(
             customer=customer,
@@ -410,16 +443,19 @@ def add_deposit(request):
             DepositPayment.objects.create(
                 scheme=deposit,
                 amount_paid=amount_paid_value,
-                payment_method=request.POST.get("payment_method", "cash"),
+                payment_method=payment_method,
                 comment="Opening deposit payment",
                 received_by=request.user if request.user.is_authenticated else None,
             )
 
-        return redirect('deposit_dashboard')
+        messages.success(request, f"Scheme for {customer.name} started. First payment of {amount_paid_value} recorded.")
+        return redirect('deposit_list')  # 4. Success Redirect to List
 
     return render(request, "add_deposit.html", {
         "customers": customers,
-        "products": products
+        "products": products,
+        "payment_methods": Sale.PAYMENT_METHODS,
+        "post_data": initial_post_data,
     })
 
 @role_required(["attendant", "admin"])
@@ -432,33 +468,41 @@ def record_deposit(request, pk):
         method = request.POST.get("payment_method")
         comment = request.POST.get("comment")
 
-        if not amount or Decimal(amount) <= 0:
-            messages.error(request, "A valid payment amount is required.")
-            return render(request, "record_deposit.html", {"scheme": scheme})
+        errors = {}
+        if not amount:
+            errors['amount_paid'] = "Amount paid is required."
+        else:
+            try:
+                if Decimal(amount) <= 0: errors['amount_paid'] = "Amount must be positive."
+            except: errors['amount_paid'] = "Invalid amount."
+            
+        if not method: errors['payment_method'] = "Payment method is required."
 
-        if amount:
-            amount = Decimal(amount or "0")
-            payment = DepositPayment.objects.create(
-                scheme=scheme,
-                amount_paid=amount,
-                payment_method=method,
-                comment=comment,
-                received_by=request.user if request.user.is_authenticated else None
-            )
+        if errors:
+            return render(request, "record_deposit.html", {
+                "scheme": scheme, "errors": errors, "post_data": request.POST
+            })
+            
+        amount = Decimal(amount)
+        payment = DepositPayment.objects.create(
+            scheme=scheme,
+            amount_paid=amount,
+            payment_method=method,
+            comment=comment,
+            received_by=request.user if request.user.is_authenticated else None
+        )
 
-            # update scheme
-            scheme.amount_paid = (scheme.amount_paid or Decimal("0.00")) + amount
-            scheme.balance = scheme.total_amount - scheme.amount_paid
+        scheme.amount_paid = (scheme.amount_paid or Decimal("0.00")) + amount
+        scheme.balance = scheme.total_amount - scheme.amount_paid
 
-            if scheme.amount_paid <= 0:
-                scheme.status = "Pending"
-            elif scheme.balance <= 0:
-                scheme.status = "Completed"
-            else:
-                scheme.status = "Active"
+        if scheme.amount_paid <= 0:
+            scheme.status = "Pending"
+        elif scheme.balance <= 0:
+            scheme.status = "Completed"
+        else:
+            scheme.status = "Active"
 
-            scheme.save()
-
+        scheme.save()
         messages.success(request, f"Payment of UGX {amount} recorded successfully.")
         return redirect('deposit_receipt', pk=payment.id)
 
@@ -474,10 +518,19 @@ def edit_deposit(request, pk):
     if request.method == "POST":
         quantity_expected = request.POST.get("quantity_expected")
 
-        if not quantity_expected or int(quantity_expected) <= 0:
-            messages.error(request, "Quantity expected must be a positive number.")
-            return render(request, "edit_deposit.html", {"deposit": deposit})
+        errors = {}
+        if not quantity_expected:
+            errors['quantity_expected'] = "Quantity is required."
+        else:
+            try:
+                if int(quantity_expected) <= 0: errors['quantity_expected'] = "Quantity must be positive."
+            except: errors['quantity_expected'] = "Invalid quantity."
 
+        if errors:
+            return render(request, "edit_deposit.html", {
+                "deposit": deposit, "errors": errors, "post_data": request.POST
+            })
+            
         deposit.quantity_expected = int(quantity_expected or 0)
         deposit.save()
         summary = _deposit_summary(deposit)
@@ -537,10 +590,19 @@ def withdraw_deposit(request, pk):
         quantity = request.POST.get("quantity")
         comment = request.POST.get("comment")
 
-        if not quantity or int(quantity) <= 0:
-            messages.error(request, "Please enter a valid quantity to withdraw.")
-            return render(request, "withdraw_deposit.html", {"deposit": deposit})
+        errors = {}
+        if not quantity:
+            errors['quantity'] = "Quantity is required."
+        else:
+            try:
+                if int(quantity) <= 0: errors['quantity'] = "Quantity must be positive."
+            except: errors['quantity'] = "Invalid quantity."
 
+        if errors:
+            return render(request, "withdraw_deposit.html", {
+                "deposit": deposit, "errors": errors, "post_data": request.POST
+            })
+            
         withdrawal = DepositWithdrawal.objects.create(
             scheme=deposit,
             quantity_withdrawn=int(quantity),

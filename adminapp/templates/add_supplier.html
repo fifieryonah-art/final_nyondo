@@ -96,6 +96,19 @@ Add Supplier | Nyondo Hardware
     box-shadow: 0 0 0 3px rgba(15, 23, 43, 0.1);
 }
 
+.form-card .is-invalid {
+    border-color: #dc2626 !important;
+    background: #fff5f5 !important;
+}
+.form-card .invalid-feedback {
+    display: block;
+    color: #b91c1c;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: -10px;
+    margin-bottom: 8px;
+}
+
 
    /* BUTTONS */
 
@@ -161,6 +174,7 @@ Add Supplier | Nyondo Hardware
 
         <form method="POST" novalidate>
             {% csrf_token %}
+            {% include 'messages.html' %}
 
             {{ form|crispy }}
 

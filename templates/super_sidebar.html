@@ -25,15 +25,10 @@
     margin-bottom: 30px;
 } */
 
-.logo{
-    width: 80px;
-    height: 800px;
-    object-fit: contain;
-}
-
-.logo-text h2{
+.sidebar-text h3{
     font-size: 16px;
-    color: #ffffff;
+    color: #ffffff !important;
+    margin: 0;
 }
 
 .logo-text p{
@@ -61,8 +56,8 @@
 }
 
 .sidebar-header img {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
     object-fit: contain;
 }
 
@@ -131,28 +126,32 @@
 .logout-btn{
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-
+    justify-content: flex-start;
+    gap: 12px;
     text-decoration: none;
-
     color: #e2e8f0;
-
-    background: rgba(255,255,255,0.05);
-
-    padding: 13px 14px;
-
+    background: rgba(255, 255, 255, 0.04);
+    padding: 14px 15px;
     border-radius: 12px;
-
     font-weight: 700;
-
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
     transition: 0.25s ease;
 }
 
 .logout-btn:hover{
-    background: #dc2626;
-    color: white;
-    transform: translateY(-2px);
+    background: rgba(220, 38, 38, 0.1);
+    color: #ef4444;
+    border-color: rgba(220, 38, 38, 0.3);
+    transform: translateX(4px);
+}
+
+.logout-btn i {
+    font-size: 16px;
+    color: #ef4444;
+    width: 18px;
+    text-align: center;
 }
 
 /* SCROLLBAR */
@@ -231,7 +230,6 @@
 
             <li class="{% active 'admin_dash' %}">
                 <a href="{% url 'admin_dash' %}">
-                    <i class="fas fa-chart-line"></i>
                     Dashboard
                 </a>
             </li>
@@ -239,57 +237,49 @@
             
             <li class="{% active 'sales_dash' %}">
                 <a href="{% url 'sales_dash' %}">
-                    <i class="fas fa-chart-line"></i>
                     Sales
                 </a>
             </li>
 
             <li class="{% active 'supplier_dashboard' %}">
                 <a href="{% url 'supplier_dashboard' %}">
-                    <i class="fas fa-truck"></i>
                     Suppliers
                 </a>
             </li>
 
             <li class="{% active 'product_list' %}">
                 <a href="{% url 'product_list' %}">
-                    <i class="fas fa-box"></i>
                     Inventory
                 </a>
             </li>
 
             <li class="{% active 'employee_list' %}">
                 <a href="{% url 'employee_list' %}">
-                    <i class="fas fa-users"></i>
                     Employees
-                </a>
-            </li>
-
-            <li class="{% active 'reports' %}">
-                <a href="{% url 'reports' %}">
-                    <i class="fas fa-chart-pie"></i>
-                    Reports
                 </a>
             </li>
 
             <li class="{% active 'customer_list' 'add_customer' 'customer_detail' %}">
                 <a href="{% url 'customer_list' %}">
-                    <i class="fas fa-users"></i>
                     Customers
                 </a>
             </li>
 
             <li class="{% active 'deposit_dashboard' 'deposit_list' %}">
                 <a href="{% url 'deposit_dashboard' %}">
-                    <i class="fas fa-hand-holding-dollar"></i>
                     Deposits
                 </a>
             </li>
 
             <li class="{% active 'expense_dashboard' 'expense_list' 'add_expense' %}">
                 <a href="{% url 'expense_dashboard' %}">
-                    <i class="fas fa-receipt"></i>
                     Expenses
+                </a>
+            </li>
+
+            <li class="{% active 'reports' %}">
+                <a href="{% url 'reports' %}">
+                    Reports
                 </a>
             </li>
 
@@ -300,35 +290,30 @@
 
             <li class="{% active 'stock' %}">
                 <a href="{% url 'stock' %}">
-                    <i class="fas fa-chart-line"></i>
                     Dashboard
                 </a>
             </li>
 
             <li class="{% active 'add_stock' %}">
                 <a href="{% url 'add_stock' %}">
-                    <i class="fas fa-boxes-stacked"></i>
                     Add Stock
                 </a>
             </li>
 
             <li class="{% active 'stock_list' %}">
                 <a href="{% url 'stock_list' %}">
-                    <i class="fas fa-box"></i>
                     Stock List
                 </a>
             </li>
 
             <li class="{% active 'stock_records' %}">
                 <a href="{% url 'stock_records' %}">
-                    <i class="fas fa-clipboard-list"></i>
                     Stock Records
                 </a>
             </li>
 
             <li class="{% active 'stock_report' %}">
                 <a href="{% url 'stock_report' %}">
-                    <i class="fas fa-file-lines"></i>
                     Reports
                 </a>
             </li>
@@ -340,42 +325,36 @@
 
             <li class="{% active 'sales_dash' %}">
                 <a href="{% url 'sales_dash' %}">
-                    <i class="fas fa-chart-line"></i>
                     Dashboard
                 </a>
             </li>
 
             <li class="{% active 'add_sales' %}">
                 <a href="{% url 'add_sales' %}">
-                    <i class="fas fa-cart-plus"></i>
                     New Sale
                 </a>
             </li>
 
             <li class="{% active 'product_list' %}">
                 <a href="{% url 'product_list' %}">
-                    <i class="fas fa-box"></i>
                     Products
                 </a>
             </li>
 
             <li class="{% active 'payment_list' %}">
                 <a href="{% url 'payment_list' %}">
-                    <i class="fas fa-credit-card"></i>
                     Payments
                 </a>
             </li>
 
             <li class="{% active 'deposit_dashboard' %}">
                 <a href="{% url 'deposit_dashboard' %}">
-                    <i class="fas fa-hand-holding-dollar"></i>
                     Deposit Schemes
                 </a>
             </li>
 
             <li class="{% active 'customer_list' 'add_customer' %}">
                 <a href="{% url 'customer_list' %}">
-                    <i class="fas fa-users"></i>
                     Customers
                 </a>
             </li>
@@ -391,10 +370,8 @@
             {% csrf_token %}
 
             <button type="submit" class="logout-btn">
-
                 <i class="fas fa-right-from-bracket"></i>
-                Logout
-
+                <span>Logout</span>
             </button>
 
         </form>

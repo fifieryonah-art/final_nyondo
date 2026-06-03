@@ -51,6 +51,19 @@ input:focus, select:focus {
     outline: none;
 }
 
+.input-error {
+    border: 2px solid #dc2626 !important;
+    background: #fff5f5 !important;
+}
+
+.field-error-msg {
+    color: #b91c1c;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 2px;
+    display: block;
+}
+
 .btn-save {
     width: 100%;
     padding: 14px;
@@ -99,8 +112,14 @@ input:focus, select:focus {
 
     <h2>Create Employee</h2>
 
-    <form method="POST">
+    <form method="POST" novalidate>
         {% csrf_token %}
+        {% if form.errors %}
+            <div style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:12px;border-radius:8px;margin-bottom:14px;font-size:13px;font-weight:600;">
+                {% for field in form %}{% for error in field.errors %}<p>{{ field.label }}: {{ error }}</p>{% endfor %}{% endfor %}
+                {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+        {% endif %}
         {{ form.as_p }}
         <button type="submit" class="btn-save">Save Employee</button>
     </form>

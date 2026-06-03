@@ -1,7 +1,7 @@
-/* ===================================
-   FORM VALIDATION JAVASCRIPT
-   Frontend validation utility for Nyondo Hardware
-   =================================== */
+
+//    FORM VALIDATION JAVASCRIPT
+//    Frontend validation utility for Nyondo Hardware
+   
 
 class FormValidator {
     constructor(formSelector) {
@@ -154,9 +154,9 @@ class FormValidator {
     }
 }
 
-/* ===================================
-   ALERT MESSAGE HANDLER
-   =================================== */
+
+//    ALERT MESSAGE HANDLER
+  
 
 class AlertManager {
     static show(message, type = 'info', duration = 5000) {
@@ -224,9 +224,8 @@ class AlertManager {
     }
 }
 
-/* ===================================
-   CONFIRMATION DIALOG
-   =================================== */
+//    CONFIRMATION DIALOG
+ 
 
 class ConfirmDialog {
     static show(message, onConfirm, onCancel) {
@@ -284,9 +283,8 @@ class ConfirmDialog {
     }
 }
 
-/* ===================================
-   TABLE UTILITIES
-   =================================== */
+//    TABLE UTILITIES
+
 
 class TableManager {
     static enableRowSelection(tableSelector) {
@@ -360,9 +358,8 @@ class TableManager {
     }
 }
 
-/* ===================================
-   INITIALIZE ON PAGE LOAD
-   =================================== */
+//    INITIALIZE ON PAGE LOAD
+  
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize form validator for all forms
@@ -381,9 +378,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-/* ===================================
-   UTILITY FUNCTIONS
-   =================================== */
+
+//    UTILITY FUNCTIONS
+  
 
 function formatCurrency(value) {
     return new Intl.NumberFormat('en-UG', {

@@ -27,14 +27,7 @@
 
         <form method="POST" id="saleForm" class="sale-form" novalidate>
             {% csrf_token %}
-
-            {% if messages %}
-                <div class="form-messages">
-                    {% for message in messages %}
-                        <p class="{{ message.tags }}">{{ message }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
+            {% include 'messages.html' %}
 
             <!-- CUSTOMER SECTION -->
 
@@ -47,13 +40,14 @@
 
                 <div class="form-group">
                     <label>Customer</label>
-
                     <input
                         type="text"
                         name="customer_name"
                         list="customerList"
                         placeholder="Type or select customer"
+                        class="{% if messages %}{% for m in messages %}{% if m.tags == 'error' and 'customer' in m.message|lower %}input-error{% endif %}{% endfor %}{% endif %}"
                     >
+                    {% for m in messages %}{% if m.tags == 'error' and 'customer' in m.message|lower %}<span class="field-error-msg">{{ m }}</span>{% endif %}{% endfor %}
 
                     <datalist id="customerList">
                         {% for customer in customers %}

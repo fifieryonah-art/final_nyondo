@@ -1,7 +1,7 @@
-/* ============================================================
-   NYONDO HARDWARE — GLOBAL SYSTEM STYLES
-   Navy Blue Theme: #0B1F3A / #102B52 / #163A6B
-   ============================================================ */
+
+   /* NYONDO HARDWARE — GLOBAL SYSTEM STYLES */
+   /* Navy Blue Theme: #0B1F3A / #102B52 / #163A6B */
+
 
 :root {
     --navy:       #0B1F3A;
@@ -22,7 +22,7 @@
     --info:       #2563eb;
     --info-bg:    #dbeafe;
 
-    --btn-radius:  8px;
+   --btn-radius:  8px;
     --btn-padding: 10px 18px;
     --btn-font:    13px;
     --btn-weight:  700;
@@ -34,9 +34,8 @@
     --card-accent: 4px solid #0B1F3A;
 }
 
-/* ============================================================
-   UNIVERSAL BUTTONS
-   ============================================================ */
+   /* UNIVERSAL BUTTONS */
+   
 
 .sys-btn {
     display: inline-flex;
@@ -95,40 +94,31 @@
 }
 .sys-btn-view:hover { background: var(--info); color: white; }
 
-/* EDIT */
 .sys-btn-edit {
-    background: #fef3c7;
-    color: #92400e;
+    background: #e0f2fe;
+    color: #0369a1;
 }
 .sys-btn-edit:hover { background: #d97706; color: white; }
 
 /* DELETE */
-.sys-btn-delete {
-    background: var(--danger-bg);
-    color: var(--danger);
-}
+.sys-btn-delete { background: var(--danger-bg); color: var(--danger); }
 .sys-btn-delete:hover { background: var(--danger); color: white; }
 
-/* SMALL SIZE */
 .sys-btn-sm {
     padding: 7px 12px;
     font-size: 12px;
 }
-
-/* LARGE SIZE */
 .sys-btn-lg {
     padding: 13px 24px;
     font-size: 15px;
 }
-
 /* FULL WIDTH */
 .sys-btn-block {
     width: 100%;
 }
 
-/* ============================================================
-   UNIVERSAL CARDS
-   ============================================================ */
+   /* UNIVERSAL CARDS */
+
 
 .sys-card {
     background: var(--card-bg);
@@ -174,9 +164,9 @@
     gap: 14px;
 }
 
-/* ============================================================
-   TABLES
-   ============================================================ */
+
+   /* TABLES */
+   
 
 .sys-table-wrap {
     width: 100%;
@@ -214,9 +204,9 @@
 
 .sys-table tbody tr:hover { background: #f8fafc; }
 
-/* ============================================================
-   BADGES
-   ============================================================ */
+
+   /* BADGES */
+   
 
 .sys-badge {
     display: inline-flex;
@@ -235,9 +225,9 @@
 .sys-badge-navy    { background: var(--navy);       color: white; }
 .sys-badge-muted   { background: #f1f5f9;           color: var(--muted); }
 
-/* ============================================================
-   FORM INPUTS
-   ============================================================ */
+
+   /* FORM INPUTS */
+   
 
 .sys-input,
 .sys-select,
@@ -261,9 +251,9 @@
     box-shadow: 0 0 0 3px rgba(11,31,58,0.1);
 }
 
-/* ============================================================
-   PAGE SHELL / LAYOUT
-   ============================================================ */
+
+   /* PAGE SHELL / LAYOUT */
+   
 
 .admin-shell,
 .page-shell {
@@ -302,6 +292,17 @@
     color: var(--muted);
 }
 
+/* Specifically hide icons for Edit, View, and Delete buttons only */
+.sys-btn-edit i, .sys-btn-view i, .sys-btn-delete i,
+.btn-warning i, .btn-info i, .btn-danger i {
+    display: none !important;
+}
+
+/* Restore brand title visibility to white */
+.sidebar h1, .sidebar h2, .sidebar h3, .brand-logo, .brand-title, .brand, .brand h3, .brand-title h3, .sidebar-brand h3 {
+    color: var(--white) !important;
+}
+
 /* Legacy button aliases used in existing templates */
 .admin-btn-primary  { background: var(--navy); color: white; display:inline-flex; align-items:center; gap:7px; padding:var(--btn-padding); font-size:var(--btn-font); font-weight:var(--btn-weight); border-radius:var(--btn-radius); border:none; cursor:pointer; text-decoration:none; transition:0.2s ease; }
 .admin-btn-primary:hover  { background: var(--navy-hover); color:white; }
@@ -310,9 +311,9 @@
 .admin-btn-danger   { background: var(--danger-bg); color: var(--danger); display:inline-flex; align-items:center; gap:7px; padding:var(--btn-padding); font-size:var(--btn-font); font-weight:var(--btn-weight); border-radius:var(--btn-radius); border:none; cursor:pointer; text-decoration:none; transition:0.2s ease; }
 .admin-btn-danger:hover   { background: var(--danger); color:white; }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
+
+   /* RESPONSIVE */
+   
 
 @media (max-width: 768px) {
     .sys-card-grid { grid-template-columns: 1fr 1fr; }

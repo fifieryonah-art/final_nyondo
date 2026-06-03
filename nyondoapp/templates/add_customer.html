@@ -1,4 +1,3 @@
-```html
 {% extends "base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
@@ -31,21 +30,20 @@
         <!-- Messages -->
         {% if messages %}
             <div class="message-wrapper">
-
                 {% for message in messages %}
-
-                    <div class="alert-box
-                        {% if message.tags == 'error' %}
-                            alert-error
-                        {% else %}
-                            alert-success
-                        {% endif %}
-                    ">
+                    <div class="alert-box {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
                         {{ message }}
                     </div>
-
                 {% endfor %}
+            </div>
+        {% endif %}
 
+        {% if form.errors %}
+            <div class="message-wrapper">
+                <div class="alert-box alert-error">
+                    {% for field in form %}{% for error in field.errors %}<p>{{ field.label }}: {{ error }}</p>{% endfor %}{% endfor %}
+                    {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
             </div>
         {% endif %}
 
@@ -241,6 +239,22 @@
     outline:none;
 }
 
+/* RED FIELDS ON ERROR */
+.customer-form-body .is-invalid,
+.customer-form-body input.is-invalid,
+.customer-form-body select.is-invalid,
+.customer-form-body textarea.is-invalid {
+    border-color:#dc2626 !important;
+    background:#fff5f5 !important;
+}
+.customer-form-body .invalid-feedback {
+    display:block;
+    color:#b91c1c;
+    font-size:12px;
+    font-weight:600;
+    margin-top:4px;
+}
+
 .customer-buttons{
     display:flex;
     justify-content:flex-end;
@@ -333,4 +347,3 @@
 
 </style>
 {% endblock %}
-```

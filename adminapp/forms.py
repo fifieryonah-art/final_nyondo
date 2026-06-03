@@ -39,7 +39,7 @@ def validate_ugandan_phone(value):
 
 class SupplierForm(forms.ModelForm):
     contact = forms.CharField(
-        required=True,
+        required=False,
         label="Phone Number",
         widget=forms.TextInput(attrs={"placeholder": "0770123456"}),
     )

@@ -125,8 +125,8 @@ Sales Dashboard | Nyondo Hardware
                 <tbody>
                     {% for item in top_selling_items %}
                     <tr>
-                        <td>{{ item.name.name }}</td>
-                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.name__name }}</td>
+                        <td>{{ item.total_qty }}</td>
                     </tr>
                     {% empty %}
                     <tr>

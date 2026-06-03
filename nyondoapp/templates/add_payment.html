@@ -20,8 +20,9 @@
             </div>
         </div>
 
-        <form method="POST" class="payment-form">
+        <form method="POST" class="payment-form" novalidate>
             {% csrf_token %}
+            {% include 'messages.html' %}
 
             {% for sale in sales %}
                 <input type="hidden" name="sales" value="{{ sale.id }}">
@@ -91,7 +92,10 @@
                 </div>
                 <div class="summary-item">
                     <label for="amountPaidInput">Amount Paid</label>
-                    <input id="amountPaidInput" type="number" name="amount_paid" step="0.01" value="{{ amount_paid|floatformat:0 }}" required>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                        <input id="amountPaidInput" type="number" name="amount_paid" step="0.01" value="{{ amount_paid|floatformat:0 }}" class="{% for m in messages %}{% if m.tags == 'error' %}input-error{% endif %}{% endfor %}">
+                        {% for m in messages %}{% if m.tags == 'error' %}<span class="field-error-msg">{{ m }}</span>{% endif %}{% endfor %}
+                    </div>
                 </div>
 
                 <div class="summary-item">
@@ -101,7 +105,7 @@
 
                 <div class="summary-item">
                     <label for="paymentMethod">Payment Method</label>
-                    <select id="paymentMethod" name="payment_method" required>
+                    <select id="paymentMethod" name="payment_method">
                         {% for key, value in payment_methods %}
                             <option value="{{ key }}">{{ value }}</option>
                         {% endfor %}

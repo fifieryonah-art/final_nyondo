@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -47,7 +48,7 @@
         /* HEADER */
 
         .login-header h2{
-            color: #F54900;
+            color: #0B1F3A;
             margin-bottom: 8px;
         }
 
@@ -73,7 +74,7 @@
 
         .form-group i{
             margin-right: 6px;
-            color: #F54900;
+            color: #0B1F3A;
         }
 
         /* INPUTS */
@@ -82,14 +83,54 @@
             width: 100%;
             padding: 12px;
             border-radius: 8px;
-            border: none;
+            border: 2px solid rgba(255,255,255,0.2);
             outline: none;
             background: rgba(255,255,255,0.1);
             color: white;
+            transition: all 0.3s ease;
         }
 
         .form-group input::placeholder{
             color: #94a3b8;
+        }
+
+        .form-group input:focus{
+            border-color: #0B1F3A;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .form-group input.error{
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .form-group input.error:focus{
+            border-color: #dc2626;
+        }
+
+        /* ERROR MESSAGE */
+        .field-error{
+            color: #fca5a5;
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .field-error.show{
+            display: block;
+        }
+
+        /* VALIDATION STYLES */
+        .form-group.has-error input {
+            border-color: #ef4444 !important;
+            background: rgba(239, 68, 68, 0.1) !important;
+        }
+        .form-error {
+            color: #fca5a5;
+            font-size: 12px;
+            margin-top: 6px;
+            font-weight: 500;
         }
 
         /* BUTTON */
@@ -98,7 +139,7 @@
             width: 100%;
             padding: 12px;
             margin-top: 10px;
-            background: #F54900;
+            background: #0B1F3A;
             border: none;
             border-radius: 8px;
             color: white;
@@ -108,7 +149,7 @@
         }
 
         .btn-login:hover{
-            background: #e63e00;
+            background: #102B52;
             transform: translateY(-2px);
         }
 
@@ -132,7 +173,7 @@
         {% if messages %}
             <div class="form-messages" style="margin-bottom: 15px; text-align: left;">
                 {% for message in messages %}
-                    <p class="{{ message.tags }}" style="color: #f87171; font-size: 13px; background: rgba(220, 38, 38, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(220, 38, 38, 0.2);">
+                    <p class="{{ message.tags }}" style="color: #fca5a5; font-size: 13px; background: rgba(220, 38, 38, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(220, 38, 38, 0.2);">
                         <i class="fas fa-exclamation-circle"></i> {{ message }}
                     </p>
                 {% endfor %}
@@ -152,46 +193,50 @@
 
             <!-- USERNAME -->
 
-            <div class="form-group">
+            <div class="form-group {% if errors.username %}has-error{% endif %}">
 
-                <label>
+                <label for="id_username">
                     <i class="fas fa-user"></i>
                     Username
                 </label>
 
                 <input type="text"
+                       id="id_username"
                        name="username"
-                       placeholder="Enter username">
+                       placeholder="Enter username"
+                       class="{% if errors.username or messages %}error{% endif %}"
+                       required>
+                {% if errors.username %}<div class="form-error">{{ errors.username }}</div>{% endif %}
+
             </div>
 
             <!-- PASSWORD -->
 
-            <div class="form-group">
-
-                <label>
+            <div class="form-group {% if errors.password %}has-error{% endif %}">
+                <label for="id_password">
                     <i class="fas fa-lock"></i>
                     Password
                 </label>
 
                 <input type="password"
+                       id="id_password"
                        name="password"
-                       placeholder="Enter password">
+                       placeholder="Enter password"
+                       class="{% if errors.password or messages %}error{% endif %}"
+                       required>
+                {% if errors.password %}<div class="form-error">{{ errors.password }}</div>{% endif %}
             </div>
 
             <!-- BUTTON -->
-
             <button type="submit" class="btn-login">
-
                 <i class="fas fa-right-to-bracket"></i>
                 Login
-
             </button>
-
         </form>
-
     </div>
-
 </div>
+
+<script src="{% static 'js/validation.js' %}"></script>
 
 </body>
 </html>

@@ -92,18 +92,20 @@ Record Deposit Payment | Nyondo Hardware
         <form method="POST" novalidate>
 
             {% csrf_token %}
+            {% include 'messages.html' %}
 
             <div class="form-grid">
 
                 <!-- AMOUNT -->
                 <div class="form-group">
-                    <label>Amount Paid</label>
-
+                    <label>Amount Paid <span style="color:#dc2626">*</span></label>
                     <input
                         type="number"
                         name="amount_paid"
                         placeholder="Enter amount"
+                        class="{% for m in messages %}{% if m.tags == 'error' %}input-error{% endif %}{% endfor %}"
                     >
+                    {% for m in messages %}{% if m.tags == 'error' %}<span class="field-error-msg">{{ m }}</span>{% endif %}{% endfor %}
                 </div>
 
                 <!-- PAYMENT METHOD -->
@@ -170,9 +172,8 @@ Record Deposit Payment | Nyondo Hardware
 {% block extra_css %}
     <style>
 
-/* =========================
-   PAGE LAYOUT
-========================= */
+   /* PAGE LAYOUT */
+
 
 .record-shell{
     display:flex;
@@ -181,9 +182,8 @@ Record Deposit Payment | Nyondo Hardware
     width:100%;
 }
 
-/* =========================
-   HEADER
-========================= */
+   /* HEADER */
+
 
 .record-header{
     display:flex;
@@ -211,9 +211,8 @@ Record Deposit Payment | Nyondo Hardware
     flex-wrap:wrap;
 }
 
-/* =========================
-   HEADER BUTTONS
-========================= */
+   /* HEADER BUTTONS */
+
 
 .btn-light,
 .btn-outline{
@@ -245,9 +244,8 @@ Record Deposit Payment | Nyondo Hardware
     color:white;
 }
 
-/* =========================
-   ALERTS
-========================= */
+   /* ALERTS */
+
 
 .message-wrapper{
     display:flex;
@@ -274,9 +272,8 @@ Record Deposit Payment | Nyondo Hardware
     border:1px solid #fecaca;
 }
 
-/* =========================
-   SUMMARY CARD
-========================= */
+   /* SUMMARY CARD */
+
 
 .summary-card{
     background:white;
@@ -327,9 +324,8 @@ Record Deposit Payment | Nyondo Hardware
     font-weight:700;
 }
 
-/* =========================
-   FORM
-========================= */
+   /* FORM */
+
 
 .form-wrapper{
     background:white;
@@ -383,9 +379,8 @@ Record Deposit Payment | Nyondo Hardware
     margin-top:16px;
 }
 
-/* =========================
-   ACTION BUTTONS
-========================= */
+   /* ACTION BUTTONS */
+
 
 .form-actions{
     display:flex;
@@ -424,9 +419,8 @@ Record Deposit Payment | Nyondo Hardware
     background:#cbd5e1;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+   /* RESPONSIVE */
+
 
 @media(max-width:768px){
 

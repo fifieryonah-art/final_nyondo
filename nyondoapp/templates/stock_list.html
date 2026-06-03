@@ -29,40 +29,35 @@
     <div class="header">
 
         <!-- Back to main dashboard -->
-        <a href="{% url 'admin_dash' %}" class="btn back" style="margin-right:12px;">
-            <i class="fa-solid fa-arrow-left"></i>
+        <a href="{% url 'admin_dash' %}" class="btn back" style="margin-right:12px; background: #0B1F3A; color: white; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 10px 18px; border-radius: 8px; font-weight: 700;">
+            <i class="fas fa-arrow-left"></i>
             Main Dashboard
         </a>
 
         <h1>
-            <i class="fa-solid fa-boxes-stacked"></i>
             Stock Available
         </h1>
 
         <p>
             View current stock availability, low-stock quantities, and stock value.
         </p>
-
     </div>
 
     <!-- BUTTONS -->
     <div class="button-row">
 
-        <a href="{% url 'stock' %}" class="btn back">
+        <a href="{% url 'stock' %}" class="btn back" style="background: #0B1F3A; color: white; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-arrow-left"></i>
             Dashboard
         </a>
 
-        <a href="{% url 'add_stock' %}" class="btn add">
-            <i class="fa-solid fa-plus"></i>
+        <a href="{% url 'add_stock' %}" class="btn add" style="background: #0B1F3A; color: white; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;">
             Add Stock
         </a>
 
-        <a href="{% url 'stock_records' %}" class="btn back">
-            <i class="fa-solid fa-list"></i>
+        <a href="{% url 'stock_records' %}" class="btn back" style="background: #64748b; color: white; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;">
             Stock Records
         </a>
-
     </div>
 
     <!-- TABLE -->

@@ -181,21 +181,22 @@
         <form method="POST" novalidate>
 
             {% csrf_token %}
+            {% include 'messages.html' %}
 
             <div class="admin-form-grid">
 
                 <!-- Quantity -->
                 <div class="admin-form-group">
 
-                    <label for="quantity">
-                        Quantity to Withdraw
-                    </label>
+                    <label for="quantity">Quantity to Withdraw <span style="color:#dc2626">*</span></label>
 
                     <input
                         type="number"
                         id="quantity"
                         name="quantity"
+                        class="{% for m in messages %}{% if m.tags == 'error' %}input-error{% endif %}{% endfor %}"
                     >
+                    {% for m in messages %}{% if m.tags == 'error' %}<span class="field-error-msg">{{ m }}</span>{% endif %}{% endfor %}
 
                 </div>
 

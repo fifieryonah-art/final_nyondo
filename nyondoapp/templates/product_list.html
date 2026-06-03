@@ -19,15 +19,13 @@ Product List | Nyondo Hardware
     <div class="page-header">
 
         <div>
-            <h2>
-                <i class="fas fa-boxes-stacked"></i>
+            <h2> 
                 Products
             </h2>
             <p>Manage all hardware products</p>
         </div>
 
-        <a href="{% url 'add_product' %}" class="btn-add">
-            <i class="fas fa-plus"></i>
+        <a href="{% url 'add_product' %}" class="btn-add"> 
             Add Product
         </a>
 
@@ -78,12 +76,10 @@ Product List | Nyondo Hardware
                     <td class="action">
 
                         <a href="{% url 'update_product' product.pk %}" class="btn-edit">
-                            <i class="fas fa-pen"></i>
                             Edit
                         </a>
 
                         <a href="{% url 'delete_product' product.id %}" class="btn-delete">
-                            <i class="fas fa-trash"></i>
                             Delete
                         </a>
 

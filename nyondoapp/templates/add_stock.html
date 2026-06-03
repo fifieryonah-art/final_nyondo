@@ -1,312 +1,158 @@
-<!DOCTYPE html>
-
+{% extends "base.html" %}
 {% load static %}
 
-<html lang="en">
+{% block title %}
+Add Stock | Nyondo Hardware
+{% endblock %}
 
-<head>
+{% block content %}
 
-    <meta charset="UTF-8">
+<div class="stock-wrapper">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <div class="stock-card">
 
-    <title>Add Stock | Nyondo Hardware</title>
-
-    <!-- FONT AWESOME -->
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <!-- CUSTOM CSS -->
-
-    <link rel="stylesheet"
-          href="{% static 'css/add_stock.css' %}?v=20260526" />
-
-</head>
-
-<body>
-
-<div class="container">
-
-    <div class="card">
-
-        <!-- HEADER -->
-
-        <div class="card-header">
-
-            <div class="header-icon">
-                <i class="fas fa-boxes-stacked"></i>
-            </div>
-
-            <div>
-                <h2>Add New Stock</h2>
-                <p>Enter product details and stock information</p>
-            </div>
-
+        <div class="page-header">
+            <h1>Add New Stock</h1>
+            <p>Enter stock and supplier information</p>
         </div>
 
-        <!-- FORM -->
+        {% include "messages.html" %}
 
-        <form method="POST"
-              class="stock-form"
-              novalidate>
+        <form method="POST" novalidate>
 
             {% csrf_token %}
 
-            <!-- DJANGO MESSAGES -->
+            <div class="grid-2">
 
-            {% if messages %}
-                <div class="form-messages">
+                <div class="field">
+                    <label>Supplier <span class="req">*</span></label>
 
-                    {% for message in messages %}
-
-                        <p class="{{ message.tags }}">
-                            {{ message }}
-                        </p>
-
-                    {% endfor %}
-
-                </div>
-            {% endif %}
-
-            <!-- PRODUCT + SUPPLIER -->
-
-            <div class="form-row">
-
-                <!-- PRODUCT -->
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-box"></i>
-                        Product
-                    </label>
-
-                    <select name="product"
-                            id="productSelect"
-                            required>
-
-                        <option value="">
-                            Select Product
-                        </option>
-
-                        {% for product in products %}
-
-                            <option value="{{ product.id }}"
-                                    data-cost-price="{{ product.cost_price }}"
-                                    data-unit-price="{{ product.unit_price }}">
-
-                                {{ product.name }}
-
-                            </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                </div>
-
-                <!-- SUPPLIER -->
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-truck"></i>
-                        Supplier
-                    </label>
-
-                    <select name="supplier"
-                            required>
-
-                        <option value="">
-                            Select Supplier
-                        </option>
+                    <select name="supplier" class="{% if errors.supplier %}input-error{% endif %}">
+                        <option value="">Select Supplier</option>
 
                         {% for supplier in suppliers %}
-
-                            <option value="{{ supplier.id }}">
+                            <option value="{{ supplier.id }}" {% if post_data.supplier == supplier.id|stringformat:"s" %}selected{% endif %}>
                                 {{ supplier.name }}
                             </option>
-
                         {% endfor %}
-
                     </select>
+                    {% if errors.supplier %}<span class="field-error-msg">{{ errors.supplier }}</span>{% endif %}
+                </div>
+
+                <div class="field">
+                    <label>Payment Status</label>
+
+                    <div class="checkbox-card">
+                        <input
+                            type="checkbox"
+                            name="is_paid"
+                            id="is_paid"
+                            {% if not post_data or post_data.is_paid %}checked{% endif %}
+                        >
+
+                        <label for="is_paid">
+                            Payment Completed
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="product-section">
+
+                <h3>Stock Item Details</h3>
+
+                <div class="grid-2">
+
+                    <div class="field">
+                        <label>Product <span class="req">*</span></label>
+
+                        <select name="product" class="{% if errors.product %}input-error{% endif %}">
+
+                            <option value="">
+                                Select Product
+                            </option>
+
+                            {% for product in products %}
+                                <option value="{{ product.id }}" {% if post_data.product == product.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ product.name }}
+                                </option>
+                            {% endfor %}
+
+                        </select>
+                        {% if errors.product %}<span class="field-error-msg">{{ errors.product }}</span>{% endif %}
+                    </div>
+
+                    <div class="field">
+                        <label>Quantity <span class="req">*</span></label>
+
+                        <input
+                            type="number"
+                            name="quantity"
+                            class="{% if errors.quantity %}input-error{% endif %}"
+                            value="{{ post_data.quantity|default:'' }}"
+                            placeholder="Enter quantity"
+                        >
+                        {% if errors.quantity %}<span class="field-error-msg">{{ errors.quantity }}</span>{% endif %}
+                    </div>
+
+                    <div class="field">
+                        <label>Cost Price (UGX) <span class="req">*</span></label>
+
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="cost_price"
+                            class="{% if errors.cost_price %}input-error{% endif %}"
+                            value="{{ post_data.cost_price|default:'' }}"
+                            placeholder="Enter cost price"
+                        >
+                        {% if errors.cost_price %}<span class="field-error-msg">{{ errors.cost_price }}</span>{% endif %}
+                    </div>
+
+                    <div class="field">
+                        <label>Selling Price (UGX) <span class="req">*</span></label>
+
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="unit_price"
+                            class="{% if errors.unit_price %}input-error{% endif %}"
+                            value="{{ post_data.unit_price|default:'' }}"
+                            placeholder="Enter selling price"
+                        >
+                        {% if errors.unit_price %}<span class="field-error-msg">{{ errors.unit_price }}</span>{% endif %}
+                    </div>
 
                 </div>
 
             </div>
 
-            <!-- QUANTITY + COST PRICE -->
+            <div class="field full-width">
 
-            <div class="form-row">
+                <label>Comments</label>
 
-                <!-- QUANTITY -->
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-layer-group"></i>
-                        Quantity
-                    </label>
-
-                    <input type="number"
-                           id="quantityInput"
-                           name="quantity"
-                           min="1"
-                           placeholder="Enter quantity"
-                           required>
-
-                </div>
-
-                <!-- COST PRICE -->
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-money-bill"></i>
-                        Cost Price
-                    </label>
-
-                    <input type="number"
-                           step="0.01"
-                           min="0"
-                           id="costPriceInput"
-                           name="cost_price"
-                           placeholder="Enter cost price"
-                           required>
-
-                </div>
+                <textarea
+                    name="comments"
+                    placeholder="Additional notes..."
+                >{{ post_data.comments|default:'' }}</textarea>
 
             </div>
 
-            <!-- UNIT PRICE + TOTAL -->
+            <div class="button-row">
 
-            <div class="form-row">
-
-                <!-- UNIT PRICE -->
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-coins"></i>
-                        Unit Price
-                    </label>
-
-                    <input type="number"
-                           step="0.01"
-                           min="0"
-                           id="unitPriceInput"
-                           name="unit_price"
-                           placeholder="Enter selling price"
-                           required>
-
-                    <!-- LIVE VALIDATION MESSAGE -->
-
-                    <small id="priceError"
-                           style="color:red; display:none; margin-top:8px;">
-
-                        Unit price cannot be lower than cost price
-
-                    </small>
-
-                </div>
-
-                <!-- TOTAL COST -->
-
-                <div class="form-group">
-
-                    <label>
-                        <i class="fas fa-calculator"></i>
-                        Total Cost
-                    </label>
-
-                    <input type="number"
-                           step="0.01"
-                           id="totalCostInput"
-                           name="total_cost"
-                           readonly>
-
-                    <!-- STOCK SUMMARY -->
-
-                    <p id="stockSummary"
-                       style="
-                            margin-top:10px;
-                            color:#334155;
-                            font-size:14px;
-                       ">
-
-                        Estimated purchase total:
-                        UGX 0.00 |
-
-                        Estimated sale value:
-                        UGX 0.00
-
-                    </p>
-
-                </div>
-
-            </div>
-
-            <!-- PAYMENT -->
-
-            <div class="form-row">
-
-                <div class="form-group checkbox-group">
-
-                    <label class="checkbox-label">
-
-                        <input type="checkbox"
-                               name="is_paid"
-                               checked>
-
-                        Payment Completed
-
-                    </label>
-
-                </div>
-
-            </div>
-
-            <!-- COMMENTS -->
-
-            <div class="form-group">
-
-                <label>
-                    <i class="fas fa-comment-dots"></i>
-                    Comments
-                </label>
-
-                <textarea name="comments"
-                          rows="4"
-                          placeholder="Enter stock comments..."></textarea>
-
-            </div>
-
-            <!-- BUTTONS -->
-
-            <div class="buttons">
-
-                <!-- SAVE -->
-
-                <button type="submit"
-                        class="btn-save">
-
-                    <i class="fas fa-save"></i>
-
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
                     Save Stock
-
                 </button>
 
-                <!-- CANCEL -->
-
-                <a href="{% url 'stock' %}"
-                   class="btn-cancel">
-
-                    <i class="fas fa-times"></i>
-
+                <a
+                    href="{% url 'stock' %}"
+                    class="btn-secondary"
+                >
                     Cancel
-
                 </a>
 
             </div>
@@ -317,245 +163,187 @@
 
 </div>
 
-<script>
+<style>
 
-    // PRODUCT SELECT
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-    const productSelect =
-        document.getElementById('productSelect');
+.stock-wrapper{
+    min-height:100vh;
+    padding:40px 20px;
+    background:#f8fafc;
+}
 
+.stock-card{
+    max-width:950px;
+    margin:auto;
+    background:#ffffff;
+    border-radius:20px;
+    padding:35px;
+    border:1px solid #e2e8f0;
+    box-shadow:0 10px 30px rgba(15,23,42,.08);
+}
 
+.page-header{
+    margin-bottom:30px;
+    padding-bottom:20px;
+    border-bottom:1px solid #e2e8f0;
+}
 
-    // INPUTS
+.page-header h1{
+    font-size:2rem;
+    color:#0B1F3A;
+    font-weight:800;
+    margin-bottom:6px;
+}
 
-    const quantityInput =
-        document.getElementById('quantityInput');
+.page-header p{
+    color:#64748b;
+    font-size:14px;
+}
 
-    const costPriceInput =
-        document.getElementById('costPriceInput');
+.grid-2{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:24px;
+}
 
-    const unitPriceInput =
-        document.getElementById('unitPriceInput');
+.field{
+    display:flex;
+    flex-direction:column;
+}
 
-    const totalCostInput =
-        document.getElementById('totalCostInput');
+.field label{
+    margin-bottom:8px;
+    font-size:14px;
+    font-weight:700;
+    color:#0B1F3A;
+}
 
+.field input,
+.field select,
+.field textarea{
+    width:100%;
+    padding:14px;
+    border:1px solid #d1d5db;
+    border-radius:12px;
+    font-size:14px;
+    background:#fff;
+    transition:.2s ease;
+}
 
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+    outline:none;
+    border-color:#0B1F3A;
+    box-shadow:0 0 0 4px rgba(11, 31, 58, 0.12);
+}
 
-    // OTHER ELEMENTS
+.input-error { border:2px solid #dc2626 !important; background:#fff5f5 !important; }
+.field-error-msg { color:#b91c1c; font-size:12px; font-weight:600; margin-top:4px; display:block; }
+.req { color:#dc2626; margin-left:2px; }
 
-    const stockSummary =
-        document.getElementById('stockSummary');
+.product-section{
+    margin-top:30px;
+}
 
-    const priceError =
-        document.getElementById('priceError');
+.product-section h3{
+    margin-bottom:20px;
+    color:#0B1F3A;
+    font-size:18px;
+    font-weight:700;
+}
 
+.full-width{
+    margin-top:25px;
+}
 
+.field textarea{
+    min-height:120px;
+    resize:vertical;
+}
 
-    // FORMAT MONEY
+.checkbox-card{
+    height:52px;
+    border:1px solid #d1d5db;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 15px;
+}
 
-    function formatCurrency(value){
+.checkbox-card input{
+    width:18px;
+    height:18px;
+    accent-color:#0B1F3A;
+}
 
-        return new Intl.NumberFormat(
-            'en-UG',
-            {
-                style: 'currency',
-                currency: 'UGX',
-                maximumFractionDigits: 0,
-            }
-        ).format(value);
+.checkbox-card label{
+    margin:0;
+    cursor:pointer;
+}
 
+.button-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-top:35px;
+}
+
+.btn-primary{
+    height:56px;
+    border:none;
+    border-radius:12px;
+    background:#0B1F3A;
+    color:white;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s ease;
+}
+
+.btn-primary:hover{
+    background:#102B52;
+}
+
+.btn-secondary{
+    height:56px;
+    border-radius:12px;
+    background:#e2e8f0;
+    color:#0B1F3A;
+    text-decoration:none;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:700;
+    transition:.2s ease;
+}
+
+.btn-secondary:hover{
+    background:#cbd5e1;
+}
+
+@media(max-width:768px){
+
+    .grid-2{
+        grid-template-columns:1fr;
     }
 
-
-
-    // UPDATE TOTALS
-
-    function updateStockSummary(){
-
-        const quantity =
-            parseFloat(quantityInput.value) || 0;
-
-        const costPrice =
-            parseFloat(costPriceInput.value) || 0;
-
-        const unitPrice =
-            parseFloat(unitPriceInput.value) || 0;
-
-
-
-        // CALCULATE TOTALS
-
-        const purchaseTotal =
-            quantity * costPrice;
-
-        const saleTotal =
-            quantity * unitPrice;
-
-
-
-        // UPDATE TOTAL COST
-
-        totalCostInput.value =
-            purchaseTotal.toFixed(2);
-
-
-
-        // UPDATE SUMMARY TEXT
-
-        stockSummary.textContent =
-
-            `Estimated purchase total:
-            ${formatCurrency(purchaseTotal)}
-            |
-
-            Estimated sale value:
-            ${formatCurrency(saleTotal)}`;
-
+    .button-row{
+        grid-template-columns:1fr;
     }
 
+    .stock-card{
+        padding:25px;
+    }
 
+}
 
-    // AUTO FILL PRICES WHEN PRODUCT CHANGES
+</style>
 
-    productSelect.addEventListener('change', function(){
-
-        const selected =
-            this.options[this.selectedIndex];
-
-
-
-        const costPrice =
-            parseFloat(
-                selected.dataset.costPrice || 0
-            );
-
-
-
-        const unitPrice =
-            parseFloat(
-                selected.dataset.unitPrice || 0
-            );
-
-
-
-        if(selected.value){
-
-            costPriceInput.value =
-                costPrice.toFixed(2);
-
-            unitPriceInput.value =
-                unitPrice.toFixed(2);
-
-        }
-
-
-
-        updateStockSummary();
-
-    });
-
-
-
-    // LIVE VALIDATION FOR UNIT PRICE
-
-    unitPriceInput.addEventListener('input', function(){
-
-        const costPrice =
-            parseFloat(costPriceInput.value) || 0;
-
-        const unitPrice =
-            parseFloat(unitPriceInput.value) || 0;
-
-
-
-        // NEGATIVE PRICE BLOCK
-
-        if(unitPrice < 0){
-
-            unitPriceInput.value = '';
-
-            alert(
-                'Unit price cannot be negative'
-            );
-
-            return;
-        }
-
-
-
-        // LOWER THAN COST PRICE
-
-        if(unitPrice < costPrice){
-
-            unitPriceInput.style.border =
-                '2px solid red';
-
-            priceError.style.display =
-                'block';
-
-        }
-
-        else{
-
-            unitPriceInput.style.border =
-                '1px solid #cbd5e1';
-
-            priceError.style.display =
-                'none';
-
-        }
-
-
-
-        updateStockSummary();
-
-    });
-
-
-
-    // LIVE UPDATE TOTALS
-
-    quantityInput.addEventListener(
-        'input',
-        updateStockSummary
-    );
-
-
-
-    costPriceInput.addEventListener(
-        'input',
-        updateStockSummary
-    );
-
-
-
-    // INITIAL UPDATE
-
-    updateStockSummary();
-
-
-
-    // AUTO REMOVE DJANGO MESSAGES
-
-    setTimeout(() => {
-
-        const messages =
-            document.querySelector(
-                '.form-messages'
-            );
-
-        if(messages){
-
-            messages.style.display =
-                'none';
-
-        }
-
-    }, 3000);
-
-</script>
-
-</body>
-
-</html>
+{% endblock %}
