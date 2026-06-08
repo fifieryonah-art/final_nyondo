@@ -1,0 +1,167 @@
+.payment-wrapper{
+    background: #f4f6f9;
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+.payment-card{
+    max-width: 680px;
+    margin: auto;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 35px;
+    box-shadow: 0 4px 12px rgba(15, 23, 43, 0.08);
+    border-top: 5px solid #0f172b;
+}
+
+.card-header{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 20px;
+}
+
+.header-icon{
+    width: 70px;
+    height: 70px;
+    background: #0f172b;
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-icon i{
+    font-size: 30px;
+    color: #ffffff;
+}
+
+.title{
+    font-size: 32px;
+    color: #0f172b;
+    margin-bottom: 5px;
+}
+
+.card-header p{
+    color: #64748b;
+    font-size: 14px;
+}
+
+.form-row{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.form-group{
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label{
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: #0f172b;
+    font-size: 15px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    outline: none;
+    font-size: 15px;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+    border-color: #0f172b;
+    box-shadow: 0 0 0 3px rgba(15, 23, 43, 0.08);
+}
+
+.summary-box{
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 25px;
+    border: 1px solid #e2e8f0;
+}
+
+.summary-box h4{
+    margin-bottom: 15px;
+    color: #0f172b;
+}
+
+.summary-item{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+
+.summary-item strong{
+    color: #0f172b;
+}
+
+.buttons{
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.btn-save,
+.btn-cancel{
+    flex: 1;
+    min-width: 220px;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn-save{
+    border: none;
+    background: #0f172b;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.btn-save:hover{
+    background: #1e293b;
+}
+
+.btn-cancel{
+    background: #e2e8f0;
+    color: #0f172b;
+}
+
+.btn-cancel:hover{
+    background: #cbd5e1;
+}
+
+@media (max-width: 768px){
+    .payment-wrapper{
+        padding: 20px;
+    }
+
+    .payment-card{
+        padding: 24px;
+    }
+
+    .form-row{
+        grid-template-columns: 1fr;
+    }
+}
+

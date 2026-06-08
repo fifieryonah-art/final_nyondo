@@ -77,6 +77,7 @@ def admin_dash(request):
         "customer_count": customer_count,
         "stock_count": stock_count,
         "low_stock_count": low_stock_count,
+        "low_stock_products": low_stock_products,
         "recent_sales": recent_sales,
         "recent_payments": recent_payments,
         "top_products": top_products,

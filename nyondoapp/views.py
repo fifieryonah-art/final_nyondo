@@ -579,7 +579,7 @@ def employee_dash(request):
 
     products = Product.objects.all()
 
-    low_stock_items = products.filter(stock_quantity__lt=F('reorder_level'))
+    low_stock_items = products.filter(stock_quantity__lte=F('reorder_level'))
 
     for item in low_stock_items:
         item.stock_value = item.stock_quantity * item.unit_price
@@ -615,7 +615,7 @@ def sales_dash(request):
         Sum('transport')
     )['transport__sum'] or 0
 
-    low_stock = Product.objects.filter(stock_quantity__lt=F('reorder_level'))
+    low_stock = Product.objects.filter(stock_quantity__lte=F('reorder_level'))
     for product in low_stock:
         product.stock_value = product.stock_quantity * product.unit_price
 

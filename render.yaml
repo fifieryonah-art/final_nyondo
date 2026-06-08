@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: nyondo-app
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn nyondohardware.wsgi:application"
+    envVars:
+      - key: DEBUG
+        value: False
