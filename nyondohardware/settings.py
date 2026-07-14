@@ -27,11 +27,10 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-n!y#5_)33$hobl9!4oqv2
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False").lower() in {"1", "true", "yes", "on"}
-ALLOWED_HOSTS = [host.strip() for host in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if host.strip()]
+allowed_hosts = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,nyondo-app.onrender.com").split(",")
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts if host.strip()]
 
-CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if origin.strip()]
-if not CSRF_TRUSTED_ORIGINS:
-    CSRF_TRUSTED_ORIGINS = ["http://localhost", "http://127.0.0.1", "https://localhost", "https://127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "https://nyondo-app.onrender.com,http://localhost,http://127.0.0.1,https://localhost,https://127.0.0.1").split(",") if origin.strip()]
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = not DEBUG
