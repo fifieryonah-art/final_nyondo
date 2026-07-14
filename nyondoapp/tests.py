@@ -9,6 +9,20 @@ from .forms import CustomerForm
 from .models import Customer, Product, Sale, Stock
 
 
+class RoleRequiredTests(TestCase):
+    def test_authenticated_user_without_employee_profile_is_redirected_to_login(self):
+        user = get_user_model().objects.create_user(
+            username="plainuser",
+            password="pass1234",
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("admin_dash"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
+
+
 class CustomerFormValidationTests(TestCase):
     def test_valid_ugandan_phone_and_nin_pass(self):
         form = CustomerForm(

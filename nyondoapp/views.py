@@ -1057,12 +1057,10 @@ def payment_list(request):
         total_paid += payment.amount_paid
         total_balance += payment.balance
 
+    employee = getattr(request.user, 'employee_profile', None)
     show_sidebar = not (
         request.user.is_superuser
-        or (
-            hasattr(request.user, 'employee_profile')
-            and request.user.employee_profile.role == 'admin'
-        )
+        or (employee is not None and employee.role == 'admin')
     )
 
     context = {

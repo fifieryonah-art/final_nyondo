@@ -1,0 +1,197 @@
+
+.payment-wrapper{
+    padding: 30px;
+    background: #f4f6f9;
+    min-height: 100vh;
+}
+
+.top-section{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.top-section h2{
+    color: #0f172b;
+    font-size: 28px;
+}
+
+.btn-add{
+    background: #0f172b;
+    color: #ffffff;
+    min-height: 38px;
+    padding: 9px 13px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: auto;
+    max-width: max-content;
+    white-space: nowrap;
+}
+
+.btn-add:hover{
+    background: #1e293b;
+}
+
+.stats{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.card{
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(15, 23, 43, 0.08);
+    border-left: 4px solid #0f172b;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover{
+    transform: translateY(-1px);
+    background: #f8fafc;
+}
+
+.card h3{
+    color: #0f172b;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.card p{
+    color: #64748b;
+    font-size: 13px;
+}
+
+.table-container{
+    background: #ffffff;
+    border-radius: 16px;
+    overflow-x: auto;
+    box-shadow: 0 4px 12px rgba(15, 23, 43, 0.08);
+}
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 980px;
+    table-layout: fixed;
+}
+
+thead{
+    background: #e2e8f0;
+    color: #0f172b;
+}
+
+th, td{
+    padding: 14px;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 13px;
+}
+
+td{
+    color: #334155;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+tbody tr:nth-child(even){
+    background: #f8fafc;
+}
+
+tbody tr:hover{
+    background: #eef4ff;
+}
+
+.status-paid,
+.status-pending{
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.status-paid{
+    color: #166534;
+    background: #dcfce7;
+}
+
+.status-pending{
+    color: #92400e;
+    background: #ffedd5;
+}
+
+.actions{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.btn-edit{
+    background: #e0f2fe;
+    color: #0369a1;
+
+    padding: 7px 10px;
+    border-radius: 8px;
+
+    font-size: 0.78rem;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    transition: 0.2s ease;
+}
+
+.btn-edit:hover{
+    background: #bae6fd;
+    transform: translateY(-2px);
+}
+
+/* DELETE BUTTON (SOFT RED) */
+.btn-delete{
+    background: #fee2e2;
+    color: #b91c1c;
+
+    padding: 7px 10px;
+    border-radius: 8px;
+
+    font-size: 0.78rem;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    transition: 0.2s ease;
+}
+
+.btn-delete:hover{
+    background: #fecaca;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 900px){
+    .payment-wrapper{
+        padding: 20px;
+    }
+}
+

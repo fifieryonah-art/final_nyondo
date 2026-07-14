@@ -1,0 +1,193 @@
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .list-body{
+            padding: 25px;
+            min-height: 100vh;
+            background: #f4f6f9;
+            color: #0f172b;
+        }
+
+        .list-header{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .list-header h2{
+            color: #0f172b;
+            font-size: 28px;
+        }
+
+        .list-header p{
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .list-actions{
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .list-actions a{
+            background: #0f172b;
+            color: #ffffff;
+            min-height: 38px;
+            padding: 9px 13px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1;
+            transition: 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            width: auto;
+            max-width: max-content;
+            white-space: nowrap;
+        }
+
+        .list-actions a:hover{
+            background: #1e293b;
+            transform: translateY(-1px);
+        }
+
+        .list-actions i{
+            font-size: 12px;
+        }
+
+        .sales-table{
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(15, 23, 43, 0.08);
+            overflow-x: auto;
+        }
+
+        table{
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+            table-layout: fixed;
+        }
+
+        table th{
+            background: #e2e8f0;
+            color: #0f172b;
+            padding: 14px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        table td{
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        table tr:nth-child(even){
+            background: #f8fafc;
+        }
+
+        table tr:hover{
+            background: #eef4ff;
+        }
+
+        .status-paid{
+            background: #dcfce7;
+            color: #166534;
+            padding: 8px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .action-btn{
+            min-height: 32px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 12px;
+            margin-right: 5px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .edit-btn{
+            background: #e0f2fe;
+            color: #0369a1;
+
+            padding: 7px 10px;
+            border-radius: 8px;
+
+            font-size: 0.78rem;
+            font-weight: 700;
+
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s ease;
+        }
+
+        .edit-btn:hover {
+            background: #bae6fd;
+            transform: translateY(-2px);
+        }
+
+        .delete-btn{
+            background: #fee2e2;
+            color: #b91c1c;
+
+            padding: 7px 10px;
+            border-radius: 8px;
+
+            font-size: 0.78rem;
+            font-weight: 700;
+
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background: #fecaca;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .list-body {
+                padding: 20px;
+            }
+
+            .list-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .list-actions {
+                justify-content: flex-start;
+            }
+        }
+    

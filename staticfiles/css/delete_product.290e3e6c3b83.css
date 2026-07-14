@@ -1,0 +1,75 @@
+/* BUTTON AREA */
+
+.btn-group{
+    margin-top: 10px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+
+    padding: 16px;
+
+    border-radius: 14px;
+
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* GENERAL BUTTON */
+
+.btn{
+    flex: 1;
+
+    min-width: 160px;
+
+    border: none;
+    text-decoration: none;
+
+    padding: 14px 18px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    transition: all 0.25s ease;
+}
+
+/* DELETE BUTTON */
+
+.btn-delete{
+    background: #dc2626;
+    color: white;
+
+    box-shadow: 0 6px 16px rgba(220,38,38,0.20);
+}
+
+.btn-delete:hover{
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+
+/* CANCEL BUTTON */
+
+.btn-cancel{
+    background: white;
+    color: #0f172b;
+
+    border: 1px solid #cbd5e1;
+
+    box-shadow: 0 4px 10px rgba(15,23,43,0.06);
+}
+
+.btn-cancel:hover{
+    background: #e2e8f0;
+    transform: translateY(-2px);
+}
